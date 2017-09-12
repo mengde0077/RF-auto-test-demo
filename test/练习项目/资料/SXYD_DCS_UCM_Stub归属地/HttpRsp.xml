@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='GB2312'?>
+<HttpServer>
+    <defaultRsp>
+        <HttpRsp>
+            <field name="isDoRsp"    value="true"/>
+            <field name="delayTime"  value="0"/>
+            <field name="autoContentLength"  value="true"/>
+            <field name="isDisconnectAfterRsp"  value="false"/>
+            <field name="packetSendInterval"  value="0"/>
+            <field name="httpVersion" value="1.1"/>
+            <field name="statusCode" value="200"/>
+            <field name="Heads"      value="&lt;Server,IBM_HTTP_Server/2.0.47 Apache/2.0.47 (Unix) DAV/2&gt;&lt;Last-Modified,Sat, 26 Jan 2012 15:45:14 IST&gt;&lt;Keep-Alive,timeout=15, max=1991&gt;&lt;Connection,Keep-Alive&gt;&lt;Content-Language,en-US&gt;&lt;Content-Type,text/html&gt;&lt;Expires,Sat, 26 Jan 2017 15:45:14 IST&gt;&lt;Cache-Control,cache&gt;&lt;Pragma,cache&gt;"/>
+            <field name="bodyType"   value="File"/>
+            <field name="bodystring" value="E:\SVN\toolbar资料\V500R005C60LG0002\01 文档\1.4 测试\测试\测试指导书\SXYD_DCS_UCM_Stub归属地\ITF_CCHQ_GetNatEparchy.xml"/>
+        </HttpRsp>
+    </defaultRsp>
+    <appointRsp byfield="URL">
+        <HttpRsp>
+        </HttpRsp>
+    </appointRsp>
+</HttpServer>

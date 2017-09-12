@@ -1,0 +1,20 @@
+*** Settings ***
+Documentation     项目mysql关键字
+Library           TestLibrary
+
+*** Variables ***
+${测试库}            host='121.41.51.178',user='sale',password='sale',database='saledb',port=3306
+${sql2}           source D:\\Program Files\\Git\\auto-test\\test\\sql\\update_user_balance.sql
+
+*** Keywords ***
+测试库查询
+    [Arguments]    ${sql}
+    [Documentation]    查询返回的结果是一个元组
+    ${result}    Mysql Query One    ${测试库}    ${sql}
+    run keyword if    ${result}==None    log    查询结果为空
+    [Return]    ${result}
+
+测试库执行脚本文件
+    [Arguments]    ${sql}
+    ${result}    Mysql Execute    ${测试库}    ${sql}
+    [Return]    ${result}

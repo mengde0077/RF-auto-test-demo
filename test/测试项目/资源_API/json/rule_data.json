@@ -1,0 +1,102 @@
+{
+	"zhushi": {
+		"描述": "用于 注释说明 该data 中 重要字段的含义，请将描述记录在 zhushi 字段内，方便使用时删除",
+    	"messageType": "规则类型  SECOND_KILL_COUPON_MESSAGE:秒杀, USER_TOUCH_ME:摸我8, LANDMINE_COUPON:地雷红包, NEW_USER_TOUCH_COUPON:新用户 " ,
+        "id": "规则id，新建时为空，修改时 必须赋值",
+        "countPerDay": "每天最多可获取次数",
+        "userLevel": "用户等级  1:忠实用户,2:活跃用户,3:普通用户,4:非活跃用户,6:黑名单用户,7:一转用户,8:二转用户,9:三转用户,0:新用户 ",
+        "status": " TESTING:未生效, OPEN:已生效 , CLOSED:关闭 ",
+        "strategyType": "规则策略:   MUTEX_WEIGHT_RANDOM:随机策略, USER_AVERAGE_ORDER_CASH:客单价策略, ALL_REWARD:所有奖励 ",
+        "awardType": " 奖励类型:     COUPON:红包券, CATEGORY:品类券, TAG:TAG商品券, SINGLE:单品券, LANDMINE:地雷红包   ",
+        "areaType": "红包使用区域:   COUNTRY:全国, CITY:城市 , MINI_WAREHOUSE:微仓, SUB_DISTRICT:学校     ",
+        "serveType": "店铺类型:  COMMON:通用,  UNIVERSITY:校园微仓,  OFFICE:办公区 ",
+        "useRange" : " 使用范围:   GENERAL:全场, SN_3C:苏宁, PRESELL:预售, DAY:白8超市  "
+    },
+    "allCheckOn": false,
+    "code": "",
+    "countPerDay": "100",
+    "employId": "28997",
+    "employName": "guozongren",
+    "endTime": "endTime",
+    "giveAdminId": "0",
+    "giveAdminName": "全国",
+    "giveAreaId": "",
+    "giveAreaName": "",
+    "giveCityCode": "",
+    "giveCityName": "",
+    "id": "",
+    "info": "规则描述",
+    "maxLimit": 100,
+    "messageType": "SECOND_KILL_COUPON_MESSAGE",  
+    "name": "秒杀规则",
+    "perUserPerLimit": 1,
+    "restLimit": 100,
+    "rowNo": 1,
+    "ruleGroups": [
+        {
+            "$$hashKey": "object:2132",
+            "allCheckOn": false,
+            "beginDay": 1,
+            "cashLimit": "0.0",
+            "check": true,
+            "content": "规则组content",
+            "countLimit": 0,
+            "endDay": 31,
+            "id": "",
+            "image": "",
+            "name": "规则组名",
+            "orderMax": "0.0",
+            "orderMin": "10.0",
+            "ruleId": "",
+            "ruleItems": [
+                {
+                    "$$hashKey": "object:2146",
+                    "awardType": "COUPON",
+                    "beginHour": 0,
+                    "check": true,
+                    "endHour": 24,
+                    "groupId": "",
+                    "id": "",
+                    "material": {
+                        "areaType": "COUNTRY",
+                        "distributionRateId": 0,
+                        "distributionRateName": "",
+                        "goodsCategoryId": "",
+                        "goodsId": "",
+                        "goodsName": "",
+                        "orderMaxUsage": "0.0",
+                        "orderMinUsage": "10.0",
+                        "partner": 0,
+                        "serveType": "UNIVERSITY",
+                        "specialMinUsage": "0.0",
+                        "useDays": 1,
+                        "useLandmineDays": 1,
+                        "value": 1
+                    },
+                    "useRange": "DAY",
+                    "value": 1,
+                    "weight": 1
+                }
+            ],
+            "title": "规则组title",
+            "weight": 1
+        }
+    ],
+    "rulesAreas": [
+        {
+            "$$hashKey": "object:2247",
+            "check": true,
+            "giveAdminId": "0",
+            "giveAreaId": "",
+            "giveCityCode": "",
+            "name": "全国",
+            "serveType": "UNIVERSITY",
+            "serveTypeName": "校园微仓"
+        }
+    ],
+    "startTime": "beginTime",
+    "status": "TESTING",
+    "strategyType": "MUTEX_WEIGHT_RANDOM",
+    "userLevel": 0,
+    "userRoleType": "ALL"
+}

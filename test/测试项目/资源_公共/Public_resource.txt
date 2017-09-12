@@ -1,0 +1,106 @@
+*** Settings ***
+Documentation     公共资源：
+...               1.用于组织和管理，公共的资源；
+...               2.资源适用所有的项目，不随项目的变更而变更；
+Library           TestLibrary
+Library           Collections
+
+
+*** Variables ***
+${REMOTE_URL}     http://localhost:4723/wd/hub
+#清除缓存的黑名单
+${S_cache_list}    ['Core_Cache_ruleCache','Core_Cache_allPromotionWholesaleApportionment','Core_Cache_rulePromotion','CMB:RETURN:CASH:QUALIFICATIONS:USER','Core_Cache_redPacketRuleCache']
+*** Keywords ***
+add new contact
+    [Arguments]    ${contact_name}    ${contact_phone}    ${contact_email}
+
+清除redis缓存1
+    [Arguments]    ${host}
+    redis Flush All    ${host}
+
+清除redis_db缓存
+    [Arguments]    ${host}
+    #默认db=0
+    redis Flush Db    ${host}
+
+删除redis_db的KEY
+    [Arguments]    ${key}    ${host}    ${db}=0
+    #默认db=0
+    redis Del    ${key}    ${host}    ${db}
+
+删除redis_db的一个类型的KEY
+    [Arguments]    ${key}    ${host}    ${db}=0
+    #默认db=0
+    redis Del keys    ${key}    ${host}    ${db}
+
+获取redis_db的KEY的值
+    [Arguments]    ${key}    ${host}    ${db}=0
+    #默认db=0
+    ${value}    redis get    ${key}    ${host}    ${db}
+    [return]    ${value}
+
+设置redis_db的KEY的值
+    [Arguments]    ${key}    ${host}    ${db}=0
+    #默认db=0
+    redis Set    ${key}    ${host}    ${db}
+
+获取redis_db的所有返回值
+    [Arguments]    ${key}    ${host}    ${db}=0
+    #默认db=0
+    ${value}    redis hgetall    ${key}    ${host}    ${db}
+    [return]    ${value}
+
+清除活动相关redis缓存
+    [Arguments]    ${host}
+    redisDelRomotion    ${host}   ${S_cache_list}
+
+如果v1为v2则运行关键字
+    [Arguments]    ${v1}    ${v2}    ${keyword}
+    run keyword if    ${v1}==${v2}    run keyword    ${keyword}
+
+运行关键字
+    [Arguments]    ${keyword}
+    run keyword    ${keyword}
+
+生成随机字符串
+    ${randomString}    random string
+    [return]    ${randomString}
+
+PR_获取cookie的值
+    [Arguments]    ${url}    ${cookieName}
+    ${cookieValue}    get Cookie Value    ${url}    ${cookieName}
+    [return]    ${cookieValue}
+
+PR_比较版本号大小
+    [Documentation]   输入版本号 ${v1}    ${v2}   ，返回 1 为 ${v1} 大，-1 为 ${v1} 小， 0 为相等
+    [Arguments]    ${v1}    ${v2}
+    ${v}    version Compare    ${v1}    ${v2}
+    [Return]    ${v}
+
+PR_将json文件转化为字典
+    [Documentation]   ${file} json文件的路径及文件名
+    [Arguments]    ${file}
+    ${data}    get file    ${file}
+    log    ${data}
+    ${dict_data}    to json    ${data}
+    # ${dict_data}    evaluate    json.loads(${data})    json
+    #删除json 文件中的注释
+    remove_from_dictionary    ${dict_data}    zhushi
+    [Return]    ${dict_data}
+
+PR_将字典转换为字符串
+    [Arguments]    ${dict_data}    ${indent}=None    ${sort_keys}=False
+    [Documentation]   ${dict_data} robot 字典， ${indent} 缩进格式化  可以为4， ${sort_keys} 是否按字母排序
+    #只有这样处理  json 转回来的 中文不乱码
+    #将当前的字符处理模式修改为utf-8编码模式
+    evaluate    reload(sys)    sys
+    evaluate    sys.setdefaultencoding('utf-8')    sys
+    ${data}    evaluate    json.dumps(${dict_data}, sort_keys=${sort_keys}, indent=${indent}, ensure_ascii=False)    json
+    [Return]    ${data}
+
+PR_解析getURL的请求参数
+    [Arguments]    ${url}
+    [Documentation]   解析 “http://localhost/test.py?a=hello&b=world ”  得到 {'a': ['hello'], 'b': ['world ']}
+    ${data}    getUrlParese    ${url}
+    [Return]    ${data}
+

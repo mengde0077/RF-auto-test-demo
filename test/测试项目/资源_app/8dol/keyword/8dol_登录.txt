@@ -1,0 +1,94 @@
+*** Settings ***
+Documentation     项目关键字：
+...               \ \ \ \ 用于记录单个项目中的业务关键字，不涉及具体的资源；
+...               本业务关键字记录，8 天在线 B2C的Android版本的功能关键字；
+Library           AppiumLibrary
+Library           TestLibrary
+Resource          ../../公共关键字.txt
+Resource          ../../app_配置.txt
+Resource          ../resource/8dol_登录.txt
+
+*** Variables ***
+
+
+*** Keywords ***
+# 写入类型关键字
+#     comment    *******************************************************************************************************************
+#     comment    此下区域放    写入类型关键字
+#     comment    写入时，注意调整手机的输入法
+
+# 操作类型关键字
+#     comment    *******************************************************************************************************************
+#     comment    此下区域放    操作类型关键字
+#     comment    进行元素的对象的操作，点击、长按，拖拽、划屏等
+#     comment    进行换页操作，需要确认子页面的的资源是否加载
+
+8dol_app_用户登录
+    [Arguments]    ${contact_name}    ${contact_password}
+    log    ${AP_app_V}
+    ${v}    PR_比较版本号大小    ${AP_app_V}    3.0.8
+    log    ${v}
+    Run Keyword If    ${v}<0    8dol_app_用户登录_V3    ${contact_name}    ${contact_password}
+    ...    ELSE    8dol_app_用户登录_V4    ${contact_name}    ${contact_password}
+
+
+8dol_app_用户登录_V3
+    [Arguments]    ${contact_name}    ${contact_password}
+    Run Keyword If    ${AP_app_type}==1    用户登录_and    ${contact_name}    ${contact_password}
+    ...    ELSE    用户登录_ios    ${contact_name}    ${contact_password}
+    PK_8dol截屏    点击登录后
+    #用户操作提示
+    # PK_等待并点击_name    我知道了
+
+
+#登录引导页    3.0.8版本增加   2017-06-23
+8dol_app_点击进入_登录引导页_注册
+    PK_等待并点击_name    注册
+
+8dol_app_点击进入_登录引导页_手机号登录
+    PK_等待并点击_name    手机号登录
+
+8dol_app_点击进入_登录引导页_微信登录
+    ${locator}    获取_登录引导_微信登录_locator
+    PK_等待并点击_locator    ${locator}
+
+#登录页 通过 登录引导页 --> 手机号登录 --> 手机号登录页
+8dol_app_点击进入_手机号登录页_注册
+    PK_等待并点击_name    注册
+
+8dol_app_点击进入_手机号登录页_密码登录
+    PK_等待并点击_name    密码登录
+
+8dol_app_点击进入_手机号登录页_验证码登录
+    PK_等待并点击_name    验证码登录
+
+8dol_app_点击进入_手机号登录页_忘记密码?
+    PK_等待并点击_name    忘记密码?
+
+8dol_app_手机号登录页_使用密码登录
+    [Arguments]    ${contact_name}    ${contact_password}
+    Run Keyword If    ${AP_app_type}==1    使用密码登录_and    ${contact_name}    ${contact_password}
+    ...    ELSE    使用密码登录_ios    ${contact_name}    ${contact_password}
+    PK_8dol截屏    点击登录后
+
+8dol_app_用户登录_V4
+    [Arguments]    ${contact_name}    ${contact_password}
+    8dol_app_点击进入_登录引导页_手机号登录
+    8dol_app_点击进入_手机号登录页_密码登录
+    8dol_app_手机号登录页_使用密码登录    ${contact_name}    ${contact_password}
+
+
+
+8dol_app_等待加载_微信登录页
+    ${locator}    获取_微信登录页_locator
+    PK_等待_locator    ${locator}
+
+
+# 获取类型关键字
+#     comment    *******************************************************************************************************************
+#     comment    此下区域放    获取类型关键字
+#     comment    需要返回值，或列表
+
+
+
+

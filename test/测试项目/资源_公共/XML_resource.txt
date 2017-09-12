@@ -1,0 +1,35 @@
+*** Settings ***
+Documentation     对 XML 内置库 进行 封装
+
+Library           Collections
+Library           String
+Library           XML
+*** Variables ***
+
+
+# *** Test Cases ***
+
+
+*** Keywords ***
+
+PK_XML_解析
+    Parse XML
+
+
+PK_XML_解析
+    [Arguments]    ${xml}
+    [Documentation]
+    ...    ${image1}    ./image/macaca.png   被匹配标记的大图
+    ...    ${image2}    ./image/macaca_logo.png    为需要匹配的小图，
+    ...                  最好是颜色较深的 图片 带文字效果不好
+    ${xml}    Parse XML    ${xml}
+    [Return]    ${xml}
+
+
+
+
+
+
+
+
+

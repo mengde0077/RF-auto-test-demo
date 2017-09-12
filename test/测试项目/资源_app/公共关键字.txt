@@ -1,0 +1,512 @@
+*** Settings ***
+Documentation     公共资源：
+...               1.用于组织和管理，公共的资源；
+...               2.资源适用所有的项目，不随项目的变更而变更；
+Library           AppiumLibrary
+Library           TestLibrary
+Library           OperatingSystem
+Resource          app_配置.txt
+
+*** Variables ***
+
+*** Keywords ***
+PK_locator说明
+    [Documentation]    根据元素 定位 进行操作
+    ...    ${locator}    参考 使用说明
+    ...    Strategy    Example Description Note
+    ...    identifier  Click Element | identifier=my_element   Matches by @id attribute
+    ...    id  Click Element | id=my_element   Matches by @resource-id attribute
+    ...    accessibility_id    Click Element | accessibility_id=button3    Accessibility options utilize.
+    ...    xpath   Click Element | xpath=//UIATableView/UIATableCell/UIAButton Matches with arbitrary XPath
+    ...    class   Click Element | class=UIAPickerWheel    Matches by class
+    ...    android Click Element | android=UiSelector().description('Apps')    Matches by Android UI Automator
+    ...    ios Click Element | ios=.buttons().withName('Apps') Matches by iOS UI Automation
+    ...    css Click Element | css=.green_button   Matches by css in webview
+    ...    name    Click Element | name=my_element Matches by @name attribute  Only valid for Selendroid
+
+
+8dol_install
+    [Arguments]    ${app_activity}
+    [Documentation]    安装时，必须传输一个app_activity
+    Open Application    ${AP_REMOTE_URL}    platformName=${AP_platformName}    platformVersion=${AP_platformVersion}    deviceName=${AP_app_deviceName}    app=${AP_app_path}${AP_app_name}    appPackage=${AP_8dol_appPackage}
+    ...    appActivity=${app_activity}    unicodeKeyboard=True    resetKeyboard=True
+
+8dol_open
+    [Arguments]    ${app_activity}
+    Open Application    ${AP_REMOTE_URL}    platformName=${AP_platformName}    platformVersion=${AP_platformVersion}    deviceName=${AP_app_deviceName}    appPackage=${AP_8dol_appPackage}    appActivity=${app_activity}
+
+Open MobileFx Android App_H5
+    [Arguments]    ${appActivity}    ${Process}    ${app}=${Empty}
+    [Documentation]    *启动手机8天app_H5[Android]*
+    ...
+    ...    入参顺序：
+    ...
+    ...    Arguments: 远程服务地址｜设备名称｜待测应用appActivity| 待测应用package包名|平台版本号|webveiw进程名
+    ...
+    ...    Examples:
+    ...
+    ...    | Open MobileFx Android App H5 | .ui.LauncherUI | com.tencent.mm:tools |
+
+    ${androidProcess}=    Create Dictionary    androidProcess=${Process}
+    Open Application    ${AP_REMOTE_URL}    alias=ndolappForAndroid    platformName=Android    deviceName=${AP_app_deviceName}    automationName=appium    appActivity=${appActivity}
+    ...    appPackage=${AP_8dol_appPackage}    platformVersion=${AP_platformVersion}    unicodeKeyboard=True    resetKeyboard=True    app=${app}    chromeOptions=${androidProcess}
+
+
+CloseApp
+    Close Application
+
+RestartApp
+    [Arguments]    ${app_activity}
+    #使用 重启动 activity 打开手机应用  保留缓存
+     ${output}    Run    ${AP_adb} -P 5037 -s ${AP_app_deviceName} shell am start -W -n ${AP_8dol_appPackage}/${app_activity} -S -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -f 0x10200000
+     [return]    ${output}
+
+PK_使用搜狗输入法
+     ${output}    Run    ${AP_adb} -P 5037 -s ${AP_app_deviceName} shell ime set com.sohu.inputmethod.sogou/.SogouIME
+     [return]    ${output}
+
+PK_使用appium输入法
+     ${output}    Run    ${AP_adb} -P 5037 -s ${AP_app_deviceName} shell ime set io.appium.android.ime/.UnicodeIME
+     [return]    ${output}
+
+PK_按下软键盘_回车
+    [Documentation]   android 可用； 回车、搜索等   直接 使用 （press keycode    66 ）更快
+     # ${output}    Run    ${AP_adb} -P 5037 -s ${AP_app_deviceName} shell input keyevent 66
+     press keycode    66
+     # [return]    ${output}
+
+PK_按下软键盘_删除
+    [Documentation]   android 可用； 删除 按钮
+     press keycode    112
+
+PK_8dol截屏
+    [Arguments]    ${image_name}
+    ${path}    join path    ${AP_image_path}    ${AP_8dol_image_path}
+    ${image}    _截屏    ${AP_截屏开关}    ${path}    ${image_name}
+    [return]    ${image}
+
+PK_cloud截屏
+    [Arguments]    ${image_name}
+    ${path}    join path    ${AP_image_path}    ${AP_cloud_image_path}
+    ${image}    _截屏    ${AP_截屏开关}    ${path}    ${image_name}
+    [return]    ${image}
+
+_截屏
+    [Arguments]    ${截屏开关}    ${image_path}    ${image_name}
+    run keyword if    ${截屏开关}==1    创建目录    ${image_path}
+    ${date}    Get Str Date    #获取当前的日期作为子目录字符串
+    ${time}    Get Str Time    #获取当前的时间作名字补充字符串
+    ${image}    join path    ${image_path}    ${date}    ${time}${image_name}.png
+    run keyword if    ${截屏开关}==1    Capture Page Screenshot    ${image}
+    [return]    ${image}
+
+创建目录
+    [Arguments]    ${image_path}
+    ${date}    Get Str Date    #获取当前的日期作为子目录字符串
+    ${path}    join path    ${image_path}    ${date}
+    #Mkdir    ${path}    #检查目录是否存在，没有就创建
+    create directory    ${path}
+
+
+PK_等待_locator
+    [Documentation]    如 xpath=   、id=
+    [Arguments]    ${locator}
+    Wait Until Keyword Succeeds    ${AP_等待加载时间}    ${AP_等待加载检查间隔}    Page Should Contain Element    ${locator}
+    # Wait Until Page Contains Element    ${Element}    ${AP_等待加载时间}    #执行效率没有上面一种高
+
+PK_等待_id
+    [Arguments]    ${id}
+    Wait Until Keyword Succeeds    ${AP_等待加载时间}    ${AP_等待加载检查间隔}    Page Should Contain Element    id=${id}
+
+PK_等待_name
+    [Arguments]    ${name}
+    Wait Until Keyword Succeeds    ${AP_等待加载时间}    ${AP_等待加载检查间隔}    Page Should Contain text    ${name}
+
+PK_等待不包含_name
+    [Arguments]    ${name}    ${timeout}=3
+    wait until page does not contain    ${name}    ${timeout}
+
+PK_等待不包含_locator
+    [Arguments]    ${locator}    ${timeout}=3
+    wait until page does not element    ${locator}    ${timeout}
+
+PK_等待并判断加载_locator
+    [Documentation]    ${locator} 如 xpath=   、id=
+...                 等待传入对象的的出现， 如果在设置的 等待时间内 出现 返回   1    否则返回  0
+    [Arguments]    ${locator}
+    ${v}    Run Keyword And Return Status    Wait Until Keyword Succeeds    ${AP_等待加载时间}    ${AP_等待加载检查间隔}    Page Should Contain Element    ${locator}
+    [Return]    ${v}
+
+PK_等待并判断加载_id
+    [Arguments]    ${id}
+    ${v}    Run Keyword And Return Status    Wait Until Keyword Succeeds    ${AP_等待加载时间}    ${AP_等待加载检查间隔}    Page Should Contain Element    id=${id}
+    [Return]    ${v}
+
+PK_等待并判断加载_name
+    [Arguments]    ${name}
+    ${v}    Run Keyword And Return Status    Wait Until Keyword Succeeds    ${AP_等待加载时间}    ${AP_等待加载检查间隔}    Page Should Contain text    ${name}
+    [Return]    ${v}
+
+PK_点击_坐标
+    [Arguments]    ${x}    ${y}
+    [Documentation]    点击坐标
+    ...    ${x}      ${y}
+    Click A Point    x=${x}    y=${y}
+
+PK_点击子图片_中心坐标
+    [Arguments]    ${responsedata}
+    ${match}    get from dictionary    ${responsedata}    match
+    ${x_center}    evaluate    float(${match[1]})+float(${match[3]})/2
+    ${y_center}    evaluate    float(${match[2]})+float(${match[4]})/2
+    PK_点击_坐标    ${x_center}    ${y_center}
+
+PK_等待并点击_name
+    [Arguments]    ${name}
+    [Documentation]    进入主页，根据名字操作；
+    ...    根据名字点击：超市、夜8、快递、苏宁直供、签到、天金、充值、摸我8、发现、订单、我的
+    ${locator}    PK_将name转换成xpath    ${name}
+    PK_等待_locator    ${locator}
+    Click Element    ${locator}
+
+PK_等待并点击_locator
+    [Arguments]    ${locator}
+    [Documentation]    根据元素 定位 进行操作
+    ...    ${locator}   参考  PK_locator说明
+    PK_等待_locator    ${locator}
+    Click Element    ${locator}
+
+PK_等待并双击_name
+    [Arguments]    ${name}
+    [Documentation]    进入主页，根据名字操作；
+    ...    根据名字点击：超市、夜8、快递、苏宁直供、签到、天金、充值、摸我8、发现、订单、我的
+    ${locator}    PK_将name转换成xpath    ${name}
+    PK_等待_locator    ${locator}
+    Tap    ${locator}    None    None    2
+
+PK_等待并双击_locator
+    [Arguments]    ${locator}
+    [Documentation]    根据元素 定位 进行连续两次点击操作 ，不过双击间隔较长 达不到双击的效果
+    ...    ${locator}   参考  PK_locator说明
+    PK_等待_locator    ${locator}
+    Tap    ${locator}    None    None    2
+
+PK_等待并点击_locator_index
+    [Arguments]    ${locator}    ${index}=0
+    [Documentation]    点击操作 列表 元素${locator} 中的 第 ${index} 个对象
+    ...    ${locator}   参考  PK_locator说明
+    ...    ${index}   序号  0、1、2 ...
+    PK_等待_locator    ${locator}
+    @{locators}    Get Webelements    ${locator}
+    Click Element    @{locators}[${index}]
+
+PK_等待并长按_locator
+    [Arguments]    ${locator}
+    [Documentation]    根据元素 定位 进行操作
+    ...    ${locator}   参考  PK_locator说明
+    PK_等待_locator    ${locator}
+    Long Press    ${locator}
+
+PK_划屏将对象id显示到当前页
+    [Arguments]    ${对象id}
+    [Documentation]    划屏查找对象 ${对象id} 将其显示在当前页上，方便定位操作；
+    : FOR    ${i}    IN RANGE    ${AP_最大划屏查找次数}    #使用循环操作划屏来查找元素
+    \    ${status}    run keyword and return status    Get Element location    id=${对象id}
+    \    exit for loop if    ${status}==1
+    \    Swipe    400    1500    400    300    duration=1000
+    \    run keyword if    ${status}==0    continue for loop
+    should be equal as numbers    ${status}    1
+
+PK_向下划屏查找对象_locator
+    [Arguments]    ${locator}    ${from_y}=1464    ${to_y}=288
+    [Documentation]    划屏查找对象 ${locator} 将其显示在当前页上，方便定位操作；
+    ...         ${from_y}     ${to_y}    滑动指定高度
+    : FOR    ${i}    IN RANGE    ${AP_最大划屏查找次数}    #使用循环操作划屏来查找元素
+    \    ${status}    run keyword and return status    Get Element location    ${locator}
+    \    exit for loop if    ${status}==1
+    \    Swipe    400    ${from_y}    400    ${to_y}    duration=1000
+    \    run keyword if    ${status}==0    continue for loop
+    should be equal as numbers    ${status}    1
+
+PK_划屏查找列表对象并移动到第一列表位置
+    [Arguments]    ${对象id_locator}    ${对象name_locator}
+    [Documentation]    查找对象 ${对象name} \ ，找到后将其移动到 ${对象所在id}第一次出现的位置；
+    ...    如：
+    ...    PK_划屏查找对象并移动到指定高度 \ \ \ \ \ \ \ \ 订单编号：M2015120420573700231|com.ndol.b2b.cloud:id/iol_order_no \ \ \ \ 本方法每次划屏一个订单高度，每次查找第一顺位的订单，这样就可以直接安装id进行操作；
+    ${x}    ${to_y}    PK_获取xy坐标_locator    ${对象id_locator}    #获取对象最初的坐标 ,需要id类 xpath
+    ${from_y}    evaluate    ${to_y}+1000
+    : FOR    ${i}    IN RANGE    ${AP_最大划屏查找次数}    #使用循环操作划屏来查找元素
+    \    ${status}    run keyword and return status    Get Element location    ${对象name_locator}
+    \    exit for loop if    ${status}==1
+    \    Swipe    ${x}    ${from_y}    ${x}    ${to_y}    duration=1000
+    \    run keyword if    ${status}==0    continue for loop
+    should be equal as numbers    ${status}    1
+    ${x}    ${from_y2}    PK_获取xy坐标_locator    ${对象name_locator}
+    PK_滑动    ${x}    ${from_y2}    ${x}    ${to_y}
+
+PK_划屏查找对象并移动到指定高度
+    [Arguments]    ${对象所在id}    ${对象name}    ${指定位置y坐标}
+    [Documentation]    将${对象所在id}对应的name跟${对象name}对比，没找到就向上划屏，比对正确之后，将${对象name}对应的y坐标移动到 ${指定位置y坐标}位置，一般是移动到最上方的位置，便于使用元素id对对象区域内的其他关联对象进行操作；
+    ...    如：
+    ...    PK_划屏查找对象并移动到指定高度 \ \ \ \ \ \ \ \ 订单编号：M2015120420573700231|com.ndol.b2b.cloud:id/iol_order_no|375 \ \ \ \ 本方法每次划屏一个订单高度，每次查找第一顺位的订单，这样就可以直接安装id进行操作；
+    ...    每次滑动一个固定的高度还是不行，这个高度不一定固定
+    ...    这次根据订单定位，将下一个订单移动到上一个订单的位置；
+    : FOR    ${i}    IN RANGE    ${AP_最大划屏查找次数}    #使用循环操作划屏来查找元素
+    \    ${name}    Get Element Attribute    id=${对象所在id}    name
+    \    ${v}    evaluate    cmp('${对象name}','${name}')
+    \    exit for loop if    ${v} == 0
+    \    PK_滑动    400    1500    400    300
+    \    run keyword if    ${v} == -1    continue for loop
+    ${x}    ${y}    PK_获取xy坐标_name    ${对象name}
+    PK_滑动    ${x}    ${y}    ${x}    ${指定位置y坐标}
+
+
+PK_获取文本_locator
+    [Arguments]    ${locator}
+    ${value}    Get Element Attribute    ${locator}    name
+    [return]    ${value}
+
+PK_获取文本_locator_index
+    [Arguments]    ${locator}    ${index}=0
+    [Documentation]    点击操作 列表 元素${locator} 中的 第 ${index} 个对象
+    ...    ${locator}   参考  PK_locator 说明
+    ...    ${index}   序号  0、1、2 ...
+    @{locators}    Get Webelements    ${locator}
+    # ${value}    Get Element Attribute    @{locators}[${index}]    name    # TypeError: object of type 'WebElement' has no len()
+    ${value}    Get Text    @{locators}[${index}]     #z只能获取到第一个对象，不可用
+    [return]    ${value}
+
+PK_获取xy坐标_name
+    [Arguments]    ${对象name}
+    ${locator}    PK_将name转换成xpath    ${对象name}
+    ${x}    ${y}    PK_获取xy坐标_locator    ${locator}
+    [return]    ${x}    ${y}
+
+PK_获取xy坐标_locator
+    [Arguments]    ${locator}
+    ${location}    Get Element Location    ${locator}
+    ${x}    get from dictionary    ${location}    x
+    ${y}    get from dictionary    ${location}    y
+    [return]    ${x}    ${y}
+
+PK_获取宽高_name
+    [Arguments]    ${对象name}
+    ${locator}    PK_将name转换成xpath    ${对象name}
+    ${width}    ${height}    PK_获取宽高_locator    ${locator}
+    [return]    ${width}    ${height}
+
+PK_获取宽高_locator
+    [Arguments]    ${locator}
+    ${size}    Get Element Size    ${locator}
+    ${width}    get from dictionary    ${size}    width
+    ${height}    get from dictionary    ${size}    height
+    [return]    ${width}    ${height}
+
+PK_获取source
+    ${page_source}    Get Source
+    [Documentation]    返回当前页的全部源。
+    [return]    ${page_source}
+
+PK_获取xpath的对象的数量
+    [Arguments]    ${xpath}
+    [Documentation]    不需要使用前缀“XPath”。已经假定是XPath。
+    ${count}    get matching xpath count    ${xpath}
+    [return]    ${count}
+
+
+PK_参照element属性滑动
+    [Arguments]    ${locator}    ${type}    ${num}=1    ${times}=1
+    [Documentation]    获取 标识对象的 坐标 ，依据元素对象的宽高来向 滑动
+    ...    参数：
+    ...    ${locator}   PK_locator说明
+    ...    ${type}    up    down    lift  right
+    ...    ${num}    移动 自身 高度的倍数
+    ...    ${times}    滑动的次数   默认1次
+    ${size_info}    _获取element的坐标信息    ${locator}
+    run Keyword if    '${type}'=='up'     _swipe_up    ${size_info}    ${num}   ${times}
+    run Keyword if    '${type}'=='down'    _swipe_down    ${size_info}    ${num}    ${times}
+    run Keyword if    '${type}'=='lift'    _swipe_lift    ${size_info}    ${num}    ${times}
+    run Keyword if    '${type}'=='right'    _swipe_right    ${size_info}    ${num}  ${times}
+
+_获取element的坐标信息
+    [Arguments]    ${locator}
+    [Documentation]    获取 标识对象的 坐标 及 宽 高 ，返回 坐标信息字典
+    ...    参数：
+    ...    ${locator}  参考  PK_locator说明
+    ${info}    Set Variable    {}
+    ${width}    ${height}    PK_获取宽高_locator    ${locator}
+    ${x}    ${y}    PK_获取xy坐标_locator    ${locator}
+    ${x_center}    evaluate    ${x}+(float(${width})/2)
+    ${y_center}    evaluate    ${y}+(float(${height})/2)
+    ${x_left}    evaluate    float(${x})
+    ${y_up}    evaluate    float(${y})
+    ${x_right}    evaluate    ${x}+${width}
+    ${y_down}    evaluate    ${y}+${height}
+    ${size_info}    create dictionary    x_center=${x_center}    y_center=${y_center}    x_left=${x_left}
+    ...    y_up=${y_up}    x_right=${x_right}    y_down=${y_down}    width=${width}    height=${height}
+    [return]    ${size_info}
+
+PK_参照分辨率滑屏
+    [Arguments]    ${type}    ${num}=0.9    ${times}=1
+    [Documentation]    获取 标识对象的 坐标 ，依据元素对象的宽高来向 滑动
+    ...    参数：
+    ...    ${locator}   PK_locator说明
+    ...    ${type}    up    down    lift  right
+    ...    ${num}    移动 自身 高度的倍数  必须小于 1
+    ...    ${times}    滑动的次数   默认1次
+    ...     否则会报错      #is outside of element rect: [0,0][1080,1920] 不能靠边
+    run Keyword if     float(${num})>=1    log     必须小于1
+    ${size_info}    _获取测试设备的坐标信息
+    run Keyword if    '${type}'=='up'     _swipe_up    ${size_info}    ${num}    ${times}
+    run Keyword if    '${type}'=='down'    _swipe_down    ${size_info}    ${num}    ${times}
+    run Keyword if    '${type}'=='lift'    _swipe_lift    ${size_info}    ${num}    ${times}
+    run Keyword if    '${type}'=='right'    _swipe_right    ${size_info}    ${num}    ${times}
+
+
+_获取测试设备的坐标信息
+    [Arguments]    ${width}=${P_分辨率_x}     ${height}=${P_分辨率_y}
+    [Documentation]    获取 设备分辨率的  宽 x  高 y   滑动的起点跟 终点都不能 取分辨率的边界值
+    ...    参数：
+    ...    ${x}   宽    ${y}    高
+    ${info}    Set Variable    {}
+    ${x_center}    evaluate    (float(${width})/2)
+    ${y_center}    evaluate    (float(${height})/2)
+    ${x_left}    evaluate    float(${50})
+    ${y_up}    evaluate    float(${200})      # 需要排除 上下  固定功能区域
+    ${x_right}    evaluate    float(${width})-float(${50})
+    ${y_down}    evaluate    float(${height})-float(${200})
+    ${size_info}    create dictionary    x_center=${x_center}    y_center=${y_center}    x_left=${x_left}
+    ...    y_up=${y_up}    x_right=${x_right}    y_down=${y_down}    width=${x_right}    height=${y_down}
+    [return]    ${size_info}
+
+_swipe_up
+    [Arguments]    ${size_info}    ${num}=1    ${times}=1
+    [Documentation]    向上滑动
+    ...    参数：
+    ...    ${size_info}   坐标信息字典
+    ...    ${num}    移动 自身 高度的倍数  如： 0.5、1、2、3
+    ${from_x}    get from dictionary    ${size_info}    x_center
+    ${from_y}    get from dictionary    ${size_info}    y_down
+    ${to_x}    get from dictionary    ${size_info}    x_center
+    ${height}    get from dictionary    ${size_info}    height
+    ${to_y}    evaluate    ${from_y}-float(${height})*${num}
+    PK_滑动    ${from_x}    ${from_y}     ${to_x}    ${to_y}    ${times}
+
+_swipe_down
+    [Arguments]    ${size_info}    ${num}=1    ${times}=1
+    [Documentation]    向下滑动
+    ...    参数：
+    ...    ${size_info}   坐标信息字典
+    ...    ${num}    移动 自身 高度的倍数
+    ${from_x}    get from dictionary    ${size_info}    x_center
+    ${from_y}    get from dictionary    ${size_info}    y_up
+    ${to_x}    get from dictionary    ${size_info}    x_center
+    ${height}    get from dictionary    ${size_info}    height
+    ${to_y}    evaluate    ${from_y}+float(${height})*${num}
+    PK_滑动    ${from_x}    ${from_y}     ${to_x}    ${to_y}    ${times}
+
+_swipe_lift
+    [Arguments]    ${size_info}    ${num}=1    ${times}=1
+    [Documentation]    向左滑动
+    ...    参数：
+    ...    ${size_info}   坐标信息字典
+    ...    ${num}    移动 自身 宽度的倍数  如： 0.5、1、2、3
+    ${from_x}    get from dictionary    ${size_info}    x_right
+    ${from_y}    get from dictionary    ${size_info}    y_center
+    ${width}    get from dictionary    ${size_info}    width
+    ${to_x}    evaluate    ${from_x}-float(${width})*${num}
+    ${to_y}    get from dictionary    ${size_info}    y_center
+    PK_滑动    ${from_x}    ${from_y}     ${to_x}    ${to_y}    ${times}
+
+_swipe_right
+    [Arguments]    ${size_info}    ${num}=1    ${times}=1
+    [Documentation]    向右滑动
+    ...    参数：
+    ...    ${size_info}   坐标信息字典
+    ...    ${num}    移动 自身 宽度的倍数
+    ${from_x}    get from dictionary    ${size_info}    x_left
+    ${from_y}    get from dictionary    ${size_info}    y_center
+    ${width}    get from dictionary    ${size_info}    width
+    ${to_x}    evaluate    ${from_x}+float(${width})*${num}
+    ${to_y}    get from dictionary    ${size_info}    y_center
+    PK_滑动    ${from_x}    ${from_y}     ${to_x}    ${to_y}    ${times}
+
+PK_将name转换成xpath
+    [Arguments]    ${name}
+    ${locator}    Run Keyword If    ${AP_app_type}==1    Set Variable    xpath=//*[@text="${name}"]
+    ...    ELSE    Set Variable    xpath=//*[@name="${name}"]
+    [return]    ${locator}
+
+PK_获取相应平台的locator
+    [Arguments]    ${locator_and}    ${locator_ios}
+    ${locator}    Run Keyword If    ${AP_app_type}==1    Set Variable    ${locator_and}
+    ...    ELSE    Set Variable    ${locator_ios}
+    [return]    ${locator}
+
+PK_摇晃手机
+    Shake
+
+PK_收起键盘
+    Hide Keyboard
+
+PK_滚动
+    [Arguments]    ${start_locator}    ${end_locator}
+    [Documentation]    滚动操作   --方法尚未实现
+    ...    参数：
+    ...    ${start_locator}     起始元素定位
+    ...    ${end_locator}     结束元素定位
+    Scroll    ${start_locator}    ${end_locator}
+
+PK_向下滚动
+    [Arguments]    ${locator}
+    [Documentation]     滚动操作 向下  直到查找到 元素 ${locator}  --方法尚未实现
+    ...    参数：
+    ...    ${locator}     元素定位  参考  PK_locator说明
+    Scroll Down   ${locator}
+
+PK_向上滚动
+    [Arguments]    ${locator}
+    [Documentation]     滚动操作 向上  直到查找到 元素 ${locator}   --方法尚未实现
+    ...    参数：
+    ...    ${locator}     元素定位   参考  PK_locator说明
+    Scroll Up   ${locator}
+
+PK_切换页类型
+    [Arguments]    ${type}
+    [Documentation]     切换 页面类型
+    ...    参数：
+    ...    ${type}     WEBVIEW    切换至 webview （H5）页面   ， NATIVE_APP  切换成原生页面
+    switch to context   ${type}
+
+
+PK_滑动
+    [Arguments]    ${from_x}    ${from_y}    ${to_x}    ${to_y}    ${times}=1    ${duration}=2000
+    [Documentation]    滑屏操作
+    ...    参数：
+    ...    ${times}    滑动的次数   默认1次
+    ...    ${duration}     滑动 耗费的时间  毫秒  越慢 移动距离越准
+    log    从(${from_x},${from_y})移动到(${to_x},${to_y})，滑动${times}次
+    : FOR    ${i}    IN RANGE    ${times}
+    \    swipe    ${from_x}    ${from_y}    ${to_x}    ${to_y}    ${duration}
+    \    sleep    1
+
+
+
+PK_捏
+    [Documentation]    捏屏幕 (双指往内移动来缩小屏幕)
+    ...    参数：
+    ...    ${locator}     参考  PK_locator说明
+    ...    ${percent}     缩小 的百分比
+    ...    ${steps}      步数    体现在操作快慢上
+    [Arguments]    ${locator}    ${percent}=200%    ${steps}=1
+    Pinch    ${locator}    ${percent}    ${steps}
+
+PK_放大
+    [Documentation]    捏屏幕 (双指往内移动来缩小屏幕)
+    ...    参数：
+    ...    ${locator}    参考  PK_locator说明
+    ...    ${percent}     缩小 的百分比
+    ...    ${steps}      步数    体现在操作快慢上
+    [Arguments]    ${locator}    ${percent}=200%    ${steps}=1
+    Zoom    ${locator}    ${percent}    ${steps}
+
+

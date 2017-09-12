@@ -1,0 +1,18 @@
+*** Settings ***
+Library           Selenium2Library
+Resource          resource.txt
+Resource          mysql_resource.txt
+
+*** Variables ***
+${sql}            select t.id from 8dol_user t where t.mobile=15195995661
+${sql1}           select t.level from t_user_states t where t.id=1514174
+
+*** Test Cases ***
+查询数据
+    ${result}    测试库查询    ${sql}
+    ${id}    evaluate    ${result}[0]
+    log    ${result}
+    log    ${id}
+
+测试库执行脚本文件
+    测试库执行脚本文件

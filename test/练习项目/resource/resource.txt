@@ -1,0 +1,13 @@
+*** Settings ***
+Documentation     公共资源：
+...               1.用于组织和管理，公共的资源；
+...               2.资源适用所有的项目，不随项目的变更而变更；
+Library           AppiumLibrary
+Library           TestLibrary
+
+*** Variables ***
+${REMOTE_URL}     http://localhost:4723/wd/hub
+
+*** Keywords ***
+add new contact
+    [Arguments]    ${contact_name}    ${contact_phone}    ${contact_email}

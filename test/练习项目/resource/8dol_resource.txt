@@ -1,0 +1,59 @@
+*** Settings ***
+Documentation     项目资源：
+...               \ \ \ \ 用于记录单个项目中的资源，资源的内容随项目的升级而变化；
+...
+...               1.记录对应项目的，功能页面及功能页面包含的元素对象；
+...               2.记录项目中可复用的业务功能关键字；
+...
+...
+...               本资源记录，8 天在线 B2C的Android版本的资源；
+Library           AppiumLibrary
+Library           TestLibrary
+
+*** Variables ***
+${8dol_appPackage}    com.ndol.sale.starter
+${8dol_appActivity_login}    .patch.ui.user.login.LoginActivity
+${8dol_appActivity_welcome}    .patch.ui.welcome.WelcomeActivity
+${8dol_appActivity_main}    .patch.ui.Main
+${8dol_appActivity_first}    .patch.ui.FirstActivity
+${8dol_image}     E:\\auto\\robot\\image\\8dol
+
+*** Keywords ***
+8dol install
+    [Arguments]    ${app_name}
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    app=${app_path}${app_name}    appPackage=${8dol_appPackage}
+    ...    appActivity=${8dol_appActivity_login}    unicodeKeyboard=True    resetKeyboard=True
+
+8dol open
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    appPackage=${8dol_appPackage}    appActivity=${8dol_appActivity_login}
+    Wait Until Keyword Succeeds    2min    5sec    Page Should Contain Element    id=com.ndol.sale.starter:id/edt_account
+
+8dol login
+    [Arguments]    ${contact_name}    ${contact_password}
+    Get Network Connection Status    #获取设备连接状态
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    appPackage=${8dol_appPackage}    appActivity=${8dol_appActivity_login}
+    ${date}    Get Str Date    #获取当前的日期作为子目录字符串
+    Mkdir    ${8dol_image}\\${date}    #检查目录是否存在，没有就创建
+    Wait Until Keyword Succeeds    2min    5sec    Page Should Contain Element    id=com.ndol.sale.starter:id/edt_account
+    Capture Page Screenshot    ${8dol_image}\\${date}\\8dol_login1.png
+    Input Text    id=com.ndol.sale.starter:id/edt_account    ${contact_name}
+    #Input PassWord    id=com.ndol.sale.starter:id/edt_password    ${contact_password}    #不能讲密码输入密码框
+    #Input Text    id=com.ndol.sale.starter:id/edt_password    ${contact_password}
+    Click Element    id=com.ndol.sale.starter:id/togbtn_show_pwd    #先点击一下显示明文密码，便于截图
+    Click Element    id=com.ndol.sale.starter:id/edt_password    #先点击一下密码框，改变光标位置
+    Go Back    #隐藏手机输入键盘
+    Input PassWord    id=com.ndol.sale.starter:id/edt_password    ${contact_password}
+    Capture Page Screenshot    ${8dol_image}\\${date}\\8dol_login2.png
+    Click Element    id=com.ndol.sale.starter:id/btn_login
+    Capture Page Screenshot    ${8dol_image}\\${date}\\8dol_login3.png
+
+8dol to register
+    #快速注册
+    app open    #打开app到登录页面
+    Click Element    id=com.ndol.sale.starter:id/to_register_txt    #点击登录页面的快速注册
+    Capture Page Screenshot    ${8dol_image}\\${date}\\8dol_to_register1.png
+    Click Element    id=com.ndol.sale.starter:id/tv_register_agree    #点击查看 8天在线用户协议
+    Capture Page Screenshot    ${8dol_image}\\${date}\\8dol_to_register2.png
+
+CloseApp
+    Close Application

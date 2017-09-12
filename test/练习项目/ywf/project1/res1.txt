@@ -1,0 +1,25 @@
+*** Settings ***
+Library           /Library/Python/2.7/site-packages/robotframework_selenium2library-1.7.4-py2.7.egg/Selenium2Library
+
+*** Keywords ***
+打开浏览器
+    [Arguments]    ${url}
+    Open Browser    ${url}
+
+等待时间
+    sleep    3
+
+输入搜索内容
+    [Arguments]    ${search_contain}
+    Input Text    id=kw    ${search_contain}
+
+点击搜索
+    click button    su
+
+验收标题
+    [Arguments]    ${search_contain}
+    ${title}    Get Title
+    Should Contain    ${title}    ${search_contain}
+
+关闭浏览器
+    close all browsers

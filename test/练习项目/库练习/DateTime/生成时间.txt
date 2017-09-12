@@ -1,0 +1,16 @@
+*** Settings ***
+Library           DateTime
+Library           String
+
+*** Variables ***
+${file}           ~/Desktop/qita/mobileAndUserid.txt
+
+*** Test Cases ***
+生成时间
+    ${当前时间}    Get Current Date
+    ${time2}    Get Current Date    UTC
+    ${7天前}    Subtract Time From Date    ${当前时间}    7 days
+    log    ${7天前}
+    ${7天后}    Add Time To Date    ${当前时间}    7 days
+    log    ${7天后}
+    ${7天后}    Fetch From Left    ${7天后}    .

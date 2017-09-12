@@ -1,0 +1,11 @@
+*** Settings ***
+Library           AppiumLibrary
+
+*** Variables ***
+${alias}          myapptest1
+${platformName}    IOS
+${platformVersion}    9.3.1
+
+*** Keywords ***
+打开应用
+    open application    http://localhost:4723/wd/hub

@@ -1,0 +1,10 @@
+*** Settings ***
+Library           /Library/Python/2.7/site-packages/robotframework_selenium2library-1.7.4-py2.7.egg/Selenium2Library
+Resource          testflow.txt
+
+*** Test Cases ***
+case1
+    搜索测试    http://www.baidu.com    土里土气
+
+case2
+    搜索测试    http://www.baidu.com    Python

@@ -1,0 +1,11 @@
+*** Settings ***
+Library           DateTime
+Library           String
+
+*** Variables ***
+${file}           ~/Desktop/qita/mobileAndUserid.txt
+${a}    2
+*** Test Cases ***
+时间值比较
+    Run Keyword If    '15:45:00'<'14:00:00'  Set Suite Variable  ${a}    1    esle   Set Suite Variable  ${a}    0
+    log    ${a}

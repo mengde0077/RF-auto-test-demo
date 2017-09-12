@@ -1,0 +1,29 @@
+*** Settings ***
+Library           Process
+Library           String
+Library           OperatingSystem
+
+*** Variables ***
+${file}           ~/Desktop/qita/mobileAndUserid.txt
+${hashtable}    put
+${NAME}    Robot!
+*** Test Cases ***
+# call方法
+#     Call Method    ${hashtable}    put    myname    myvalue
+#     log    ${hashtable}
+
+运行程序
+    Run Process    python    -c    print "Hello world"    alias=myproc
+    # Get result object
+    ${result}    Get Process Result    myproc
+    Should Be Equal    ${result.rc}    ${0}
+    Should Be Equal    ${result.stdout}    Hello world
+    Should Be Empty    ${result.stderr}
+    # Get one attribute
+    ${stdout}    Get Process Result    myproc    stdout=true
+    Should Be Equal    ${stdout}    Hello world
+    # Multiple attributes
+    ${stdout}    ${stderr}    Get Process Result    myproc    stdout=true    stderr=yes
+    Should Be Equal    ${stdout}    Hello world
+    Should Be Empty    ${stderr}
+

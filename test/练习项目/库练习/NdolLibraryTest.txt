@@ -1,0 +1,33 @@
+*** Settings ***
+Documentation     公共资源：
+...               1.用于组织和管理，公共的资源；
+...               2.资源适用所有的项目，不随项目的变更而变更；
+Library           NdolLibrary
+Library           Collections
+
+
+*** Variables ***
+${S_redis_host}    172.23.3.84
+
+
+*** Test Cases ***
+清除
+    清除redis缓存1    ${S_redis_host}
+
+获取MD5
+    ${md5}    getMd5    123456
+    log    ${md5}
+
+*** Keywords ***
+add new contact
+    [Arguments]    ${contact_name}    ${contact_phone}    ${contact_email}
+
+清除redis缓存1
+    [Arguments]    ${host}
+    redis Flush All    ${host}
+
+
+清除redis缓存
+    [Arguments]    ${host}
+    redis Flush Db    ${host}
+

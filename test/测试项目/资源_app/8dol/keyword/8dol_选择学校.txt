@@ -1,0 +1,78 @@
+*** Settings ***
+Documentation     项目关键字：
+...               \ \ \ \ 用于记录单个项目中的业务关键字，不涉及具体的资源；
+...               本业务关键字记录，8 天在线 B2C的Android版本的功能关键字；
+...               3.0.1 版本之后 是 选择配送地址 页面
+Library           AppiumLibrary
+Library           TestLibrary
+Resource          ../../公共关键字.txt
+Resource          ../../app_配置.txt
+Resource          ../resource/8dol_选择学校.txt
+
+*** Variables ***
+
+
+*** Keywords ***
+# 写入类型关键字
+#     comment    *******************************************************************************************************************
+#     comment    此下区域放    写入类型关键字
+#     comment    写入时，注意调整手机的输入法
+
+8dol_app_点击_地址搜索页_搜索框_搜索地址
+    [Arguments]    ${地址}=楚翘城
+    ${locator}    获取_地址搜索页_搜索框_locator
+    PK_等待并点击_locator    ${locator}
+    Input Text    ${locator}    ${地址}
+
+
+# 操作类型关键字
+#     comment    *******************************************************************************************************************
+#     comment    此下区域放    操作类型关键字
+#     comment    进行元素的对象的操作，点击、长按，拖拽、划屏等
+#     comment    进行换页操作，需要确认子页面的的资源是否加载
+
+8dol_app_等待_选择配送地址_新增地址
+    PK_等待_name    新增地址
+
+8dol_app_点击_选择配送地址_新增地址
+    PK_等待并点击_name    新增地址
+
+8dol_app_点击_选择配送地址_新增_V4
+    #V4.0.0 之后改为 “新增”
+    PK_等待并点击_name    新增
+
+8dol_app_点击_选择配送地址_搜索框
+    ${locator}    获取_选择配送地址_搜索框_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击_选择配送地址_更多地址
+    PK_等待并点击_name    更多地址
+
+
+8dol_app_点击_地址搜索页_搜索框
+    ${locator}    获取_地址搜索页_搜索框_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击_地址搜索页_搜索结果
+    #默认是第一条
+    ${locator}    获取_地址搜索页_搜索结果_locator
+    PK_等待并点击_locator    ${locator}
+
+
+# 获取类型关键字
+#     comment    *******************************************************************************************************************
+#     comment    此下区域放    获取类型关键字
+#     comment    需要返回值，或列表
+
+
+8dol_app_获取_选择配送地址_搜索框_提示
+    ${locator}    获取_选择配送地址_搜索框_locator
+    ${value}    Get Element Attribute    ${locator}    name
+    [Return]    ${value}
+
+8dol_app_获取_地址搜索页_搜索框_提示
+    ${locator}    获取_地址搜索页_搜索框_locator
+    ${value}    Get Element Attribute    ${locator}    name
+    [Return]    ${value}
+
+

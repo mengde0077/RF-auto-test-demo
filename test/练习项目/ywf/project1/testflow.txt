@@ -1,0 +1,21 @@
+*** Settings ***
+Library           /Library/Python/2.7/site-packages/robotframework_selenium2library-1.7.4-py2.7.egg/Selenium2Library
+Resource          res1.txt
+Resource          dataresource.txt
+
+*** Keywords ***
+搜索测试
+    [Arguments]    ${url}    ${search_contain}
+    打开浏览器    ${url}
+    等待时间
+    输入搜索内容    ${search_contain}
+    点击搜索
+    验收标题    ${search_contain}
+    关闭浏览器
+
+sql_查询购买商品信息
+    [Arguments]    ${order_id}
+    ${data}    执行查询语句    select goods_price,goods_nums,weightd_join_store_price from 8dol_order_goods where order_id=${order_id};
+    @{keys}    set variable    goods_price    goods_nums    weightd_join_store_price
+    ${dictionary}    _转换data成字典    ${keys}    ${data}
+    [Return]    ${dictionary}

@@ -1,0 +1,125 @@
+*** Settings ***
+Documentation     验证app的xpath定位
+Force Tags        lianxi    cloud
+Library           AppiumLibrary
+Library           TestLibrary
+
+*** Variables ***
+${REMOTE_URL}     http://localhost:4723/wd/hub
+${cloud_appPackage}    com.ndol.b2b.cloud
+${platformName}    Android
+${platformVersion}    4.4.4    #测试手机的Android版本
+#${deviceName}    482ede3a    #测试手机的设备名，CMD中使用 （ adb devices ）查看
+${deviceName}     1L521W018328    #红米2A手机，黑面板的！
+#${deviceName}    3dec908a    #小米手机，白面板的！
+${app_activity}    .Main    #登录页
+${初始化位置y坐标}       358
+${订单编号name}       订单编号：M2015120420573700231
+${对象所在id}         com.ndol.b2b.cloud:id/iol_order_no
+${对象name}         订单编号：M2015120420573700231
+
+*** Test Cases ***
+cloud_install
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    app=${app_path}${app_name}    appPackage=${cloud_appPackage}
+    ...    appActivity=${app_activity}    unicodeKeyboard=True    resetKeyboard=True
+
+cloud_滑动到第一个订单位置
+    [Documentation]    本方法每次划屏一个订单高度，每次查找第一顺位的订单，这样就可以直接安装id进行操作；
+    ...    每次滑动一个固定的高度还是不行，这个高度不一定固定
+    ...    这次根据订单定位，将下一个订单移动到上一个订单的位置；
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    appPackage=${cloud_appPackage}    appActivity=${app_activity}
+    #Run Keyword And Continue On Failure    run keyword if    Click Element    name=取消    #在app启动中出现其他APP更新提示，在这个位置操作不到
+    Click Element    id=com.ndol.b2b.cloud:id/btn_login
+    sleep    5
+    Click Element    id=com.ndol.b2b.cloud:id/iv_left
+    sleep    5
+    划屏查找列表对象并移动到第一列表位置    ${订单编号id}    ${对象name}
+
+cloud_滑动一个订单
+    [Documentation]    本方法每次划屏一个订单高度，每次查找第一顺位的订单，这样就可以直接安装id进行操作；
+    ...    每次滑动一个固定的高度还是不行，这个高度不一定固定
+    ...    这次根据订单定位，将下一个订单移动到上一个订单的位置；
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    appPackage=${cloud_appPackage}    appActivity=${app_activity}
+    #Run Keyword And Continue On Failure    run keyword if    Click Element    name=取消    #在app启动中出现其他APP更新提示，在这个位置操作不到
+    Click Element    id=com.ndol.b2b.cloud:id/btn_login
+    sleep    5
+    Click Element    id=com.ndol.b2b.cloud:id/iv_left
+    sleep    5
+    : FOR    ${i}    IN RANGE    100    #使用循环操作划屏来查找元素
+    \    ${订单编号}    Get Element Attribute    id=com.ndol.b2b.cloud:id/iol_order_no    name
+    \    ${str}    set variable    ${订单编号id}
+    \    ${v}    evaluate    cmp('${str}','${订单编号}')
+    \    exit for loop if    ${v} == 0
+    \    Swipe    200    700    200    400    duration=1000
+    \    run keyword if    ${v} == -1    continue for loop
+    ${value0}    Get Element location    name=${订单编号id}    #获取到坐标
+    ${x}    evaluate    ${value0}['x']
+    ${y}    evaluate    ${value0}['y']
+    Swipe    ${x}    ${y}    ${x}    ${初始化位置y坐标}    duration=1000
+    sleep    5
+    click element    id=com.ndol.b2b.cloud:id/iol_real_amount    #点击确认
+    sleep    5
+    Run Keyword And Continue On Failure    Click Element    xpath=//android.widget.TextView[contains(@text,'进货单')]    #成功
+
+cloud_打开app
+    [Documentation]    本方法采用查找定好编号 \ 获取坐标，根据坐标偏移操作，来操作获取订单对应的 \ 确认操作！
+    ...
+    ...
+    ...    问题：需要根据不同的手机分辨率来，修改偏移量，不方便；
+    ...    而且做坐标偏移，需要把字典表中的坐标取出来运算
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    appPackage=${cloud_appPackage}    appActivity=${app_activity}
+    Run Keyword And Continue On Failure    run keyword if    Click Element    name=取消    #在app启动中出现其他APP更新提示，在这个位置操作不到
+    Click Element    id=com.ndol.b2b.cloud:id/btn_login
+    sleep    5
+    Click Element    id=com.ndol.b2b.cloud:id/iv_left
+    Run Keyword And Continue On Failure    Get Element Attribute    xpath=//android.widget.LinearLayout[6]/*/android.widget.TextView[contains(@index,'0')]    name    #获取列表中第2位的值
+    sleep    5
+    #Swipe    200    900    200    400    duration=1000
+    #sleep    5
+    #Swipe    200    900    200    400    duration=1000
+    #Swipe    200    900    200    400    duration=1000
+    #Swipe    200    900    200    400    duration=1000
+    #Get Element Attribute    name=何书亮    id    #无法根据名字查找id ，只能获取name和value
+    #Get Element location    name=何书亮    #获取name对应的坐标
+    : FOR    ${i}    IN RANGE    100    #使用循环操作划屏来查找元素
+    \    ${status}    run keyword and return status    Get Element location    name=${订单编号name}
+    \    Swipe    200    900    200    400    duration=1000
+    \    run keyword if    ${status}==0    continue for loop
+    \    exit for loop if    ${status}==1
+    ${value0}    Get Element location    name=${订单编号name}    #获取到坐标
+    ${x}    evaluate    ${value0}['x']
+    ${y}    evaluate    ${value0}['y']
+    ${x}    set variable    ${value0}[x]+470
+    ${y}    set variable    ${value0}[y]+50
+    click a point    x=${x}    y=${y}
+    Run Keyword And Continue On Failure    Get Element Attribute    xpath=//android.widget.LinearLayout[6]/*/android.widget.TextView[contains(@index,'0')]    name    #获取列表中第2位的值
+    Run Keyword And Continue On Failure    Get Element Attribute    xpath=//android.widget.LinearLayout[2]/android.widget.RelativeLayout[1]/*/android.widget.TextView[contains(@index,'2')]    name    #获取列表中第2位的值
+    Run Keyword And Continue On Failure    Get Element Attribute    xpath=//android.widget.LinearLayout[2]/android.widget.RelativeLayout[1]/android.widget.LinearLayout[0]/android.widget.TextView[contains(@index,'2')]    name    #获取列表中第2位的值
+    #Run Keyword And Continue On Failure    Click Element    xpath=//android.widget.TabWidget[2]/android.widget.RelativeLayout/android.widget.TextView[contains(@text,'进货单')]    #失败
+    #Run Keyword And Continue On Failure    Click Element    xpath=//android.widget.TabWidget[2]/android.widget.RelativeLayout[1]/android.widget.TextView[contains(@text,'进货单')]    #失败
+    #Run Keyword And Continue On Failure    Click Element    xpath=//android.widget.TabWidget[2]/android.widget.RelativeLayout[*]/android.widget.TextView[contains(@text,'进货单')]    #失败
+    Run Keyword And Continue On Failure    Click Element    xpath=//android.widget.TextView[contains(@text,'进货单')]    #成功
+    ${value}    Get Element Attribute    id=com.ndol.b2b.cloud:id/iol_real_amount    name
+    #${value1}    Get Element Attribute    id=com.ndol.b2b.cloud:id/iol_real_amount    xpath    #没有xpath属性
+    #${value2}    Get Element Attribute    id=com.ndol.b2b.cloud:id/iol_real_amount    class    #没有class属性
+    Run Keyword And Continue On Failure    Get Element Attribute    id=com.ndol.b2b.cloud:id/iol_real_amount    value
+    ${value4}    Get source
+    Get Element location    id=com.ndol.b2b.cloud:id/iol_real_amount
+
+cloud_滑动一个订单距离
+    [Documentation]    本方法每次划屏一个订单高度，每次查找第一顺位的订单，这样就可以直接安装id进行操作；
+    ...    每次滑动一个固定的高度还是不行，这个高度不一定固定
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    appPackage=${cloud_appPackage}    appActivity=${app_activity}
+    #Run Keyword And Continue On Failure    run keyword if    Click Element    name=取消    #在app启动中出现其他APP更新提示，在这个位置操作不到
+    Click Element    id=com.ndol.b2b.cloud:id/btn_login
+    sleep    5
+    Click Element    id=com.ndol.b2b.cloud:id/iv_left
+    sleep    5
+    : FOR    ${i}    IN RANGE    100    #使用循环操作划屏来查找元素
+    \    ${订单编号}    Get Element Attribute    id=com.ndol.b2b.cloud:id/iol_order_no    name
+    \    ${v}    evaluate    cmp('${订单编号id} ','${订单编号}')
+    \    exit for loop if    ${v} == 0
+    \    Swipe    200    700    200    400    duration=1000
+    \    run keyword if    ${v} == -1    continue for loop
+    click element    id=com.ndol.b2b.cloud:id/iol_real_amount    #点击确认
+    Run Keyword And Continue On Failure    Click Element    xpath=//android.widget.TextView[contains(@text,'进货单')]    #成功

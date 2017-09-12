@@ -1,0 +1,163 @@
+*** Settings ***
+Documentation     接口关键字资源：
+...               \ \ \ \ 用于记录单个项目中的打开app时对应获取类、操作类、入口类接口资源，资源的内容随项目的升级而变化；
+...
+...               1.记录对应项目的，功能页面及功能页面包含的各类接口关键资源，用于接口与常量的固话；
+...               2.记录项目中可复用的资源关键字；
+...
+...
+...               本资源记录，8 天在线 B2C的API的关键字资源；
+Resource          ../../API配置.txt
+Resource          ../../API公共关键字.txt
+Resource          ../Resource/8dolAPI_打开app.txt
+Library           RequestsLibrary
+Library           Collections
+
+*** Variables ***
+${X-Requested-With}    com.ndol.sale.starter
+${Accept-Language}    zh-CN,en-US;q=0.8
+${_ga}    _ga GA1.2.1715970763.1486084723
+${Accept}    application/json, text/plain, */*
+${Content-Type}    application/json;charset=UTF-8
+${OFCaptchaControl}    ${P_OFCaptchaControl}
+${Set-Cookie}    OFCaptchaControl=${OFCaptchaControl}
+*** Keywords ***
+8dol连接接口服务
+    [Documentation]    根据API配置中接口服务器地址:${P_8dol接口服务地址}  连接接口服务
+    create session    api    ${P_8dol接口服务地址}
+
+8dol关闭接口服务连接
+    [Documentation]    关闭服务
+    delete all sessions
+
+8dol和YD连接接口服务
+    [Documentation]    根据API配置中接口服务器地址：${P_yundian接口服务地址}  连接接口服务
+    create session    api    ${P_8dol接口服务地址}
+    create session    yundian    ${P_yundian接口服务地址}
+
+8dol和YD连接接口服务_8dol带cookie
+    [Documentation]    根据API配置中接口服务器地址:${P_8dol接口服务地址}  连接接口服务
+    @{keys}    set variable    Accept-Language    X-Requested-With    Set-Cookie    Accept
+    @{k_v}    set variable    ${Accept-Language}    ${X-Requested-With}    ${Set-Cookie}    ${Accept}
+    ${headers}    拼装成字典    ${keys}    ${k_v}
+    @{keys}    set variable    OFCaptchaControl    _ga
+    @{k_v}    set variable    ${OFCaptchaControl}    ${_ga}
+    ${cookies}    拼装成字典    ${keys}    ${k_v}
+    create session    api    ${P_8dol接口服务地址}    ${headers}    ${cookies}
+    create session    yundian    ${P_yundian接口服务地址}
+
+8dol和YD连接接口服务_yudian带headers
+    [Documentation]    根据API配置中接口服务器地址:${P_8dol接口服务地址}  连接接口服务
+    @{keys}    set variable    Accept-Language    X-Requested-With    Set-Cookie    Accept
+    @{k_v}    set variable    ${Accept-Language}    ${X-Requested-With}    ${Set-Cookie}    ${Accept}
+    ${headers}    拼装成字典    ${keys}    ${k_v}
+    @{keys1}    set variable    Accept-Language    Set-Cookie    Accept    Content-Type
+    @{k_v1}    set variable    ${Accept-Language}    ${Set-Cookie}    ${Accept}    ${Content-Type}
+    ${headers1}    拼装成字典    ${keys1}    ${k_v1}
+    @{keys}    set variable    OFCaptchaControl    _ga
+    @{k_v}    set variable    ${OFCaptchaControl}    ${_ga}
+    ${cookies}    拼装成字典    ${keys}    ${k_v}
+    create session    api    ${P_8dol接口服务地址}    ${headers}    ${cookies}
+    #### 解决服务报错：“Content type 'application/octet-stream' not supported”
+    create session    yundian    ${P_yundian接口服务地址}    ${headers1}
+
+8dol和YD连接接口服务_获取8dolcookie
+    create session    api    ${P_8dol接口服务地址}    ${headers}    ${cookies}
+    create session    yundian    ${P_yundian接口服务地址}
+    ${url}    Set Variable    ${P_8dol接口服务地址}/captcha/image
+    ${cookieName}    Set Variable    OFCaptchaControl
+    ${cookieValue}    PR_获取cookie的值    ${url}   ${cookieName}
+
+8dol和YD关闭接口服务连接
+    [Documentation]    关闭接接口服务
+    delete all sessions
+
+8dol获取已登录用户信息_ByVerifyCode
+    [Arguments]    ${verify_code}    ${API基础信息_少verify_code}
+    [Documentation]        根据  verify_code ：${verify_code}  获取数据
+    ${addr}    获取已登录用户信息_ByVerifyCode    ${verify_code}   ${API基础信息_少verify_code}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    ${data}    get from dictionary    ${responsedata}    data
+    #${username}    get from dictionary    ${data}    username
+    ${nickname}    get from dictionary    ${data}    nickname
+
+8dol获取已登录用户信息_ByVerifyCode_异常
+    [Arguments]    ${verify_code}    ${API基础信息_少verify_code}
+    [Documentation]        根据  verify_code ：${verify_code}  获取数据
+    ${addr}    获取已登录用户信息_ByVerifyCode    ${verify_code}    ${API基础信息_少verify_code}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    [Return]    ${responsedata}
+
+8dol校验app版本
+    [Documentation]    使用json解析的方式
+    ${addr}    get request    api    ${GET打开app校验版本}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    ${values}    get dictionary values    ${responsedata}
+    ${data}    get from dictionary    ${responsedata}    data
+    ${msg}    get from dictionary    ${data}    version_name
+
+
+8dol校验launchAds
+    [Documentation]    使用json解析的方式
+    ${addr}    get request    api    ${GET获取launchAds}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    should be equal as strings    ${responsedata['rescode']}    200
+
+8dol选择学校_获取微仓列表
+    [Documentation]    使用json解析的方式
+    ${addr}    get request    api    ${GET选择学校_获取微仓列表}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    should be equal as strings    ${responsedata['rescode']}    200
+
+8dol选择学校_获取学校信息_byName
+    [Arguments]    ${parentCityName}    ${cityName}     ${schoolName}
+    [Documentation]    根据城市名称，学校名称获取，area_id ,org_id,admin_id
+    ${addr}    get request    api    ${GET选择学校_获取微仓列表}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    ${values}    get dictionary values    ${responsedata}
+    ${data}    get from dictionary    ${responsedata}    data
+    ${cityInfo}   获取列表内字典指定key的值    ${data}    name    ${parentCityName}    districts
+    ##### 2016-12-28 苗培腾修改
+    # ${list}    get from list    ${cityInfo}    0
+    # ${places}    get from dictionary    ${list}    places
+    ${places}   获取列表内字典指定key的值    ${cityInfo}    name    ${cityName}    places
+    ${area_id}   获取列表内字典指定key的值    ${places}    name    ${schoolName}    area_id
+    ${org_id}   获取列表内字典指定key的值    ${places}    name    ${schoolName}    org_id
+    ${admin_id}   获取列表内字典指定key的值    ${places}    name    ${schoolName}    admin_id
+    ${serve_type}   获取列表内字典指定key的值    ${places}    name    ${schoolName}    serve_type
+    @{keys}    set variable    schoolName    area_id    org_id    admin_id     serve_type
+    @{k_v}    set variable    ${schoolName}    ${area_id}    ${org_id}    ${admin_id}    ${serve_type}
+    ${dictionary}    拼装成字典    ${keys}    ${k_v}
+    [Return]    ${dictionary}
+
+8dol选择学校_获取学校area_id_byName
+    [Arguments]    ${cityName}     ${schoolName}
+    [Documentation]    根据城市名称，学校名称获取，area_id ,org_id,admin_id
+    ${addr}    get request    api    ${GET选择学校_获取微仓列表}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    ${values}    get dictionary values    ${responsedata}
+    ${data}    get from dictionary    ${responsedata}    data
+    ${cityInfo}   获取列表内字典指定key的值    ${data}    name    ${cityName}    districts
+    ${list}    get from list    ${cityInfo}    0
+    ${places}    get from dictionary    ${list}    places
+    ${area_id}   获取列表内字典指定key的值    ${places}    name    ${schoolName}    area_id
+    [Return]    ${area_id}
+
+8dol选择学校_获取附近的学校
+    [Documentation]    使用json解析的方式
+    ${addr}    get request    api    ${GET选择学校_获取最近的学校}
+    should be equal as strings    ${addr.status_code}    200

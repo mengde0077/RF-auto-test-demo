@@ -1,0 +1,135 @@
+*** Settings ***
+Library           DatabaseLibrary
+Library           Collections
+Resource          Public_Config.txt
+Resource          ../资源_API/API配置.txt
+
+*** Variables ***
+${S_db}           ${P_数据库地址配置}
+${S_db2}           ${P_数据库地址配置2}
+
+*** Keywords ***
+连接数据库
+    [Arguments]    ${db}=${S_db}
+    Connect To Database Using Custom Params    pymysql    ${db}
+
+关闭数据库连接
+    Disconnect From Database
+
+执行语句
+    [Arguments]    ${sql}
+    [Documentation]    执行一个没有返回值的新增、更新、删除类语句
+    Execute Sql String    ${sql}
+
+执行Query语句
+    [Arguments]    ${sql}
+    [Documentation]    执行一个没有返回值的新增、更新、删除类语句
+    ${result}    Query    ${sql}
+    [Return]    ${result}
+
+执行description语句
+    [Arguments]    ${sql}
+    [Documentation]    查询返回的结果是一个元组或者是一个元祖列表
+    ${result}    description    ${sql}
+    [Return]    ${result}
+
+执行查询语句
+    [Arguments]    ${sql}    ${db}=${S_db}
+    [Documentation]    查询返回的结果是一个元组或者是一个元祖列表
+    Connect To Database Using Custom Params    pymysql    ${db}
+    ${result}    Query    ${sql}
+    Disconnect From Database
+    [Return]    ${result}
+
+执行查询语句2
+    [Arguments]    ${sql}    ${db}=${S_db2}
+    [Documentation]    查询返回的结果是一个元组或者是一个元祖列表
+    Connect To Database Using Custom Params    pymysql    ${db}
+    ${result}    Query    ${sql}
+    Disconnect From Database
+    [Return]    ${result}
+
+执行查询语句返回字典
+    [Arguments]    ${sql}    ${db}=${S_db}
+    [Documentation]    查询返回的结果是一个元组或者是一个元祖列表
+    Connect To Database Using Custom Params    pymysql    ${db}
+    ${result}    Query    ${sql}
+    Disconnect From Database
+    [Return]    ${result}
+
+执行sql语句
+    [Arguments]    ${sql}    ${db}=${S_db}
+    [Documentation]    执行一个没有返回值的新增、更新、删除类语句
+    Connect To Database Using Custom Params    pymysql    ${db}
+    Execute Sql String    ${sql}
+    Disconnect From Database
+
+执行sql脚本
+    [Arguments]    ${sql_script}    ${db}=${S_db}
+    [Documentation]    脚本中使用 “;” 结束一行，以“#” 进行行注释；
+    ...    | Execute Sql Script | ${EXECDIR}${/}resources${/}DDL-setup.sql |
+    Connect To Database Using Custom Params    pymysql    ${db}
+    Execute Sql Script    ${sql_script}
+    Disconnect From Database
+
+_转换data成字典
+    [Arguments]    ${keys}    ${data}
+    ${dictionary}    create dictionary    key=v
+    ${listlen}    evaluate    len(${keys})
+    : FOR    ${i}    IN RANGE    ${listlen}
+    \    set to dictionary    ${dictionary}    @{keys}[${i}]=${data[0][${i}]}
+    \    log    ${data[0][${i}]}
+    [Return]    ${dictionary}
+
+_转换data成字典_S
+    ## 针对查询结果为多个元组的元组
+    [Arguments]    ${keys}    ${data}
+    ${dictionary}    create dictionary    key=v
+    ${listlen}    evaluate    len(${keys})
+    : FOR    ${i}    IN RANGE    ${listlen}
+    \    set to dictionary    ${dictionary}    @{keys}[${i}]=${data[${i}]}
+    \    log    ${data[${i}]}
+    [Return]    ${dictionary}
+
+_转换16进制为中文字符串
+    [Arguments]    ${data}
+    [Documentation]    将数据库返回的 16进制 转换成 中文
+    ${data1}    evaluate    binascii.b2a_hex("${data}").decode("utf8")    binascii
+    ${data2}    evaluate    binascii.a2b_hex("${data1}").decode("utf8")    binascii
+    [Return]    ${data2}
+
+sql_获取表的字段名
+    [Arguments]    ${table_name}
+    ${count}    执行查询语句    select database();
+    ${table_schema}    set Variable    ${count[0][0]}
+    ${data}    执行查询语句    select COLUMN_NAME from information_schema.`COLUMNS` where table_schema = '${table_schema}' and TABLE_NAME='${table_name}';
+    [Return]    ${data}
+
+sql_获取表字段元组值
+    [Arguments]    ${table_name}    ${condition}
+    ${data}    执行查询语句    select * from ${table_name} where ${condition};
+    [Return]    ${data}
+
+sql_录制表字段获取列表值
+    [Arguments]    ${table_name}    ${condition}
+    ${data}    执行查询语句    select * from ${table_name} where ${condition};
+    ${list}    元组转换成列表    ${data}
+    ${list0}    get from list    ${list}    0
+    [Return]    ${list0}
+
+sql_获取表的字段个数
+    [Arguments]    ${table_name}
+    ${count}    执行查询语句    select database();
+    ${table_schema}    set Variable    ${count[0][0]}
+    ${count}    执行查询语句    select count(*) from information_schema.`COLUMNS` where table_schema = '${table_schema}' and TABLE_NAME='${table_name}';
+    ${tablelen}    set Variable    ${count[0][0]}
+    [Return]    ${tablelen}
+
+sql_获取表驱动数据
+    [Arguments]    ${table_name}    ${db}=${S_db}
+    [Documentation]    查询返回的结果是一个元组或者是一个元祖列表
+    Connect To Database Using Custom Params    pymysql    ${db}
+    log    ${db}
+    ${result}    Query    select * from ${table_name};
+    Disconnect From Database
+    [Return]    ${result}

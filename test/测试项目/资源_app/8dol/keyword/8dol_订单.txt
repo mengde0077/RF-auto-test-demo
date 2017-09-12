@@ -1,0 +1,97 @@
+*** Settings ***
+Documentation     项目关键字：
+...               \ \ \ \ 用于记录单个项目中的业务关键字，不涉及具体的资源；
+...               本业务关键字记录，8 天在线 B2C的Android版本的功能关键字；
+Library           AppiumLibrary
+Library           TestLibrary
+Resource          ../../公共关键字.txt
+Resource          ../../app_配置.txt
+Resource          ../resource/8dol_订单.txt
+
+*** Variables ***
+
+*** Keywords ***
+写入类型关键字
+    comment    *******************************************************************************************************************
+    comment    此下区域放    写入类型关键字
+    comment    写入时，注意调整手机的输入法
+
+操作类型关键字
+    comment    *******************************************************************************************************************
+    comment    此下区域放    操作类型关键字
+    comment    进行元素的对象的操作，点击、长按，拖拽、划屏等
+    comment    进行换页操作，需要确认子页面的的资源是否加载
+
+
+
+8dol_app_点击订单_超市
+    PK_等待并点击_name    超市
+
+8dol_app_点击订单_夜8
+    PK_等待并点击_name    夜8
+
+8dol_app_点击订单_苏宁
+    PK_等待并点击_name    苏宁
+
+8dol_app_点击订单_盒子
+    PK_等待并点击_name    盒子
+
+8dol_app_点击订单_粮票
+    PK_等待并点击_name    粮票
+
+8dol_app_点击订单_预售
+    PK_等待并点击_name    预售
+
+8dol_app_点击订单_充值
+    PK_等待并点击_name    充值
+
+8dol_app_点击订单_特卖
+    PK_等待并点击_name    特卖
+
+
+
+8dol_app_点击_订单列表_弹出呼叫弹窗
+    [Arguments]    ${index}=1
+    ${locator}    获取_订单列表_呼叫_locator    ${index}
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击_订单列表_进入订单详情
+    [Arguments]    ${index}=1
+    ${locator}    获取_订单列表_进入订单详情_locator    ${index}
+    PK_等待并点击_locator    ${locator}
+
+
+
+8dol_app_点击_订单列表_取消订单
+    [Documentation]    第一个按钮，取消订单，并确认，
+    PK_等待并点击_name    取消订单
+    PK_等待并点击_name    取消订单     #弹窗对话框
+
+8dol_app_点击_订单列表_删除
+    [Arguments]    ${index}=1
+    ${locator}    获取_订单列表_删除_locator    ${index}
+    PK_等待并点击_locator    ${locator}
+
+
+
+获取类型关键字
+    comment    *******************************************************************************************************************
+    comment    此下区域放    获取类型关键字
+    comment    需要返回值，或列表
+
+8dol_app_获取_订单列表_下单时间
+    ${locator}    获取_订单列表_下单时间_locator
+    ${value}    PK_获取文本_locator    ${locator}
+    [return]    ${value}
+
+8dol_app_获取_订单列表_订单状态
+    ${locator}    获取_订单列表_订单状态_locator
+    PK_等待_locator    ${locator}
+    ${value}    PK_获取文本_locator    ${locator}
+    [return]    ${value}
+
+8dol_app_获取_订单列表_订单金额
+    ${locator}    获取_订单列表_订单金额_locator
+    ${value}    PK_获取文本_locator    ${locator}
+    [return]    ${value}
+

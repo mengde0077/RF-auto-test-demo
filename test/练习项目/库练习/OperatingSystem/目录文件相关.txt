@@ -1,0 +1,36 @@
+*** Settings ***
+Library           OperatingSystem
+Library           String
+
+*** Variables ***
+${base_path}      ~/Desktop/qita/
+
+*** Test Cases ***
+目录
+    ${image_path}    join path    ${base_path}    image_path_test    #组合目录，可以适配操作系统的不同目录结构
+    Create Directory    ${image_path}    #检查目录是否存在，不存在则创建目录
+    ${file_path}    join path    ${image_path}    example.csv
+    set suite variable    ${S_file_path}    ${file_path}
+    set suite variable    ${S_image_path}    ${image_path}
+
+添加文件
+    Directory Should Exist    ${S_image_path}    msg=目录不存在    #判断目录是否存在，不存在则报错，并输出msg信息
+    Directory Should Be Empty    ${S_image_path}    msg=目录不为空
+    Create File    ${S_file_path}    用户名,密码,VF\n    #创建文件，并写入Hello,world
+    append to file    ${S_file_path}    15195995661,123456,123\n    #写入一条数据
+    append to file    ${S_file_path}    15195995662,123456,123\n    #写入一条数据
+    ${file_content}    get file    ${S_file_path}
+    ${listlen}    get line count    ${file_content}
+    ${line_1}    get line    ${file_content}    1
+    ${line_1}    evaluate    '${line_1}'.replace(',','\\n')
+    ${listlen1}    get line count    ${line_1}
+    ${line_1_1}    get line    ${line_1}    1
+    ${file_size}    get file size    ${S_file_path}
+    ${file_modified_time}    get modified time    ${S_file_path}
+    Directory Should not Be Empty    ${S_image_path}    msg=目录为空
+    ${b_file}    get binary file  ${S_file_path}
+    log    ${b_file}
+
+删除
+    remove file    ${S_file_path}
+    Remove Directory    ${S_image_path}    #移除目录    image_path

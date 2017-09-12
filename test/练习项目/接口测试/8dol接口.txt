@@ -1,0 +1,89 @@
+*** Settings ***
+Documentation     验证8dol接口测试
+Force Tags        lianxi    API    8dol
+Library           RequestsLibrary
+Library           Collections
+
+*** Variables ***
+${旗舰店_超市_进口特产}    goods/queryCompress?org_id=222&sortedOrder=0&category_id=814&sort=1&start=0&app_version=AD_2.1.7
+${登录_订单列表}        /v3/orderNew/listOrderByUserId?orgId=222&limit=10&start=0&tag=ONE&app_version=AD_2.1.7&user_id=1787041&areaId=672638&verify_code=25c7c2d342230c0e9ade7ab7786ffe8c&
+${用户登录}           /v2/usercenter/8dolLogin?loginSource=3&coordinate=31.980713,118.778845&password=e10adc3949ba59abbe56e057f20f883e&deviceId=867711020582973&ip=192.168.40.234&loginName=15195995661&app_version=AD_2.1.7
+${提交_去结算}         /order/confirmOrder?org_id=222&goodsInfos=176447:1&area_id=672638&user_id=1787041&client=3&activityGoodsInfos=&verify_code=25c7c2d342230c0e9ade7ab7786ffe8c&app_version=AD_2.1.7
+${获取_订单结算信息}      /user/getMember?org_id=222&user_id=1787041&verify_code=25c7c2d342230c0e9ade7ab7786ffe8c&app_version=AD_2.1.7
+${获取_一键快购设置}      /v2/usercenter/queryCustomization?area_id=672638&user_id=1787041&verify_code=25c7c2d342230c0e9ade7ab7786ffe8c&app_version=AD_2.1.7
+${提交_一键快购_支付方式设置}    /v2/usercenter/insert2Customization?promo_type=1&is_balance_pay=0&user_id=1787041&pay_type=0&verify_code=25c7c2d342230c0e9ade7ab7786ffe8c&app_version=AD_2.1.7
+${苏宁测试服务器URL}     http://58.240.86.161
+${POST获取接口令牌}     /esbadapter/GEBaseInfoMgmt_GCMS/getAccessToken?data={"appKey": "BTZX","appSecret":"9a3c2563-ae7c-4519-8637-bd65eef29da4","v":"1.0"}
+${对象name}         盒装烘焙客无加糖饼干120g（亚麻仁味）
+@{v}              1    2
+${huanhuo}        /box/boxes/69840263fc2fc6f03b3384a412fa991ef79daea8dd2ee15e66a287e217eae517/updateTally/24,%20GET,%20paramMap:%7BverifyCode=b616daf5cc61730a0ff176a3970b1ff8,%20app_version=IOS_2.1.4,%20goodsList=525:6,%20userId=1514191%7D
+
+*** Test Cases ***
+用户登录
+    [Documentation]    使用json解析的方式
+    create session    api    http://m.8dol.com
+    ${addr}    get request    api    ${用户登录}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    ${result}    get from dictionary    ${responsedata}    result
+    run keyword if    ${result}=='ok'    log    ok
+    ${items}    get dictionary items    ${responsedata}
+    ${list}    get dictionary values    ${responsedata}
+    ${dictionary}    Get From List    ${list}    0    #获取列表中标签为0的值
+    ${username}    get from dictionary    ${dictionary}    username
+    delete all sessions
+
+提交_一键快购设置
+    [Documentation]    使用json解析的方式
+    create session    api    http://m.8dol.com
+    ${addr}    get request    api    ${提交_一键快购_支付方式设置}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    delete all sessions
+
+获取商品
+    [Documentation]    使用json解析的方式
+    create session    api    http://m.8dol.com
+    ${addr}    get request    api    ${旗舰店_超市_进口特产}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    ${list1}    get dictionary values    ${responsedata}
+    ${type}    evaluate    type(${list1})
+    ${list2}    Get From List    ${list1}    0
+    ${listlen}    evaluate    len(${list2})    #获取列表的长度不需要引号
+    : FOR    ${i}    IN RANGE    ${listlen}-1
+    \    ${dictionary}    Get From List    ${list2}    ${i}
+    \    ${name}    get from dictionary    ${dictionary}    name
+    \    ${weightd_cost_price}    get from dictionary    ${dictionary}    weightd_cost_price
+    \    ${v}    evaluate    cmp('${对象name}','${name}')
+    \    exit for loop if    ${v} == 0
+    delete all sessions
+    ${dictionary}    Get From List    ${list2}    ${i}
+    ${weightd_cost_price}    get from dictionary    ${dictionary}    weightd_cost_price
+
+获取接口令牌
+    [Documentation]    使用json解析的方式
+    create session    api    ${苏宁测试服务器URL}
+    ${addr}    get request    api    ${POST获取接口令牌}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    delete all sessions
+
+获取换货
+    [Documentation]    使用json解析的方式
+    create session    api    http://test.8dol.com:8081
+    ${addr}    get request    api    ${huanhuo}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    delete all sessions
+
+字典
+    log    ${v}
+
+delete
+    delete all sessions

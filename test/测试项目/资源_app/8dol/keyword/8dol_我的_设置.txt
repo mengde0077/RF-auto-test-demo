@@ -1,0 +1,94 @@
+*** Settings ***
+Documentation     项目关键字：
+...               \ \ \ \ 用于记录单个项目中的业务关键字，不涉及具体的资源；
+...               本业务关键字记录，8 天在线 B2C的Android版本的功能关键字；
+Library           AppiumLibrary
+Library           TestLibrary
+Resource          ../../公共关键字.txt
+Resource          ../../app_配置.txt
+Resource          ../resource/8dol_我的_设置.txt
+
+*** Variables ***
+
+*** Keywords ***
+# 获取类型关键字
+#     comment    *******************************************************************************************************************
+#     comment    该区域放    获取类型关键字
+#     comment    需要返回值，或列表
+
+8dol_app_我的设置_获取收货人
+    [Documentation]    我的设置_获取保存的收货人
+    ${value}    Get Element Attribute    id=${一键快购设置_获取保存的收货人id}    name
+    [Return]    ${value}
+
+8dol_app_我的设置_获取收货地址
+    [Documentation]    我的设置_获取保存的收货地址
+    ${value}    Get Element Attribute    id=${一键快购设置_获取保存的收货地址id}    name
+    [Return]    ${value}
+
+8dol_app_我的设置_获取获取余额支付状态
+    [Documentation]    我的设置_获取余额支付状态
+    ${value}    Get Element Attribute    id=${一键快购设置_获取保存的收货地址id}    name
+    [Return]    ${value}
+
+# 操作类型关键字
+#     comment    *******************************************************************************************************************
+#     comment    该区域放    操作类型关键字
+#     comment    进行元素的对象的操作，点击、长按，拖拽、划屏等
+#     comment    进行换页操作，需要确认子页面的的资源是否加载
+
+8dol_app_我的设置_进入_帐户安全
+    PK_等待并点击_name    帐户安全
+
+8dol_app_我的设置_进入_关于我们
+    PK_等待并点击_name    关于我们
+
+8dol_app_我的设置_关于我们_修改ip
+    ${locator}    PK_将name转换成xpath    南京八天在线网络科技有限公司
+    # PK_等待_locator    ${locator}
+    PK_等待并长按_locator    ${locator}     #等 APP 修改成长按
+    ${size_info}    _获取element的坐标信息    ${locator}
+    ${x}    get from dictionary     ${size_info}    x_center
+    ${y}    get from dictionary     ${size_info}    y_center
+    # PK_等待并双击_name    南京八天在线网络科技有限公司
+    sleep    3
+    ${locator}    获取_修改ip_输入框_locator
+    Clear Text    ${locator}
+    Input Text    ${locator}    172.23.3.82:8091
+    PK_等待并点击_name    确定
+
+8dol_app_我的设置_点击_退出登录
+    PK_等待并点击_name    退出登录
+
+写入类型关键字
+    comment    *******************************************************************************************************************
+    comment    该区域放    写入类型关键字
+    comment    写入时，注意调整手机的输入法
+
+8dol_app_我的设置_输入默认一键快购测试地址
+    [Documentation]    我的设置_输入测试地址，不需要输入参数，下拉框默认选第一个
+    Click Element    ${一键快购设置_宿舍区id}
+    PK_等待_id    ${一键快购设置_下拉选择_完成id}
+    Click Element    ${一键快购设置_下拉选择_完成id}
+    Click Element    ${一键快购设置_哪栋楼id}
+    PK_等待_id    ${一键快购设置_下拉选择_完成id}
+    Click Element    ${一键快购设置_下拉选择_完成id}
+    Input Text    id=${一键快购设置_收货人id}    总部测试
+    #Input Text    id=${一键快购设置_手机号码id}    登录的账号手机号码
+
+8dol_app_我的设置_设置支付组合
+    PK_划屏将对象id显示到当前页    ${一键快购设置_保存设置id}
+
+8dol_app_我的设置_进入收货地址
+    我的_设置点击收货地址
+    ${v}    PK_等待_name    ${收货地址_tabname}
+    PK_8dol截屏    我的设置_进入收货地址
+    [Return]    ${v}
+
+8dol_app_我的设置_进入账户安全
+    我的_设置点击账户安全
+    ${v}    PK_等待_name    ${账户安全_tabname}
+    PK_8dol截屏    我的设置_进入账户安全
+    [Return]    ${v}
+
+

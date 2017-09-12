@@ -1,0 +1,118 @@
+*** Settings ***
+Documentation     可以访问  http://192.168.100.57:9900/  进行调试 验证
+
+Library           RequestsLibrary
+Library           Collections
+Library           String
+Library           OperatingSystem
+*** Variables ***
+${opencv_server_url}    http://192.168.100.57:9900
+${POST_diss}    /opencv/dissimilarity
+${POST_match}    /opencv/matchtemplate
+${POST_casca}    /opencv/cascadedetect
+${POST_findpairs}    /opencv/findpairs
+# ${macaca}    ./image/macaca.png
+${macaca}    /Users/caolinming/Desktop/qita/image_path/8dol/20170606/174411xiuxianshipin.png
+# ${macaca_logo}    ./image/macaca_logo.png
+${macaca_logo}    ../用例_app/8dol测试/image/i_know.png
+
+# *** Test Cases ***
+# lianjie
+#     opencv连接接口服务
+
+# ceshi1
+#     opencv_dissimilarity    ${macaca}    ${macaca_logo}
+
+# ceshi2
+#     opencv_matchtemplate    ${macaca_logo}    ${macaca}
+
+# ceshi3
+#     opencv_cascadedetect    ${macaca}    ${macaca_logo}
+
+# ceshi4
+#     opencv_findpairs    ${macaca}    ${macaca_logo}
+
+# guanbi
+#     opencv关闭接口服务连接
+
+*** Keywords ***
+opencv连接接口服务
+    [Documentation]    根据API配置中接口服务器地址：${P_yundian接口服务地址}  连接接口服务
+    create session    opencv    ${opencv_server_url}
+
+opencv关闭接口服务连接
+    [Documentation]    关闭所有服务   防止suite 结束位置
+    delete all sessions
+
+opencv_dissimilarity
+    [Arguments]    ${image1}    ${image2}
+    [Documentation]   差异度   dissimilarity 的值 越小 差异 越小
+    ...    ${image1}    ./image/macaca.png  图片名称只能使用字母数字及下划线
+    ...    ${image2}    ./image/macaca_logo.png
+    ${image1}    _图片信息拼装    ${image1}
+    ${image2}    _图片信息拼装    ${image2}
+    ${files}    create dictionary    image1=${image1}    image2=${image2}
+    ${addr}    post request    opencv    ${POST_diss}    files=${files}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    log    ${responsedata}
+    [Return]    ${responsedata}
+
+opencv_matchtemplate
+    [Arguments]    ${image1}    ${image2}
+    [Documentation]
+    ...    ${image1}    ./image/macaca.png   被匹配标记的大图
+    ...    ${image2}    ./image/macaca_logo.png    为需要匹配的小图，
+    ...                  最好是颜色较深的 图片 带文字效果不好
+    ${image1}    _图片信息拼装    ${image1}
+    ${image2}    _图片信息拼装    ${image2}
+    ${files}    create dictionary    image1=${image1}    image2=${image2}
+    ${addr}    post request    opencv    ${POST_match}    files=${files}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    log    ${responsedata}
+    [Return]    ${responsedata}
+
+opencv_cascadedetect
+    [Arguments]    ${image1}    ${image2}
+    [Documentation]
+    ...    ${image1}    ./image/macaca.png
+    ...    ${image2}    ./image/macaca_logo.png
+    ${image1}    _图片信息拼装    ${image1}
+    ${image2}    _图片信息拼装    ${image2}
+    # ${image1}    evaluate    ('image1', open('${image1}', 'rb'))
+    # ${image2}    evaluate    ('image2', open('${image2}', 'rb'))
+    ${files}    create dictionary    image1=${image1}    image2=${image2}
+    ${addr}    post request    opencv    ${POST_casca}    files=${files}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    log    ${responsedata}
+    [Return]    ${responsedata}
+
+opencv_findpairs
+    [Arguments]    ${image1}    ${image2}
+    [Documentation]
+    ...    ${image1}    ./image/macaca.png   图片名称只能使用字母数字及下划线
+    ...    ${image2}    ./image/macaca_logo.png
+    ${image1}    _图片信息拼装    ${image1}
+    ${image2}    _图片信息拼装    ${image2}
+    ${files}    create dictionary    image1=${image1}    image2=${image2}
+    ${addr}    post request    opencv    ${POST_findpairs}    files=${files}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    log    ${responsedata}
+    [Return]    ${responsedata}
+
+_图片信息拼装
+    [Arguments]    ${image}
+    # ${i_name}    get image name    ${image}
+    # ${i_type}    get image type    ${i_name}
+    ${i_name}    evaluate    re.search('\\w+\\.\\w+','${image}').group()    re
+    ${i_type}    evaluate    re.search('\\.\\w+','${i_name}').group()    re
+    ${i_type}    Set Variable    ${i_type[1:]}
+    ${image}    evaluate    ('${i_name}', open('${image}', 'rb'), 'image/${i_type}', {'Expires': '0'})
+    [Return]    ${image}
+
+
+
+

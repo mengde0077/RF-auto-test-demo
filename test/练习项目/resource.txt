@@ -1,0 +1,59 @@
+*** Settings ***
+Library           AppiumLibrary
+
+*** Variables ***
+${REMOTE_URL}     http://localhost:4723/wd/hub
+${REMOTE_URL1}    http://localhost:4755/wd/hub
+${platformName}    Android
+${platformVersion}    4.4.4
+#${deviceName}    482ede3a    #我的手机
+${deviceName}     1L521W018328    #HM 2A，做了root
+${app}            E:\apk\\20151022\\ContactManager.apk
+${appPackage}     com.example.android.contactmanager
+${appActivity}    .ContactManager
+${date}           20151031
+${browserName}    Chrome
+
+*** Keywords ***
+add new contact
+    [Arguments]    ${contact_name}    ${contact_phone}    ${contact_email}
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    app=${app}    appPackage=${appPackage}
+    ...    appActivity=${appActivity}
+    Click Element    accessibility_id=Add Contact
+    Input Text    id=com.example.android.contactmanager:id/contactNameEditText    ${contact_name}
+    Input Text    id=com.example.android.contactmanager:id/contactPhoneEditText    ${contact_phone}
+    Input Text    id=com.example.android.contactmanager:id/contactEmailEditText    ${contact_email}
+    Click Element    accessibility_id=Save
+
+forI
+    : FOR    ${i}    IN RANGE    1    3
+    \    log    ${i}
+
+打开浏览器
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    browserName=${browserName}
+
+打开URL
+    go to url    http://www.8dol.com
+    #go to url    http://www.baidu.com
+
+划屏查找列表对象并移动到第一列表位置
+    [Arguments]    ${对象所在id}    ${对象name}
+    [Documentation]    将${对象所在id}对应的name跟${对象name}对比，没找到就向上划屏，比对正确之后，将${对象name}对应的y坐标移动到 ${指定位置y坐标}位置，一般是移动到最上方的位置，便于使用元素id对对象区域内的其他关联对象进行操作；
+    ...    如：
+    ...    划屏查找对象并移动到指定高度 \ \ \ \ \ \ \ \ 订单编号：M2015120420573700231|com.ndol.b2b.cloud:id/iol_order_no|375 \ \ \ \ 本方法每次划屏一个订单高度，每次查找第一顺位的订单，这样就可以直接安装id进行操作；
+    ...    每次滑动一个固定的高度还是不行，这个高度不一定固定
+    ...    这次根据订单定位，将下一个订单移动到上一个订单的位置；
+    ${坐标字典0}    Get Element location    id=${对象所在id}    #获取对象最初的坐标
+    ${指定位置y坐标}    evaluate    ${坐标字典0}['y']
+    ${指定位置x坐标}    evaluate    ${坐标字典0}['x']
+    ${开始滑动位置y坐标}    set variable    ${坐标字典0}['y']+300
+    : FOR    ${i}    IN RANGE    100    #使用循环操作划屏来查找元素
+    \    ${name}    Get Element Attribute    id=${对象所在id}    name
+    \    ${v}    evaluate    cmp('${对象name}','${name}')
+    \    exit for loop if    ${v} == 0
+    \    Swipe    ${指定位置x坐标}    ${开始滑动位置y坐标}    ${指定位置x坐标}    ${指定位置y坐标}    duration=1000
+    \    run keyword if    ${v} == -1    continue for loop
+    ${坐标字典}    Get Element location    name=${对象name}    #获取到坐标
+    ${x}    evaluate    ${坐标字典}['x']
+    ${y}    evaluate    ${坐标字典}['y']
+    Swipe    ${x}    ${y}    ${指定位置x坐标}    ${指定位置y坐标}    duration=1000

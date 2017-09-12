@@ -1,0 +1,65 @@
+*** Settings ***
+Library           AppiumLibrary
+Resource          ../8dol基本/登录方法.txt
+Resource          ../8dol基本/充值相关关键字.txt
+Resource          ../8dol基本/常用关键字.txt
+
+*** Test Cases ***
+支付宝充值
+    选择学校后无需登录
+    ${余额}    支付宝的我要充值页面
+    ${余额充值失败后}    支付宝充值失败，查看余额
+    Should Be Equal    ${余额}    ${余额充值失败后}
+
+test1
+    Open Application    http://localhost:4723/wd/hub    alias=Myapp1    platformName=IOS    platformVersion=9.2.1
+    Click Button    kefu homePageNew
+    sleep    1
+    Click Button    arrowBack
+    Click Button    天金
+    Click Button    arrowBack
+    Click Button    充值
+    Click Button    arrowBack
+    Click Button    摸我8
+    Close All Applications
+    Open Application    http://localhost:4723/wd/hub    alias=Myapp1    platformName=IOS    platformVersion=9.2.1－／。
+    Click A Point    x=81    y=524
+    sleep    1
+    Click A Point    x=145    y=524
+    sleep    1
+    Click A Point    x=209    y=524
+    sleep    1
+    Click A Point    x=273    y=524
+    sleep    1
+    Close All Applications
+
+test2
+    Open Application    http://localhost:4723/wd/hub    alias=Myapp1    platformName=IOS    platformVersion=9.2.1
+    Click A Point    x=0    y=386
+    Click A Point    x=0    y=154
+    Click A Point    x=290    y=168
+    Click Button    去结算
+    Click Button    提交订单
+
+test3
+    Open Application    http://localhost:4723/wd/hub    alias=Myapp1    platformName=IOS    platformVersion=9.2.1
+    Click A Point    x=273    y=524
+    Click A Point    x=108    y=94
+    Click A Point    x=30    y=154
+    sleep    1
+    Click Button    清除文本
+    Input Text    xpath=//UIAApplication[1]/UIAWindow[1]/UIAScrollView[1]/UIAScrollView[1]/UIATextField[1]    13000000000
+    Click A Point    x=30    y=199
+    Input Password    xpath=//UIAApplication[1]/UIAWindow[1]/UIAScrollView[1]/UIAScrollView[1]/UIASecureTextField[1]    8dol918
+    Click Button    登 \ 录
+
+test4
+    Open Application    http://localhost:4723/wd/hub    alias=Myapp1    platformName=IOS    platformVersion=9.2.1
+    Click Button    天金
+    ${date}    Get Str Date    #获取当前的日期作为子目录字符串
+    ${time}    Get Str Time    #获取当前的时间作名字补充字符串
+    ${path}    Set Variable    /Users/cjl/Documents/lianxi/${date}${time}.png
+    Capture Page Screenshot    ${path}
+    Page Should Contain Element    name=天金商城
+    Click Button    arrowBack
+    Get Str Date

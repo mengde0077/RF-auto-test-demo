@@ -1,0 +1,32 @@
+*** Settings ***
+Resource          ../8dol资源/我的余额页面资源.txt
+Resource          ../8dol资源/我要充值页面.txt
+Resource          ../8dol资源/支付失败页面资源.txt
+Library           AppiumLibrary
+Resource          常用关键字.txt
+Library           TestLibrary
+
+
+*** Keywords ***
+支付宝的我要充值页面
+    [Documentation]    登录成功之后，点击我的页面，点击余额，点击去充值，支付宝支付50元，点击我要充值按钮
+    ${余额}    Get Element Attribute    id=${余额数目ID}    name
+    log    ${余额}
+    Click Element    id=${余额TabID}
+    页面操作之前等待加载ID    ${去充值ID}
+    Click Element    id=${去充值ID}
+    页面操作之前等待加载Name    ${支付宝支付方式}
+    Click Element    name=${支付宝支付方式}
+    Click Element    id=${我要充值按钮ID}
+    Wait Until Keyword Succeeds    15sec    1sec    Page Should Not Contain Element    id=${我要充值按钮ID}
+    [Return]    ${余额}
+
+支付宝充值失败，查看余额
+    [Documentation]    我要充值页面，选择支付宝之后，点击返回，使之支付失败
+    Back Key
+    页面操作之前等待加载Name    ${支付失败}
+    Click Element    id=${页面返回按钮ID}
+    页面操作之前等待加载ID    ${我的余额页面余额数值id}
+    ${余额充值失败后}    Get Element Attribute    id=${我的余额页面余额数值id}    name
+    [Return]    ${余额充值失败后}
+

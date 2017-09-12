@@ -1,0 +1,8 @@
+*** Settings ***
+Resource          ../resource/8dol_订单结算.txt
+Library           AppiumLibrary
+Library           TestLibrary
+
+*** Keywords ***
+8dol_app_点击_订单结算页_提交订单
+    PK_等待并点击_name    提交订单

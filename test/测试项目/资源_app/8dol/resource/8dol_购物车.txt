@@ -1,0 +1,33 @@
+*** Settings ***
+Documentation     项目子资源：
+...               \ \ \ \ 用于记录单个项目中的单个activity的子资源，资源的内容随项目的升级而变化；
+...
+...               1.记录对应项目的，功能页面及功能页面包含的元素对象；
+...               2.记录项目中可复用的资源关键字；
+...
+...
+...               本资源记录，8 天在线 B2C的Android版本的资源；
+Library           AppiumLibrary
+Library           TestLibrary
+
+*** Variables ***
+${购物车_未登录提示_and}         //*[@resource-id="com.ndol.sale.starter:id/login_notice"]
+${购物车_加_and}     //*[@resource-id="com.ndol.sale.starter:id/add"]
+${购物车_减_and}     //*[@resource-id="com.ndol.sale.starter:id/reduce"]
+${购物车_合计金额_and}         //*[@resource-id="com.ndol.sale.starter:id/amount_num_txt"]
+*** Keywords ***
+获取_购物车_未登录提示_locator
+    ${locator}    PK_获取相应平台的locator    xpath=${购物车_未登录提示_and}    xpath=${购物车_未登录提示_and}
+    [return]    ${locator}
+
+获取_购物车_加_locator
+    ${locator}    PK_获取相应平台的locator    xpath=${购物车_加_and}    xpath=${购物车_加_and}
+    [return]    ${locator}
+
+获取_购物车_减_locator
+    ${locator}    PK_获取相应平台的locator    xpath=${购物车_减_and}    xpath=${购物车_减_and}
+    [return]    ${locator}
+
+获取_购物车_合计金额_locator
+    ${locator}    PK_获取相应平台的locator    xpath=${购物车_合计金额_and}    xpath=${购物车_合计金额_and}
+    [return]    ${locator}

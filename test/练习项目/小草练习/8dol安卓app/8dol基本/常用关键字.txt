@@ -1,0 +1,11 @@
+*** Settings ***
+Library           AppiumLibrary
+
+*** Keywords ***
+页面操作之前等待加载ID
+    [Arguments]    ${id}
+    Wait Until Keyword Succeeds    15sec    1sec    Page Should Contain Element    id=${id}
+
+页面操作之前等待加载Name
+    [Arguments]    ${name}
+    Wait Until Keyword Succeeds    15sec    1sec    Page Should Contain Element    name=${name}

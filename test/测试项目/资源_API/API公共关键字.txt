@@ -1,0 +1,440 @@
+*** Settings ***
+Documentation     接口公共关键字资源：
+...               \ \ \ \ 用于记录接口测试中一些通用的操作方法，提高复用。减少关键字层的冗余
+Library           RequestsLibrary
+Library           TestLibrary
+Library           ReadAndWriteExcel
+Library           ExcelLibrary
+Library           Collections
+Library           OperatingSystem
+Library           String
+Resource          API配置.txt
+Resource          ../资源_公共/公共资源.txt
+
+*** Variables ***
+${end}            end
+
+*** Keywords ***
+获取_图形验证码
+    #${addr}    云店PC用户登录_图形验证码
+    [Arguments]    ${服务器地址}
+    ${url}    Set Variable    ${服务器地址}/captcha/image
+    ${cookieName}    Set Variable    OFCaptchaControl
+    ${cookieValue}    PR_获取cookie的值    ${url}   ${cookieName}
+    ${key}    Set Variable    G_CODE_${cookieValue}
+    log    ${P_redis_host}
+    ${value}    Set Variable
+    :for    ${i}    in range    3
+    \    ${value}    获取redis_db的KEY的值    ${key}    ${P_redis_host}
+    \    ${status}    run keyword and return status    should be equal as strings   ${value}   None
+    \    run Keyword if    ${status}==0    Exit for loop
+    \    sleep    1
+    [Return]    ${value}    ${cookieValue}
+
+
+获取订单表字段位置
+    [Arguments]    ${data1}    ${data_description}    ${data2}
+    @{i_list}    create list
+    @{j_list}    create list
+    ${listlen_i}    evaluate    len(${data_description})
+    ${data1_0}    Set Variable    ${data1[0]}
+    ${data2_0}    Set Variable    ${data2[0]}
+    : FOR    ${i}    IN RANGE    ${listlen_i}
+    \    log    待验证值=${data1_0[${i}]}
+    \    log    原值=${data2_0[${i}]}
+    \    ${status}    run keyword and return status    should be equal as strings    ${data1_0[${i}]}    ${data2_0[${i}]}
+    \    Run Keyword If    ${status}==1    append to list    ${i_list}    ${i}
+    \    Run Keyword If    ${status}==1    append to list    ${j_list}    ${data1_0[${i}]}
+    [Return]    ${i_list}    ${j_list}
+
+根据位标验证相应的值del
+    [Arguments]    ${data1}    ${list2}    ${i_list}
+    @{v_list}    create list
+    ${data1_0}    Set Variable    ${data1[0]}
+    ${listlen_i}    evaluate    len(${i_list})
+    : FOR    ${i}    IN RANGE    ${listlen_i}
+    \    log    待验证值data=${data1_0[${i}]}
+    \    log    参考值data=${list2[${i}]}
+    \    run keyword and continue on failure    should be equal as strings    ${data1_0[int(${i_list}[${i}])]}    ${list2[${i}]}
+
+四舍五入小数点两位
+    [Arguments]    ${value}
+    ${value}    test Round    ${value}
+    [Return]    ${value}
+
+拼装成字典
+    [Arguments]    ${keys}    ${data}
+    ${dictionary}    create dictionary    key=v
+    ${listlen}    evaluate    len(${keys})
+    #${listlen}    Get Length    ${keys}
+    : FOR    ${i}    IN RANGE    ${listlen}
+    \    set to dictionary    ${dictionary}    @{keys}[${i}]=@{data}[${i}]
+    [Return]    ${dictionary}
+
+获取MD5
+    [Arguments]    ${v}
+    [Documentation]    获取输入值${v}的MD5值
+    ${v_MD5}    Get Md5    ${v}
+    [Return]    ${v_MD5}
+
+Set Suite Variable get from dictionary
+    [Arguments]    ${dictionary}    ${key}
+    [Documentation]    不能这么组合，应该是局域变量作用域的问题
+    ${key_v}    get from dictionary    ${dictionary}    ${key}
+    Set Suite Variable    ${S_key_v}    ${key_v}
+    [Return]    ${S_key_v}
+
+读取CSV
+    [Arguments]    ${file_path}    ${L}    ${C}
+    [Documentation]    读取 ${file_path} 文件，从中${L} 行开始 ${c}列的值，一般从1开始，将值存入一个列表
+    @{r_list}    set variable    a    b    #定义一个列表
+    ${L}    evaluate    ${L}-1    #读取数据是从0开始的
+    ${C}    evaluate    ${C}-1
+    File Should Exist    ${file_path}    msg=文件不存在    #判断文件是否存在，不存在则报错，并输出msg信息
+    ${file_content}    get file    ${file_path}    #读取文件的内容
+    ${listlen}    get line count    ${file_content}    #获取CSV文件内容的行数
+    : FOR    ${i}    IN RANGE    ${L}    ${listlen}
+    \    ${line_L}    get line    ${file_content}    ${i}
+    \    ${line_L}    evaluate    '${line_L}'.replace(',','\\n')    #将CSV的，号行替换成回车符号
+    \    ${str_C}    get line    ${line_L}    ${C}    #获取第${C}的值
+    \    Append To List    ${r_list}    ${str_C}
+    \    ${i}    evaluate    ${i}+1
+    remove from list    ${r_list}    0    #删除初定义列表时的两个值
+    remove from list    ${r_list}    0
+    [Return]    ${r_list}
+
+获取给定字典列表中key值不为V的所有key1对应值的列表
+    [Arguments]    ${itemList}    ${key}    ${V}    ${key1}
+    [Documentation]    如：获取 总仓进货单列表中所有状态key为“已发货”的进货单ID
+    ...    参数：包含字典组成的列表 字典中的某个key
+    ...    返回：${V_list} 是一个包含一类key对应的值
+    ${V_list}    create list    ${end}
+    ${listlen}    evaluate    len(${itemList})
+    run keyword if    ${listlen}==0    log    已无对应的数据
+    : FOR    ${i}    IN RANGE    ${listlen}
+    \    ${dictionary}    Get From List    ${itemList}    ${i}
+    \    ${i}    evaluate    ${i}+1
+    \    ${key_v}    get from dictionary    ${dictionary}    ${key}
+    \    @{值列表}    set variable    ${V_list}    ${dictionary}    ${key1}
+    \    run keyword if    ${key_v}!=${V}    _获取字典中KEY的值加入列表    @{值列表}    #如果key的值等于给定的V，则获取key1的值存入列表
+    \    #否则就继续循环
+    remove from list    ${V_list}    -1
+    [Return]    ${V_list}
+
+获取给定字典列表中key值为V的所有key1对应值的列表
+    [Arguments]    ${itemList}    ${key}    ${V}    ${key1}
+    [Documentation]    如：获取 总仓进货单列表中所有状态key为“已发货”的进货单ID
+    ...    参数：包含字典组成的列表 字典中的某个key
+    ...    返回：${V_list} 是一个包含一类key对应的值
+    ${V_list}    create list    ${end}
+    ${listlen}    evaluate    len(${itemList})
+    : FOR    ${i}    IN RANGE    ${listlen}
+    \    ${dictionary}    Get From List    ${itemList}    ${i}
+    \    ${i}    evaluate    ${i}+1
+    \    ${key_v}    get from dictionary    ${dictionary}    ${key}
+    \    @{值列表}    set variable    ${V_list}    ${dictionary}    ${key1}
+    \    run keyword if    ${key_v}==${V}    _获取字典中KEY的值加入列表    @{值列表}    #如果key的值等于给定的V，则获取key1的值存入列表
+    \    #否则就继续循环
+    remove from list    ${V_list}    -1
+    [Return]    ${V_list}
+
+_获取字典中KEY的值加入列表
+    [Arguments]    ${V_list}    ${dictionary}    ${key1}
+    ${key1_v}    get from dictionary    ${dictionary}    ${key1}
+    insert into list    ${V_list}    0    ${key1_v}
+
+获取给定字典列表中key的值为V的字典
+    [Arguments]    ${itemList}    ${key}    ${V}
+    [Documentation]    如：获取 一个字典的列表中，某个包含${V}字典的序号，没有就报错
+    ...    ${itemList}  包含多个字典的列表
+    ...    ${key}=${V}   某个字典中 包含的一个特殊值
+    ${listlen}    evaluate    len(${itemList})
+    : FOR    ${i}    IN RANGE    ${listlen}
+    \    ${dictionary}    Get From List    ${itemList}    ${i}
+    \    ${key_v}    Get From dictionary    ${dictionary}    ${key}
+    \    ${key_v}    evaluate    str(${key_v})
+    \    ${status}    run keyword and return status    should be equal    ${key_v}    ${V}
+    # \    ${status}    run keyword and return status    dictionary should contain value    ${dictionary}    ${V}
+    \    Run Keyword If    ${status}==1    Exit for loop
+    should be equal   ${key_v}    ${V}
+    [Return]    ${dictionary}
+
+获取给定字典列表中key对应值的列表
+    [Arguments]    ${itemList}    ${key}
+    [Documentation]    如：由于 用户往往有多个收货地址，在清空所有收货地址时，需要获取所有收货地址id的列表
+    ...    参数：包含字典组成的列表 字典中的某个key
+    ...    返回：${V_list} 是一个包含一类key对应的值
+    ${V_list}    create list    ${end}
+    ${listlen}    evaluate    len(${itemList})
+    run keyword if    ${listlen}==0    log    收货地址已删空
+    : FOR    ${i}    IN RANGE    ${listlen}
+    \    ${dictionary}    Get From List    ${itemList}    ${i}
+    \    ${i}    evaluate    ${i}+1
+    \    ${key_v}    get from dictionary    ${dictionary}    ${key}
+    \    insert into list    ${V_list}    0    ${key_v}
+    remove from list    ${V_list}    -1
+    [Return]    ${V_list}
+
+获取给列表内所有字典key的值
+    [Arguments]    ${itemList}    ${key1}    ${key2}
+    [Documentation]    获取给定字典中,第一层列表内字典中所有指定key的值
+    ${listlen}    evaluate    len(${itemList})    #获取列表的长度不需要引号
+    ${d_v}    create dictionary    key=v
+    : FOR    ${i}    IN RANGE    ${listlen}
+    \    ${dictionary}    Get From List    ${itemList}    ${i}
+    \    ${i}    evaluate    ${i}+1
+    \    log    第${i}条
+    \    ${value1}    get from dictionary    ${dictionary}    ${key1}
+    \    ${value2}    get from dictionary    ${dictionary}    ${key2}
+    \    set to dictionary    ${d_v}    ${value1}=${value2}
+    [Return]    ${d_v}
+
+获取列表内字典指定key的值
+    [Arguments]    ${itemList}    ${key}    ${key_value}    ${key2}
+    [Documentation]    获取列表内字典中${key}的值为${key_value}对应的${key2}的值
+    ${listlen}    evaluate    len(${itemList})
+    : FOR    ${i}    IN RANGE    ${listlen}
+    \    ${dictionary}    Get From List    ${itemList}    ${i}
+    \    ${value}    get from dictionary    ${dictionary}    ${key}
+    # \    ${v}    evaluate    cmp('${key_value}','${value}')
+    # \    exit for loop if    ${v} == 0
+    # miao
+    \    run keyword if    '${value}'=='${key_value}'    exit for loop
+    ${dictionary}    Get From List    ${itemList}    ${i}
+    ${value2}    get from dictionary    ${dictionary}    ${key2}
+    [Return]    ${value2}
+
+获取列表内字典指定key的所有值并将需要的值剔除
+    [Arguments]    ${itemList}    ${key}    @{keyValueList}
+    ${itemlist1}    create list
+    : FOR    ${i}    IN RANGE    len(${itemList})
+    \    ${dictionary}    Get From List    ${itemList}    ${i}
+    \    ${value}    get from dictionary    ${dictionary}    ${key}
+    \    append to list    ${itemList1}    ${value}
+    remove values from list    ${itemList1}    @{keyValueList}
+    [Return]    ${itemList1}
+
+获取列表内字典指定非key的值
+    [Arguments]    ${itemList}    ${key}    ${key_value}    ${key2}
+    [Documentation]    获取列表内字典中${key}的值为${key_value}对应的${key2}的值
+    # ${Va}  应为 字符串
+    ${listlen}    evaluate    len(${itemList})
+    : FOR    ${i}    IN RANGE    ${listlen}
+    \    ${dictionary}    Get From List    ${itemList}    ${i}
+    \    ${value}    get from dictionary    ${dictionary}    ${key}
+    \    ${v}    evaluate    cmp('${key_value}','${value}')
+    \    exit for loop if    ${v} != 0
+    ${dictionary}    Get From List    ${itemList}    ${i}
+    ${value2}    get from dictionary    ${dictionary}    ${key2}
+    [Return]    ${value2}
+
+APIP_判断列表内字典包含key为Va的字典
+    [Arguments]    ${itemList}    ${key}    ${Va}
+    [Documentation]    获取列表${itemList}内字典中包含 ${key}的值为${Va}
+    # ${Va}  应为 字符串
+    ${listlen}    evaluate    len(${itemList})
+    : FOR    ${i}    IN RANGE    ${listlen}
+    \    ${dictionary}    Get From List    ${itemList}    ${i}
+    \    ${value}    get from dictionary    ${dictionary}    ${key}
+    \    ${v}    evaluate    cmp('${Va}','${value}')
+    \    exit for loop if    ${v} == 0
+    log    ${v}
+    should be equal as numbers    ${v}    ${0}
+
+APIP_判断列表内字典不包含key为Va的字典
+    [Arguments]    ${itemList}    ${key}    ${Va}
+    [Documentation]    获取列表${itemList}内字典中 不包含 ${key}的值为${Va}
+    ${listlen}    evaluate    len(${itemList})
+    : FOR    ${i}    IN RANGE    ${listlen}
+    \    ${dictionary}    Get From List    ${itemList}    ${i}
+    \    ${value}    get from dictionary    ${dictionary}    ${key}
+    \    ${v}    evaluate    cmp('${Va}','${value}')
+    \    exit for loop if    ${v} == 0
+    should not be equal as numbers    ${v}    ${0}
+
+获取给定字典中第二层列表内all字典key的值
+    [Arguments]    ${responsedata}    ${key1}    ${key2}
+    [Documentation]    获取给定字典中,data中的字典列表内字典中所有指定key的值
+    ${data}    get from dictionary    ${responsedata}    data
+    ${listlen}    evaluate    len(${data})    #获取列表的长度不需要引号
+    ${d_v}    create dictionary    key=v
+    ${i}    evaluate    0
+    : FOR    ${i}    IN RANGE    ${listlen}
+    \    ${dictionary}    Get From List    ${data}    ${i}
+    \    ${i}    evaluate    ${i}+1
+    \    log    第${i}条
+    \    ${value1}    get from dictionary    ${dictionary}    ${key1}
+    \    ${value2}    get from dictionary    ${dictionary}    ${key2}
+    \    set to dictionary    ${d_v}    ${value1}=${value2}
+    [Return]    ${d_v}
+
+获取给定字典中第二层列表内字典指定key的值
+    [Arguments]    ${responsedata}    ${key}    ${key_value}    ${key2}
+    [Documentation]    获取给定字典中,data中的字典列表内字典中${key}的值为${key_value}对应的${key2}的值，如：需要返回的商品列表中找到(key)id=${key_value}的库存(key2)为stock的值
+    ${data}    get from dictionary    ${responsedata}    data
+    ${listlen}    evaluate    len(${data})
+    : FOR    ${i}    IN RANGE    ${listlen}
+    \    ${dictionary}    Get From List    ${data}    ${i}
+    \    ${value}    get from dictionary    ${dictionary}    ${key}
+    \    ${v}    evaluate    cmp('${key_value}','${value}')
+    \    exit for loop if    ${v} == 0
+    ${dictionary}    Get From List    ${data}    ${i}
+    ${value2}    get from dictionary    ${dictionary}    ${key2}
+    [Return]    ${value2}
+
+通过mobile获取8天用户的userid和verifycode
+    [Arguments]    ${mobile}
+    ${data}    执行查询语句    select id,user_no,ec_code from t_user where mobile=${mobile} and status=1;
+    ${userId}    set Variable    ${data[0][0]}
+    ${before_verify_code}    set Variable    ${data[0][1]}${data[0][2]}
+    ${verifyCode}    获取MD5    ${before_verify_code}
+    ${8天用户_API基础信息}    Set Variable    verifyCode=${verifyCode}&userId=${userId}&releaseDate=${P_releaseDate}&user_id=${userId}&verify_code=${verifyCode}&app_version=IOS_2.3.8
+    [Return]    ${8天用户_API基础信息}
+
+计算获取商品的加权成本价
+    [Arguments]    ${weight_cost_price}    ${stock_nums}    ${store_cost_price}    ${nums}
+    ${new_weight_cost_price}    weight Cost Price    ${weight_cost_price}    ${stock_nums}    ${store_cost_price}    ${nums}
+    [Return]    ${new_weight_cost_price}
+
+计算获取_加库存商品的变更成本金额
+    [Documentation]    成本金额=原成本金额+变更的成本金额
+    ...           加库存 ： 变更的成本金额=商品变更数量*进货价格  或者   商品变更数量*成本价
+    ...           减库存 ： -变更的成本金额=商品变更数量*（原成本金额/商品库存）
+    [Arguments]    ${cost_price}    ${nums}
+    ${变更金额}    evaluate    float(${cost_price})*${nums}
+    [Return]    ${变更金额}
+
+计算获取_减库存商品的变更成本金额
+    [Documentation]    成本金额=原成本金额+变更的成本金额
+    ...           加库存 ： 变更的成本金额=商品变更数量*进货价格  或者   商品变更数量*成本价
+    ...           减库存 ： -变更的成本金额=商品变更数量*（原成本金额/商品库存）
+    [Arguments]    ${cost_amount}    ${stock_nums}    ${nums}
+    ${变更金额}    evaluate    ${nums}*(float(${cost_amount})/${stock_nums})
+    ${变更金额}    Convert To Number    ${变更金额}    2
+    [Return]    ${变更金额}
+
+计算获取_根据成本金额获取成本价
+    [Documentation]    成本价=原成本金额/商品库存  取小数点两位
+    [Arguments]    ${cost_amount}    ${stock_nums}
+    ${cost_price}    evaluate    (float(${cost_amount})/${stock_nums})
+    ${cost_price}    Convert To Number    ${cost_price}    2
+    [Return]    ${cost_price}
+
+元组转换成列表
+    [Arguments]    ${data}
+    ${list}    tuple Convert List    ${data}
+    [Return]    ${list}
+
+取绝对值
+    [Arguments]    ${data}
+    ${value}    get absolute value    ${data}
+    [Return]    ${value}
+
+录制获取表相等字段的位标
+    [Arguments]    ${list0}    ${tablelen}    ${recordList}
+    @{i_list}    create list
+    : FOR    ${i}    IN RANGE    ${tablelen}
+    \    ${a1}    get from list    ${list0}    ${i}
+    \    ${a2}    get from list    ${recordList}    ${i}
+    \    ${status}    Run Keyword And Return Status    should be equal as strings    ${a1}    ${a2}
+    \    Run Keyword If    ${status}==1    append to list    ${i_list}    ${i}
+    [Return]    ${i_list}
+
+
+根据位标验证相应的值
+    [Arguments]    ${data}    ${recordList}    ${i_list}    ${columnName}
+    ${data_0}    Set Variable    ${data[0]}
+    : FOR    ${i}    IN RANGE    len(${i_list})
+    \    log    表列字段=${columnName[int(${i_list}[${i}])][0]}
+    \    log    待验证值data=${data_0[int(${i_list}[${i}])]}
+    \    log    参考值data=${recordList[int(${i_list}[${i}])]}
+    \    run keyword and continue on failure    should be equal as strings    ${data_0[int(${i_list}[${i}])]}    ${recordList[int(${i_list}[${i}])]}
+    \    ${status}    Run Keyword And Return Status    should be equal as strings    ${data_0[int(${i_list}[${i}])]}    ${recordList[int(${i_list}[${i}])]}
+    \    Run Keyword If    ${status}==0    log    比对验证值不一致
+
+获取给定条件范围随机整数
+    [Arguments]    ${start}    ${end}    ${keyword}
+    @{i_list}    create list
+    ${end1}     evaluate    ${end} + 1
+    : FOR    ${i}    IN RANGE    ${end1}
+    \    ${i}    evaluate    ${i} - 1
+    \    Run Keyword If    ${i}<>${keyword} and ${i} >= ${start}    append to list    ${i_list}    ${i}
+    [Return]    ${i_list}
+
+
+
+
+# 读写excel
+获取某个单元格的值
+    [Arguments]    ${ExcelPath}    ${sheetName}    ${rowIndex}    ${colIndex}
+    # 指定excel全路径
+    Set ExcelPath    ${ExcelPath}
+    # 0为第一行，0为第一列
+    ${cell}    Get Cell By ColIndex RowIndex    ${sheetName}    ${rowIndex}    ${colIndex}
+    [Return]    ${cell}
+
+某一行某一列写入数据
+    [Arguments]    ${ExcelPath}    ${sheetName}    ${rowIndex}    ${colIndex}    ${content}
+    # 指定excel全路径
+    Set ExcelPath    ${ExcelPath}
+    # 0为第一行，0为第一列
+    Write Excel    ${sheetName}    ${rowIndex}    ${colIndex}    ${content}
+
+获取标签页的总行数
+    [Arguments]    ${ExcelPath}    ${sheetName}
+    # 指定excel全路径
+    Set ExcelPath    ${ExcelPath}
+    ${rowsCount}    Get RowCount By SheetName    ${sheetName}
+    [Return]    ${rowsCount}
+
+获取标签页的总列数
+    [Arguments]    ${ExcelPath}    ${sheetName}
+    # 指定excel全路径
+    Set ExcelPath    ${ExcelPath}
+    ${colCount}    Get ColumnCount By SheetName    ${sheetName}
+    [Return]    ${colCount}
+
+获取标签页某一行所有数据
+    [Arguments]    ${ExcelPath}    ${sheetName}    ${rowIndex}
+    # 指定excel全路径
+    Set ExcelPath    ${ExcelPath}
+    # 0为第一行
+    @{rowIndexData}    Get RowIndexData By SheetName    ${sheetName}    ${rowIndex}
+    Log Many    @{rowIndexData}
+    [Return]    ${rowIndexData}
+
+获取标签页某一列所有数据
+    [Arguments]    ${ExcelPath}    ${sheetName}    ${colIndex}
+    # 指定excel全路径
+    Set ExcelPath    ${ExcelPath}
+    # 0为第一列
+    @{colIndexData}    Get ColIndexData By SheetName    ${sheetName}    ${colIndex}
+    Log Many    @{colIndexData}
+    [Return]    ${colIndexData}
+
+# ExcelLibrary
+excel获取sheet名
+    [Arguments]    ${ExcelPath}
+    open excel   ${ExcelPath}
+    ${sheetNames}    get sheet Names
+    [Return]    ${sheetNames}
+
+excel单元格写入string
+    [Arguments]    ${ExcelPath}    ${sheetName}    ${colIndex}    ${rowIndex}    ${value}    ${newFilename}
+    Open Excel   ${ExcelPath}
+    Put String To Cell    ${sheetName}    ${colIndex}    ${rowIndex}    ${value}
+    Save Excel    ${newFilename}
+
+excel单元格写入date
+    [Arguments]    ${ExcelPath}    ${sheetName}    ${colIndex}    ${rowIndex}    ${value}    ${newFilename}
+    open excel   ${ExcelPath}
+    put date to cell    ${sheetName}    ${colIndex}    ${rowIndex}    ${value}
+    Save Excel    ${newFilename}
+
+excel保存指定文件名
+    [Arguments]   ${ExcelPath}    ${newFilename}
+    open excel   ${ExcelPath}
+    Save Excel    ${newFilename}
+
+
+

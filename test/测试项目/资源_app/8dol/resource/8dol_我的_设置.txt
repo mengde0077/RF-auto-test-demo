@@ -1,0 +1,57 @@
+*** Settings ***
+Documentation     项目子资源：
+...               \ \ \ \ 用于记录单个项目中的单个activity的子资源，资源的内容随项目的升级而变化；
+...
+...               1.记录对应项目的，功能页面及功能页面包含的元素对象；
+...               2.记录项目中可复用的资源关键字；
+...
+...
+...               本资源记录，8 天在线 B2C的Android版本的资源；
+Library           AppiumLibrary
+
+*** Variables ***
+${一键快购设置name}     一键快购
+${收货地址设置name}     收货地址
+${账户安全设置name}     账户安全
+${一键快购设置id}       com.ndol.sale.starter:id/ll_onkey_buy
+${一键快购设置_宿舍区id}    com.ndol.sale.starter:id/aaa_tv_dormitoryArea
+${一键快购设置_哪栋楼id}    com.ndol.sale.starter:id/aaa_tv_ridgepole
+${一键快购设置_下拉选择_完成id}    com.ndol.sale.starter:id/vcw_tv_right
+${一键快购设置_收货人id}    com.ndol.sale.starter:id/aaa_et_name
+${一键快购设置_手机号id}    com.ndol.sale.starter:id/aaa_et_mobile
+${一键快购设置_保存收货地址id}    com.ndol.sale.starter:id/aaa_btn_save
+${一键快购设置_获取保存的收货人id}    com.ndol.sale.starter:id/ia_tv_name
+${一键快购设置_获取保存的收货地址id}    com.ndol.sale.starter:id/ia_tv_address
+${一键快购设置_勾选余额支付id}    com.ndol.sale.starter:id/tv_xinyi
+${一键快购设置_点击微信支付id}    com.ndol.sale.starter:id/iv_pay_wechat
+${一键快购设置_点击支付宝支付id}    com.ndol.sale.starter:id/iv_pay_alipay
+${一键快购设置_点击货到付款id}    com.ndol.sale.starter:id/lay_pay_freight_
+${一键快购设置_不使用id}    com.ndol.sale.starter:id/lay_red_unused
+${一键快购设置_快过期id}    com.ndol.sale.starter:id/lay_red_guoqi
+${一键快购设置_最优惠id}    com.ndol.sale.starter:id/lay_red_youhui
+${一键快购设置_保存设置id}    com.ndol.sale.starter:id/btn_confirm
+${收货地址设置id}       com.ndol.sale.starter:id/ll_receive_addr
+${账户安全设置id}       com.ndol.sale.starter:id/as_ll_changepwd
+${仅WIFI下加载商品图片设置id}    com.ndol.sale.starter:id/as_ll_wifi_pic_autoload
+${清理缓存设置id}       com.ndol.sale.starter:id/as_ll_cleancache
+${为我打分设置id}       com.ndol.sale.starter:id/as_ll_scoreus
+${关于我们设置id}       com.ndol.sale.starter:id/as_ll_aboutUs
+${退出设置id}         com.ndol.sale.starter:id/fm_btn_loginoff
+${收货地址_tabname}    收货地址
+${账户安全_tabname}    账户安全
+${关于我们_tabname}    关于我们
+${修改ip_输入框_and}    //*[@resource-id="com.ndol.sale.starter:id/alertStockNum"]
+*** Keywords ***
+我的_设置点击收货地址
+    Click Element    id=${收货地址设置id}
+
+我的_设置点击账户安全
+    Click Element    id=${账户安全设置id}
+
+我的_设置点击关于我们
+    Click Element    id=${关于我们设置id}
+
+获取_修改ip_输入框_locator
+    # 修改成 测试环境 ip
+    ${locator}    PK_获取相应平台的locator    xpath=${修改ip_输入框_and}    xpath=${修改ip_输入框_and}
+    [return]    ${locator}

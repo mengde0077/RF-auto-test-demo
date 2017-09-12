@@ -1,0 +1,12 @@
+*** Settings ***
+Documentation     数据操作类资源集合
+Resource          初始化.txt
+Resource          基础数据获取.txt
+Resource          基础数据验证.txt
+Resource          白8下单.txt
+Resource          夜8进货下单.txt
+Resource          多种场景商品下单.txt
+Resource          秒杀下单.txt
+Resource          获取预期值.txt
+Resource          商品券营销.txt
+

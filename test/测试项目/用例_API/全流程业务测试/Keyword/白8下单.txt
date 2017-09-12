@@ -1,0 +1,505 @@
+*** Settings ***
+Documentation     前置条件：
+...               1.记录 流程性的 关键字
+...               3.在直营校园店下单
+...
+
+Resource          ../../../资源_API/API资源.txt
+Resource          ../../../资源_公共/数据操作资源.txt
+Resource          ../../../资源_API/API常量.txt
+Resource          ../../../资源_公共/公共资源.txt
+Library           Collections
+
+*** Variables ***
+
+*** Keywords ***
+K_超市下单流程_用户下单
+    ${responsedata}    8dol超市_提交订单    ${S_API基础信息}    ${S_org_id}    ${S_goodsInfos}    ${S_area_id}    ${S_address_id}
+    ...    ${S_8天用户余额支付密码}    ${S_支付方式}
+    ${result}    get from dictionary    ${responsedata}    result
+    ${data}    get from dictionary    ${responsedata}    data
+    ${S_order_no}    get from dictionary    ${data}    order_no
+    ${S_order_id}    get from dictionary    ${data}    id
+    ${S_real_amount}    get from dictionary    ${data}    real_amount
+    ${S_order_amount}    get from dictionary    ${data}    order_amount
+    ${S_create_time}    get from dictionary    ${data}    create_time
+    Set Suite Variable    ${S_orderId}
+    Set Suite Variable    ${S_order_no}
+    Set Suite Variable    ${S_real_amount}
+    Set Suite Variable    ${S_order_amount}
+    Set Suite Variable    ${S_create_time}
+    #验证_下单后_订单金额跟商品总金额一致
+    #sql_查询订单时间信息
+    ${dictionary}    sql_查询订单时间信息    ${S_order_id}
+    ${order_amount}    get from dictionary    ${dictionary}    order_amount
+    ${real_amount}    get from dictionary    ${dictionary}    real_amount
+    ${freight}    get from dictionary    ${dictionary}    freight
+    #sql_查询订单商品信息
+    ${dictionary}    sql_查询订单商品信息    ${S_order_id}
+    ${goods_amount}    get from dictionary    ${dictionary}    goods_amount
+    ${商品金额}    evaluate    float(${order_amount})-float(${freight})
+    should be equal as numbers    ${商品金额}    ${goods_amount}
+
+K_超市下单流程_用户下单_选择配送方式
+    comment    提交订单
+    ${responsedata}    8dol_白8超市_提交订单_异常流程    ${S_org_id}    ${S_area_id}    ${S_goodsInfos}    ${S_支付方式}    ${S_address_id}
+    ...    ${S_API基础信息}    ${S_freight_type}&acceptMobile=${S_8天用户名}&acceptName=test
+    ${result}    get from dictionary    ${responsedata}    result
+    ${data}    get from dictionary    ${responsedata}    data
+    ${result}    get from dictionary    ${responsedata}    result
+    ${data}    get from dictionary    ${responsedata}    data
+    ${order_no}    get from dictionary    ${data}    order_no
+    ${order_id}    get from dictionary    ${data}    id
+    ${order_amount}    get from dictionary    ${data}    order_amount
+    ${real_amount}    get from dictionary    ${data}    real_amount
+    ${freight}    get from dictionary    ${data}    freight
+    ${payable_amount}    get from dictionary    ${data}    payable_amount
+    ${balance_pay}    get from dictionary    ${data}    balance_pay
+    ${S_create_time}    get from dictionary    ${data}    create_time
+    Set Suite Variable    ${S_order_no}    ${order_no}
+    Set Suite Variable    ${S_order_id}    ${order_id}
+    Set Suite Variable    ${S_order_amount}    ${order_amount}
+    Set Suite Variable    ${S_real_amount}    ${real_amount}
+    Set Suite Variable    ${S_freight}    ${freight}
+    Set Suite Variable    ${S_balance_pay}    ${balance_pay}
+    Set Suite Variable    ${S_create_time}
+
+K_超市下单流程_用户下单_预约订单_选择配送方式
+    ${responsedata}    8dol_白8超市_提交订单_预约订单    ${S_org_id}    ${S_area_id}    ${S_goodsInfos}    ${S_支付方式}    ${S_address_id}
+    ...    ${S_API基础信息}    ${S_预约时间}    ${S_freight_type}&acceptMobile=${S_8天用户名}&acceptName=test
+    ${result}    get from dictionary    ${responsedata}    result
+    ${data}    get from dictionary    ${responsedata}    data
+    log    ${data}
+    ${result}    get from dictionary    ${responsedata}    result
+    ${data}    get from dictionary    ${responsedata}    data
+    ${order_no}    get from dictionary    ${data}    order_no
+    ${order_id}    get from dictionary    ${data}    id
+    ${order_amount}    get from dictionary    ${data}    order_amount
+    ${real_amount}    get from dictionary    ${data}    real_amount
+    ${freight}    get from dictionary    ${data}    freight
+    ${payable_amount}    get from dictionary    ${data}    payable_amount
+    ${balance_pay}    get from dictionary    ${data}    balance_pay
+    ${S_create_time}    get from dictionary    ${data}    create_time
+    Set Suite Variable    ${S_order_no}    ${order_no}
+    Set Suite Variable    ${S_order_id}    ${order_id}
+    Set Suite Variable    ${S_order_amount}    ${order_amount}
+    Set Suite Variable    ${S_real_amount}    ${real_amount}
+    Set Suite Variable    ${S_freight}    ${freight}
+    Set Suite Variable    ${S_balance_pay}    ${balance_pay}
+    Set Suite Variable    ${S_create_time}
+
+K_超市下单流程_用户下单_预约订单_选择配送方式_异常
+    ${responsedata}    8dol_白8超市_提交订单_预约订单    ${S_org_id}    ${S_area_id}    ${S_goodsInfos}    ${S_支付方式}    ${S_address_id}    ${S_API基础信息}    ${S_预约时间}    ${S_freight_type}
+    ${result}    get from dictionary    ${responsedata}    result
+    ${data}    get from dictionary    ${responsedata}    data
+    log    ${data}
+    ${result}    get from dictionary    ${responsedata}    result
+    should be equal as strings    ${result}    fail
+
+
+K_超市下单流程_用户下单_店长确认_普通订单配货_物流员发货
+    [Arguments]    ${goodsNum}
+    #确保有一个默认地址
+    K_默认地址_如果不存在_则创建
+    comment    提交订单
+    ${responsedata}    8dol超市_提交订单    ${S_API基础信息}    ${S_org_id}    ${S_goods_extend_id}:${goodsNum}    ${S_area_id}    ${S_address_id}
+    ...    ${S_8天用户余额支付密码}    ${S_支付方式}
+    ${result}    get from dictionary    ${responsedata}    result
+    ${data}    get from dictionary    ${responsedata}    data
+    ${order_no}    get from dictionary    ${data}    order_no
+    ${order_id}    get from dictionary    ${data}    id
+    ${real_amount}    get from dictionary    ${data}    real_amount
+    #流程_云店出货
+    #YDapp_订单_新订单_店长订单确认
+    YDapp_订单_新订单_店长订单确认    ${S_YD_API基础信息}    ${order_id}    ${S_当前时间}
+    #YDapp_订单_普通订单店长配货
+    YDapp_订单_普通订单配货    ${S_YD_API基础信息}    ${order_id}    ${S_pickingMember}
+    #流程_物流员扫码发货
+    ${random_Num}    Get Substring    ${order_no}    -5
+    8dol兼职8仔_物流员扫码发货    ${S_8仔_API基础信息}    ${order_id}    ${random_Num}
+    [return]    ${order_no}    ${order_id}    ${real_amount}
+
+K_超市下单流程_获取红包_使用_红包_满减_满赠_爆款_下单
+    #清除redis缓存
+    清除redis_db缓存    ${S_redis_host}
+    #8dol我的_红包_获取口令红包
+    ${responsedata}    8dol我的_红包_获取口令红包    ${S_API基础信息}    ${S_area_id}    ${S_psw}
+    should be equal as strings    ${responsedata['result']}    ok
+    ${data}    get from dictionary    ${responsedata}    data
+    comment    去结算
+    ${responsedata}    8dol超市_去结算    ${S_API基础信息}    ${S_org_id}    ${S_goodsInfos}    ${S_areaId}
+    ${data}    get from dictionary    ${responsedata}    data
+    ${物流信息}    get from dictionary    ${data}    deliveryInfo
+    ${用户收货地址信息}    get from dictionary    ${data}    userAddressList
+    ${红包列表}    get from dictionary    ${data}    materialsList
+    ${红包_id}    获取列表内字典指定key的值    ${红包列表}    usable    1    id
+    ${红包折扣金额}    获取列表内字典指定key的值    ${红包列表}    id    ${红包_id}    discount
+    ${fullDiscount}    get from dictionary    ${data}    fullDiscount
+    ${满减最少订单金额}    get from dictionary    ${fullDiscount}    minUsage
+    ${满减金额}    get from dictionary    ${fullDiscount}    value
+    ${freeGoodList}    get from dictionary    ${data}    freeGoodList
+    ${freeGoodInfo}    get from list    ${freeGoodList}    0
+    ${freeGood_goods_no}    get from dictionary    ${freeGoodInfo}    goods_no
+    ${freeGood_name}    get from dictionary    ${freeGoodInfo}    name
+    ${freeGood_id}    get from dictionary    ${freeGoodInfo}    id
+    ${freeGood_stock}    get from dictionary    ${freeGoodInfo}    stock
+    ${freeGood_sale_price}    get from dictionary    ${freeGoodInfo}    sale_price
+    ${商品信息}    get from dictionary    ${data}    goodsList
+    ${支付类型信息}    get from dictionary    ${data}    paymentList
+    comment    提交订单，爆款商品跟正常商品是同一个商品
+    ${responsedata}    8dol_白8超市_提交订单_红包_满减_满赠_爆款    ${S_org_id}    ${S_area_id}    ${S_goodsInfos}    ${S_支付方式}    ${S_address_id}
+    ...    ${S_API基础信息}    ${红包_id}    ${S_8天用户余额支付密码}    ${freeGood_id}    ${S_goods_extend_id}:${S_goodsNum_爆款}
+    ${result}    get from dictionary    ${responsedata}    result
+    ${data}    get from dictionary    ${responsedata}    data
+    ${order_no}    get from dictionary    ${data}    order_no
+    ${order_id}    get from dictionary    ${data}    id
+    ${order_amount}    get from dictionary    ${data}    order_amount
+    ${real_amount}    get from dictionary    ${data}    real_amount
+    ${freight}    get from dictionary    ${data}    freight
+    ${payable_amount}    get from dictionary    ${data}    payable_amount
+    ${balance_pay}    get from dictionary    ${data}    balance_pay
+    Set Suite Variable    ${S_order_no}    ${order_no}
+    Set Suite Variable    ${S_order_id}    ${order_id}
+    Set Suite Variable    ${S_freeGood_stock}    ${freeGood_stock}
+    Set Suite Variable    ${S_freeGood_goods_no}    ${freeGood_goods_no}
+    Set Suite Variable    ${S_红包折扣金额}    ${红包折扣金额}
+    Set Suite Variable    ${S_满减金额}    ${满减金额}
+    Set Suite Variable    ${S_order_amount}    ${order_amount}
+    Set Suite Variable    ${S_real_amount}    ${real_amount}
+    Set Suite Variable    ${S_freight}    ${freight}
+    Set Suite Variable    ${S_balance_pay}    ${balance_pay}
+
+K_超市下单_套餐_爆款_普通商品添加购物_去结算
+    8dol清空购物车    ${S_area_id}    ${S_org_id}    ${S_API基础信息}
+    8dol超市_云购物车_添加多个套餐商品    ${S_areaId}    ${S_org_id}    ${S_套餐id}    ${S_goodsNum_套餐}    ${S_API基础信息}
+    8dol超市_云购物车_添加多个商品    ${S_areaId}    ${S_org_id}    ${S_origin_goods_id}    ${S_goodsNum}    ${S_API基础信息}
+    8dol超市_爆款商品_添加购物车2    ${S_areaId}    ${S_org_id}    ${S_origin_goods_id}    ${S_API基础信息}
+    ${data}    8dol查看云购物车    ${S_area_id}    ${S_org_id}    ${S_API基础信息}
+    ${quantity}    get from dictionary    ${data}    quantity
+    #优惠后总金额
+    ${totalFee}    get from dictionary    ${data}    totalFee
+    #总购物车优惠
+    ${discountPrice}    get from dictionary    ${data}    discountPrice
+    Set Suite Variable    ${S_购物车_优惠后总金额}    ${totalFee}
+    Set Suite Variable    ${S_购物车_总购物车优惠}    ${discountPrice}
+    comment    去结算
+    ${套餐商品Str}    8dol_白8超市_云购物车_购物车去结算cartStr_普通套餐商品    ${S_套餐id}    ${S_goodsNum_套餐}
+    ${普通Str}    8dol_白8超市_云购物车_购物车去结算cartStr_普通商品    ${S_origin_goods_id}    ${S_goodsNum}
+    ${爆款Str}    8dol_白8超市_云购物车_购物车去结算cartStr_爆款商品    ${S_origin_goods_id}    ${S_goodsNum_爆款}
+    ${cartListStr}    Set Variable    [${套餐商品Str},${普通Str},${爆款Str}]
+    ${responsedata}    8dol_白8超市_云购物车_购物车去结算_无cartListStr    ${cartListStr}    ${S_org_id}    ${S_areaId}    ${S_API基础信息}
+    ${data}    get from dictionary    ${responsedata}    data
+    log    ${data}
+    ${goods_total_price}    get from dictionary    ${data}    goods_total_price
+    ${activeDiscount}    get from dictionary    ${data}    activeDiscount
+    Set Suite Variable    ${S_去结算_商品总金额}    ${goods_total_price}
+    Set Suite Variable    ${S_去结算_总购物车优惠}    ${activeDiscount}
+
+
+K_超市下单_爆款_普通商品添加购物车_去结算
+    8dol清空购物车    ${S_area_id}    ${S_org_id}    ${S_API基础信息}
+    8dol超市_云购物车_添加多个商品    ${S_areaId}    ${S_org_id}    ${S_origin_goods_id}    ${S_goodsNum}    ${S_API基础信息}
+    8dol超市_爆款商品_添加购物车2    ${S_areaId}    ${S_org_id}    ${S_origin_goods_id}    ${S_API基础信息}
+    ${data}    8dol查看云购物车    ${S_area_id}    ${S_org_id}    ${S_API基础信息}
+    ${quantity}    get from dictionary    ${data}    quantity
+    #优惠后总金额
+    ${totalFee}    get from dictionary    ${data}    totalFee
+    #总购物车优惠
+    ${discountPrice}    get from dictionary    ${data}    discountPrice
+    Set Suite Variable    ${S_购物车_优惠后总金额}    ${totalFee}
+    Set Suite Variable    ${S_购物车_总购物车优惠}    ${discountPrice}
+    comment    去结算
+    ${普通Str}    8dol_白8超市_云购物车_购物车去结算cartStr_普通商品    ${S_origin_goods_id}    ${S_goodsNum}
+    ${爆款Str}    8dol_白8超市_云购物车_购物车去结算cartStr_爆款商品    ${S_origin_goods_id}    ${S_goodsNum_爆款}
+    ${cartListStr}    Set Variable    [${套餐商品Str},${普通Str}]
+    ${responsedata}    8dol_白8超市_云购物车_购物车去结算_无cartListStr    ${cartListStr}    ${S_org_id}    ${S_areaId}    ${S_API基础信息}
+    ${data}    get from dictionary    ${responsedata}    data
+    log    ${data}
+    ${goods_total_price}    get from dictionary    ${data}    goods_total_price
+    ${activeDiscount}    get from dictionary    ${data}    activeDiscount
+    Set Suite Variable    ${S_去结算_商品总金额}    ${goods_total_price}
+    Set Suite Variable    ${S_去结算_总购物车优惠}    ${activeDiscount}
+
+K_超市下单_普通商品添加购物车_去结算
+    8dol清空购物车    ${S_area_id}    ${S_org_id}    ${S_API基础信息}
+    8dol超市_云购物车_添加多个商品    ${S_areaId}    ${S_org_id}    ${S_origin_goods_id}    ${S_goodsNum}    ${S_API基础信息}
+    ${data}    8dol查看云购物车    ${S_area_id}    ${S_org_id}    ${S_API基础信息}
+    ${quantity}    get from dictionary    ${data}    quantity
+    #优惠后总金额
+    ${totalFee}    get from dictionary    ${data}    totalFee
+    #总购物车优惠
+    ${discountPrice}    get from dictionary    ${data}    discountPrice
+    Set Suite Variable    ${S_购物车_优惠后总金额}    ${totalFee}
+    Set Suite Variable    ${S_购物车_总购物车优惠}    ${discountPrice}
+    comment    去结算
+    ${普通Str}    8dol_白8超市_云购物车_购物车去结算cartStr_普通商品    ${S_origin_goods_id}    ${S_goodsNum}
+    ${cartListStr}    Set Variable    [${普通Str}]
+    ${responsedata}    8dol_白8超市_云购物车_购物车去结算_无cartListStr    ${cartListStr}    ${S_org_id}    ${S_areaId}    ${S_API基础信息}
+    ${data}    get from dictionary    ${responsedata}    data
+    Set Suite Variable    ${S_去结算_data}    ${data}
+    log    ${data}
+    ${goods_total_price}    get from dictionary    ${data}    goods_total_price
+    ${activeDiscount}    get from dictionary    ${data}    activeDiscount
+    Set Suite Variable    ${S_去结算_商品总金额}    ${goods_total_price}
+    Set Suite Variable    ${S_去结算_总购物车优惠}    ${activeDiscount}
+
+K_超市下单_清空购物车_添加购物车两次_查看购物车_去结算
+    8dol清空购物车    ${S_area_id}    ${S_org_id}    ${S_API基础信息}
+    8dol超市_云购物车_添加商品    ${S_areaId}    ${S_org_id}    ${S_origin_goods_id}    ${S_goodsNum}    ${S_API基础信息}
+    8dol超市_云购物车_添加商品    ${S_areaId}    ${S_org_id}    ${S_origin_goods_id}    ${S_goodsNum}    ${S_API基础信息}
+    ${data}    8dol查看云购物车商品    ${S_area_id}    ${S_org_id}    ${S_API基础信息}
+    ${briefCart}    get from dictionary    ${data}    briefCart
+    log    ${briefCart}
+    ${quantity}    get from dictionary    ${briefCart}    quantity
+    comment    去结算
+    ${responsedata}    8dol_白8超市_云购物车_超市列表去结算    ${S_org_id}    ${S_areaId}    ${S_API基础信息}
+    ${data}    get from dictionary    ${responsedata}    data
+    ${goods_total_price}    get from dictionary    ${data}    goods_total_price
+    ${activeDiscount}    get from dictionary    ${data}    activeDiscount
+    ${商品售价_预期}    evaluate    float(${S_goodsNum})*float(${S_sale_price})
+    Set Suite Variable    ${S_商品售价_预期}    ${商品售价_预期}
+
+
+K_超市下单_套餐_爆款_普通商品_提交订单_下单成功
+    [Arguments]    ${freight_type}=1    ${materialId}=
+    comment    提交订单
+    ${cartStr_普通商品}    8dol_普通商品_下单cartStr    ${S_origin_goods_id}    ${S_goodsNum}
+    ${cartStr_爆款商品}    8dol_爆款商品_下单cartStr    ${S_origin_goods_id}    ${S_goodsNum_爆款}
+    ${cartStr_套餐商品}    8dol_普通套餐商品_下单cartStr    ${S_套餐id}    ${S_goodsNum_套餐}
+    ${cartListStr}    Set Variable    [${cartStr_普通商品},${cartStr_爆款商品},${cartStr_套餐商品}]
+    ${responsedata}    8dol_白8超市_云购物车_提交订单无cartListStr    ${cartListStr}    ${S_8天用户名}    ${S_areaId}    ${S_org_id}
+    ...    ${S_address_id}    ${S_支付方式}    ${S_API基础信息}    ${materialId}    ${freight_type}
+    should be equal as strings    ${responsedata['result']}    ok
+    ${data}    get from dictionary    ${responsedata}    data
+    Set Suite Variable    ${S_order_no}    ${data['order_no']}
+    Set Suite Variable    ${S_order_id}    ${data['id']}
+    Set Suite Variable    ${S_real_amount}    ${data['real_amount']}
+    Set Suite Variable    ${S_order_amount}    ${data['order_amount']}
+    Set Suite Variable    ${S_balance_pay}    ${data['balance_pay']}
+
+K_超市下单_爆款_普通商品_提交订单_下单成功
+    [Arguments]    ${freight_type}=1    ${materialId}=
+    comment    提交订单
+    ${cartStr_普通商品}    8dol_普通商品_下单cartStr    ${S_origin_goods_id}    ${S_goodsNum}
+    ${cartStr_爆款商品}    8dol_爆款商品_下单cartStr    ${S_origin_goods_id}    ${S_goodsNum_爆款}
+    ${cartListStr}    Set Variable    [${cartStr_普通商品},${cartStr_爆款商品}]
+    ${responsedata}    8dol_白8超市_云购物车_提交订单无cartListStr    ${cartListStr}    ${S_8天用户名}    ${S_areaId}    ${S_org_id}
+    ...    ${S_address_id}    ${S_支付方式}    ${S_API基础信息}    ${materialId}    ${freight_type}
+    should be equal as strings    ${responsedata['result']}    ok
+    ${data}    get from dictionary    ${responsedata}    data
+    Set Suite Variable    ${S_order_no}    ${data['order_no']}
+    Set Suite Variable    ${S_order_id}    ${data['id']}
+    Set Suite Variable    ${S_real_amount}    ${data['real_amount']}
+    Set Suite Variable    ${S_order_amount}    ${data['order_amount']}
+    Set Suite Variable    ${S_balance_pay}    ${data['balance_pay']}
+
+K_超市下单_普通商品_提交订单_下单成功
+    [Arguments]    ${freight_type}=1    ${materialId}=
+    comment    提交订单
+    ${cartStr_普通商品}    8dol_普通商品_下单cartStr    ${S_origin_goods_id}    ${S_goodsNum}
+    ${cartListStr}    Set Variable    [${cartStr_普通商品}]
+    ${responsedata}    8dol_白8超市_云购物车_提交订单无cartListStr    ${cartListStr}    ${S_8天用户名}    ${S_areaId}    ${S_org_id}
+    ...    ${S_address_id}    ${S_支付方式}    ${S_API基础信息}    ${materialId}    ${freight_type}
+    should be equal as strings    ${responsedata['result']}    ok
+    ${data}    get from dictionary    ${responsedata}    data
+    Set Suite Variable    ${S_order_no}    ${data['order_no']}
+    Set Suite Variable    ${S_order_id}    ${data['id']}
+    Set Suite Variable    ${S_real_amount}    ${data['real_amount']}
+    Set Suite Variable    ${S_order_amount}    ${data['order_amount']}
+    Set Suite Variable    ${S_balance_pay}    ${data['balance_pay']}
+
+
+K_超市下单_普通商品_运费券_提交订单_下单成功
+    [Arguments]    ${freight_type}=1    ${运费券id}=    ${materialId}=
+    comment    提交订单
+    ${cartStr_普通商品}    8dol_普通商品_下单cartStr    ${S_origin_goods_id}    ${S_goodsNum}
+    ${cartListStr}    Set Variable    [${cartStr_普通商品}]
+    ${responsedata}    8dol_白8超市_云购物车_提交订单无cartListStr    ${cartListStr}    ${S_8天用户名}    ${S_areaId}    ${S_org_id}
+    ...    ${S_address_id}    ${S_支付方式}    ${S_API基础信息}    ${materialId}&selectedExpressMaterialId=${运费券id}    ${freight_type}
+    should be equal as strings    ${responsedata['result']}    ok
+    ${data}    get from dictionary    ${responsedata}    data
+    Set Suite Variable    ${S_order_no}    ${data['order_no']}
+    Set Suite Variable    ${S_order_id}    ${data['id']}
+    Set Suite Variable    ${S_real_amount}    ${data['real_amount']}
+    Set Suite Variable    ${S_order_amount}    ${data['order_amount']}
+    Set Suite Variable    ${S_balance_pay}    ${data['balance_pay']}
+
+K_验证_下单_不使用红包_V4
+    [Arguments]    ${A_API基础信息}=${S_API基础信息_4}
+    #超市下单_校验订单金额流程
+    comment    去结算
+    8dol清空购物车    ${S_area_id}    ${S_org_id}    ${A_API基础信息}
+    8dol超市_云购物车_添加多个商品    ${S_area_id}    ${S_org_id}    ${S_origin_goods_id}    ${S_goodsNum}    ${A_API基础信息}
+    comment    去结算
+    ${responsedata}    8dol_白8超市_云购物车_超市列表去结算    ${S_org_id}    ${S_area_id}    ${A_API基础信息}
+    comment    提交订单
+    ${responsedata}    8dol_白8超市_云购物车_提交订单_红包    ${S_8天用户名}    ${S_area_id}    ${S_goodsNum}    ${S_origin_goods_id}    ${S_org_id}
+    ...    ${S_address_id}    ${S_支付方式}    ${A_API基础信息}
+    ${msg}    get from dictionary    ${responsedata}    msg
+    ${data}    get from dictionary    ${responsedata}    data
+    ${order_no}    get from dictionary    ${data}    order_no
+    ${order_id}    get from dictionary    ${data}    id
+    ${real_amount}    get from dictionary    ${data}    real_amount
+    Set Suite Variable    ${S_order_no}    ${order_no}
+    Set Suite Variable    ${S_order_id}    ${order_id}
+    Set Suite Variable    ${S_real_amount}    ${real_amount}
+
+
+K_超市下单_普通商品_红包_免运费券_提交订单_下单成功_V4
+    # V4.0.2 之后的版本才能使用 运费券
+    [Arguments]    ${A_material_id}=    ${A_运费券id}=
+    comment    提交订单
+    ${responsedata}    8dol_白8超市_云购物车_提交订单_红包    ${S_8天用户名}    ${S_areaId}    ${S_goodsNum}    ${S_origin_goods_id}    ${S_org_id}
+    ...    ${S_address_id}    ${S_支付方式}    ${S_API基础信息_4}
+    ...    coupon_id=${A_material_id}
+    ...    免运费券=${A_运费券id}
+    should be equal as strings    ${responsedata['result']}    ok
+    ${data}    get from dictionary    ${responsedata}    data
+    Set Suite Variable    ${S_order_no}    ${data['order_no']}
+    Set Suite Variable    ${S_order_id}    ${data['id']}
+    Set Suite Variable    ${S_real_amount}    ${data['real_amount']}
+    Set Suite Variable    ${S_order_amount}    ${data['order_amount']}
+    Set Suite Variable    ${S_balance_pay}    ${data['balance_pay']}
+
+K_超市下单_普通商品_红包_提交订单_下单失败_V4
+    [Arguments]    ${A_material_id}=${S_material_id}
+    comment    提交订单
+    ${responsedata}    8dol_白8超市_云购物车_提交订单_红包    ${S_8天用户名}    ${S_areaId}    ${S_goodsNum}    ${S_origin_goods_id}    ${S_org_id}
+    ...    ${S_address_id}    ${S_支付方式}    ${S_API基础信息_4}
+    ...    coupon_id=${A_material_id}
+    should be equal as strings    ${responsedata['result']}    fail
+
+
+K_超市下单流程_店长确认订单_店长订单配货
+    #YDapp_订单_新订单_店长订单确认
+    YDapp_订单_新订单_店长订单确认    ${S_YD_API基础信息}    ${S_order_id}    ${S_当前时间}
+    #YDapp_订单_普通订单店长配货
+    YDapp_订单_普通订单配货    ${S_YD_API基础信息}    ${S_order_id}    ${S_pickingMember}
+
+K_超市下单流程_确认发货_店长或兼职8仔
+    8dol兼职8仔_确认发货    ${S_order_no}    ${S_order_id}    ${S_8仔_API基础信息}
+
+K_超市下单流程_完结订单_用户确认收货
+    8dol订单_超市_用户确认收货    ${S_API基础信息}    ${S_order_id}    ${S_order_no}
+
+K_超市下单流程_完结订单_店长
+    sql_设置慢就赔订单支付时间    ${S_order_id}    70
+    YDapp_订单_店长完结订单    ${S_YD_API基础信息}    ${S_order_id}    ${S_当前时间}
+
+K_超市下单流程_完结订单_8仔
+    8dol订单_超市_用户确认收货    ${S_8仔_API基础信息}    ${S_order_id}    ${S_order_no}
+
+K_超市下单流程_取消订单_订单_用户
+    8dol订单_超市_根据订单号取消订单    ${S_API基础信息}    ${S_order_id}    ${S_order_no}
+
+K_超市下单流程_取消订单_订单_系统管理员做客服
+    #YD_系统管理员登录
+    ${dictionary}    YDPC_用户登录    ${S_系统管理员userName}    ${S_云店用户密码password}
+    ${系统管理员_基础信息}    get from dictionary    ${dictionary}    YDPC_API基础信息
+    #YD订单列表_取消订单
+    YD订单列表_取消订单    ${系统管理员_基础信息}    ${S_order_id}    ${S_当前时间}
+
+
+K_店长登录_店长确认_店长配货_8仔配送
+    #YD_店长登录
+    ${dictionary}    YD_用户登录    ${S_店长用户名}    ${S_云店用户密码password}
+    ${YD_API基础信息}    get from dictionary    ${dictionary}    YD_API基础信息
+    ${DZ_userId}    get from dictionary    ${dictionary}    userId
+    Set Suite Variable    ${S_YD_API基础信息}    ${YD_API基础信息}
+    Set Suite Variable    ${S_pickingMember}    ${DZ_userId}
+    #YDapp_订单_新订单_店长订单确认
+    YDapp_订单_新订单_店长订单确认    ${S_YD_API基础信息}    ${S_order_id}    ${S_当前时间}
+    #YDapp_订单_普通订单店长配货
+    YDapp_订单_普通订单配货    ${S_YD_API基础信息}    ${S_order_id}    ${S_pickingMember}
+    #8dol兼职8仔_确认发货_店长兼职8仔
+    comment    randomNum 为订单编号的后5位
+    ${S_randomNum}    Get Substring    ${S_order_no}    -5
+    log    ${S_randomNum}
+    8dol_白8超市_8仔扫码发货    ${S_randomNum}    ${S_order_id}    ${S_8仔_API基础信息}
+
+
+K_超市下单流程_下单后用户完结流程
+    #YDapp_订单_新订单_店长订单确认
+    YDapp_订单_新订单_店长订单确认    ${S_YD_API基础信息}    ${S_order_id}    ${S_当前时间}
+    #YDapp_订单_普通订单店长配货
+    YDapp_订单_普通订单配货    ${S_YD_API基础信息}    ${S_order_id}    ${S_pickingMember}
+    #8dol兼职8仔_确认发货_店长兼职8仔
+    comment    randomNum 为订单编号的后5位
+    8dol兼职8仔_确认发货    ${S_order_no}    ${S_order_id}    ${S_8仔_API基础信息}
+    #8dol用户确认收货
+    8dol订单_超市_用户确认收货    ${S_API基础信息}    ${S_order_id}    ${S_order_no}
+
+K_超市下单_上门自提流程_下单后_店长登录_店长完结
+    #YD_店长登录
+    ${dictionary}    YD_用户登录    ${S_店长用户名}    ${S_云店用户密码password}
+    ${YD_API基础信息}    get from dictionary    ${dictionary}    YD_API基础信息
+    ${DZ_userId}    get from dictionary    ${dictionary}    userId
+    Set Suite Variable    ${S_YD_API基础信息}    ${YD_API基础信息}
+    Set Suite Variable    ${S_pickingMember}    ${DZ_userId}
+    #YDapp_订单_新订单_店长订单确认
+    YDapp_订单_新订单_店长订单确认    ${S_YD_API基础信息}    ${S_order_id}    ${S_当前时间}
+    #YDapp_订单_普通订单店长配货
+    YDapp_订单_普通订单配货    ${S_YD_API基础信息}    ${S_order_id}    ${S_pickingMember}
+    #8dol店长完结订单
+    YDapp_订单_店长完结订单    ${S_YD_API基础信息}    ${S_order_id}    ${S_当前时间}
+
+K_超市下单_上门自提流程_下单后_店长登录_用户完结
+    #YD_店长登录
+    ${dictionary}    YD_用户登录    ${S_店长用户名}    ${S_云店用户密码password}
+    ${YD_API基础信息}    get from dictionary    ${dictionary}    YD_API基础信息
+    ${DZ_userId}    get from dictionary    ${dictionary}    userId
+    Set Suite Variable    ${S_YD_API基础信息}    ${YD_API基础信息}
+    Set Suite Variable    ${S_pickingMember}    ${DZ_userId}
+    #YDapp_订单_新订单_店长订单确认
+    YDapp_订单_新订单_店长订单确认    ${S_YD_API基础信息}    ${S_order_id}    ${S_当前时间}
+    #YDapp_订单_普通订单店长配货
+    YDapp_订单_普通订单配货    ${S_YD_API基础信息}    ${S_order_id}    ${S_pickingMember}
+    #8dol用户确认收货
+    8dol订单_超市_用户确认收货    ${S_API基础信息}    ${S_order_id}    ${S_order_no}
+
+K_超市下单流程_下单后用户完结流程2
+    #YD_店长登录
+    ${dictionary}    YD_用户登录    ${S_店长用户名}    ${S_云店用户密码password}
+    ${YD_API基础信息}    get from dictionary    ${dictionary}    YD_API基础信息
+    ${DZ_userId}    get from dictionary    ${dictionary}    userId
+    Set Suite Variable    ${S_YD_API基础信息}    ${YD_API基础信息}
+    Set Suite Variable    ${S_pickingMember}    ${DZ_userId}
+    #YDapp_订单_新订单_店长订单确认
+    YDapp_订单_新订单_店长订单确认    ${S_YD_API基础信息}    ${S_order_id}    ${S_当前时间}
+    #YDapp_订单_普通订单店长配货
+    YDapp_订单_普通订单配货    ${S_YD_API基础信息}    ${S_order_id}    ${S_pickingMember}
+    #8dol兼职8仔_确认发货_店长兼职8仔
+    comment    randomNum 为订单编号的后5位
+    ${S_randomNum}    Get Substring    ${S_order_no}    -5
+    log    ${S_randomNum}
+    8dol_白8超市_8仔扫码发货    ${S_randomNum}    ${S_order_id}    ${S_8仔_API基础信息}
+    #8dol用户确认收货
+    8dol订单_超市_用户确认收货    ${S_API基础信息}    ${S_order_id}    ${S_order_no}
+
+
+K_便利店下单_现金支付_单商品促销工具
+    ${responsedata}    YDapp_便利店下单    ${S_YD_API基础信息}    ${S_org_id}    ${S_goodsInfos}
+    ${data}    get from dictionary    ${responsedata}    data
+    ${orderNo}    get from dictionary    ${data}    orderNo
+    ${orderId}    get from dictionary    ${data}    orderId
+    ${totalAmount}    get from dictionary    ${data}    totalAmount
+    ${realAmount}    get from dictionary    ${data}    realAmount
+    ${materialDiscount}    get from dictionary    ${data}    materialDiscount
+    ${promotionDiscount}    get from dictionary    ${data}    promotionDiscount
+    ${freeGoodsList}    get from dictionary    ${data}    freeGoodsList
+    Set Suite Variable    ${S_order_no}    ${orderNo}
+    Set Suite Variable    ${S_order_id}    ${orderId}
+    Set Suite Variable    ${S_cvs_商品总金额}    ${totalAmount}
+    Set Suite Variable    ${S_cvs_实付金额}    ${realAmount}
+    Set Suite Variable    ${S_cvs_红包优惠金额}    ${materialDiscount}
+    Set Suite Variable    ${S_cvs_活动优惠金额}    ${promotionDiscount}
+
+
+K_便利店_完结订单
+    ${responsedata}    YDapp_便利店_完结订单    ${S_YD_API基础信息}    ${S_order_id}    ${S_order_no}
+    ${data}    get from dictionary    ${responsedata}    data
+    log    ${data}
+
+K_便利店_取消新订单
+    ${responsedata}    YDapp_便利店_取消新订单    ${S_YD_API基础信息}    ${S_order_id}
+    ${data}    get from dictionary    ${responsedata}    data

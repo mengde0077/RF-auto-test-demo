@@ -1,0 +1,78 @@
+*** Settings ***
+Documentation     验证接口测试
+Force Tags        lianxi    API
+Library           RequestsLibrary
+Library           DatabaseLibrary
+Library           Collections
+Library           OperatingSystem
+Library           XML
+
+*** Variables ***
+${URL}    https://www.jubi.com
+${db_bi}    database='bi', user='root', password='', host='127.0.0.1', port=3306
+
+*** Test Cases ***
+# case1
+#     [Documentation]    使用json解析的方式
+#     create session    api    http://127.0.0.1:8000
+#     ${addr}    get request    api    users/1
+#     should be equal as strings    ${addr.status_code}    200
+#     log    ${addr.content}
+#     ${responsedata}    to json    ${addr.content}
+#     log    ${responsedata}
+#     ${keys}    get dictionary keys    ${responsedata}
+#     ${items}    get dictionary items    ${responsedata}
+#     ${values}    get dictionary values    ${responsedata}
+#     ${str}    get from dictionary    ${responsedata}    1
+#     comment    下一个接口    ******************************************
+#     ${addr}    get request    api    users/5
+#     should be equal as strings    ${addr.status_code}    404
+#     log    ${addr.content}
+#     ${responsedata}    to json    ${addr.content}
+#     log    ${responsedata}
+#     ${keys}    get dictionary keys    ${responsedata}
+#     ${items}    get dictionary items    ${responsedata}
+#     ${values}    get dictionary values    ${responsedata}
+#     ${str}    get from dictionary    ${responsedata}    message
+#     comment    关闭连接    ******************************************
+#     delete all sessions
+
+# case2
+#     [Documentation]    使用XML解析的方式
+#     create session    api    http://127.0.0.1:8000
+#     ${dict}    create dictionary    accept=application/xml
+#     ${addr}    get request    api    hello/qitao    ${dict}
+#     comment    should be equal as strings    ${addr.status_code}    200
+#     log    ${addr.content}
+#     ${responsedata}    set variable    ${addr.content}
+#     ${bady}    get element text    ${responsedata}
+#     ${hello}    get element text    ${responsedata}    hello
+#     ${bady}    get element    ${responsedata}    hello
+#     log    ${hello.text}
+
+case3
+    [timeout]    5 seconds
+    create session    api    ${URL}
+    ${dict}    create dictionary    accept=application/xml
+    ${addr}    post request    api    /coin/allcoin?    ${dict}
+    ${responsedata}    to json    ${addr.content}
+    log    ${responsedata}
+    @{keys}    get_dictionary_keys    ${responsedata}
+    Connect To Database Using Custom Params    pymysql    ${db_bi}
+    :FOR    ${key}    IN    @{keys}
+    \    ${values}    SET Variable    ${responsedata['${key}'][1]}
+    # \    S_执行语句    insert into `t_bi` (`no`, `point`, `create_time`) VALUES ('${key}', ${values}, now());
+    \    Run    curl -i -XPOST 'http://127.0.0.1:8086/write?db=bi_db' --data-binary 'bi,host=127.0.0.1,no=${key} point=${values}'
+    Disconnect From Database
+
+
+
+*** Keywords ***
+S_执行语句
+    [Arguments]    ${sql}
+    [Documentation]    执行一个没有返回值的新增、更新、删除类语句
+    Execute Sql String    ${sql}
+
+
+
+

@@ -1,0 +1,28 @@
+*** Settings ***
+Documentation     接口资源：
+...               \ \ \ \ 用于记录单个项目中的单个一个应用UI界面对应获取类、操作类、入口类接口资源，资源的内容随项目的升级而变化；
+...
+...               1.记录对应项目的，功能页面及功能页面包含的各类接口资源；
+...               2.记录项目中可复用的资源关键字；
+...
+...
+...               本资源记录，8 天在线 B2C的第三方支付类API的资源；
+Resource          ../../API配置.txt
+
+*** Variables ***
+${苏宁测试服务器URL}     http://58.240.86.161
+${POST获取接口令牌}     /esbadapter/GEBaseInfoMgmt_GCMS/getAccessToken?data={"appKey": "BTZX","appSecret":"9a3c2563-ae7c-4519-8637-bd65eef29da4","v":"1.0"}
+
+
+*** Keywords ***
+
+
+
+
+
+
+
+
+
+
+

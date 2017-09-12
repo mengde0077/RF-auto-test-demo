@@ -1,0 +1,99 @@
+*** Settings ***
+Library           AppiumLibrary
+Resource          ../8dol资源/app资源.txt
+
+*** Variables ***
+${手机号}            13000000000
+${密码}             8dol918
+
+*** Keywords ***
+打开app并登录
+    [Documentation]    打开一个app
+    打开app
+    Click A Point    x=273    y=524
+    #Click Button    xpath=//UIAApplication[1]/UIAWindow[1]/UIATableView[1]/UIAButton[1]
+    Click A Point    x=108    y=94
+    sleep    1
+    Click A Point    x=30    y=154
+    Click A Point    x=30    y=154
+    Click Button    清除文本
+    Input Text    xpath=//UIAApplication[1]/UIAWindow[1]/UIAScrollView[1]/UIAScrollView[1]/UIATextField[1]    ${手机号}
+    Click A Point    x=30    y=199
+    Input Password    xpath=//UIAApplication[1]/UIAWindow[1]/UIAScrollView[1]/UIAScrollView[1]/UIASecureTextField[1]    ${密码}
+    Click Button    登 \ 录
+    sleep    1
+    Click A Point    x=273    y=524
+    #截屏
+    #Click Button    arrowBack
+    Page Should Contain Element    name=13000000000
+
+进入客服截图返回
+    进入客服页面
+    sleep    1
+    截屏
+    Page Should Contain Element    name=客服
+    Click Button    arrowBack
+
+进入天金截图返回
+    进入天金页面
+    截屏
+    Page Should Contain Element    name=天金商城
+    Click Button    arrowBack
+
+进入充值截图返回
+    进入充值页面
+    截屏
+    Page Should Contain Element    name=我要充值
+    Click Button    arrowBack
+
+点击摸我8
+    Click Button    摸我8
+    截屏
+
+进入赚钱截图返回
+    进入赚钱页面
+    截屏
+    Page Should Contain Element    name=赚钱
+
+进入发现截图返回
+    进入发现页面
+    截屏
+    Page Should Contain Element    name=发现
+
+进入订单截图返回
+    进入订单页面
+    截屏
+    Page Should Contain Element    name=全部订单
+
+进入我的截图返回
+    进入我的页面
+    截屏
+    Page Should Contain Element    name=13000000000
+
+进入指定商品分类
+    [Arguments]    ${商品分类}
+    ${location}    Get Element location    name=${商品分类}
+    ${y}    Get From Dictionary    ${location}    y
+    ${x}    Get From Dictionary    ${location}    x
+    Click A Point    x=${x}    y=${y}
+
+添加一个指定商品
+    [Arguments]    ${商品名称}
+    ${location}    Get Element Location    name=${商品名称}
+    ${y1}    Get From Dictionary    ${location}    y
+    ${x1}    Get From Dictionary    ${location}    x
+    ${y2}    Evaluate    int(int(${y1})+58)
+    ${x2}    Evaluate    int(int(${x1})+210)
+    Click A Point    x=${x2}    y=${y2}
+
+点击去结算
+    Click Element    xpath=//UIAApplication[1]/UIAWindow[1]/UIAButton[4]
+
+点击提交订单
+    Click Element    xpath=//UIAApplication[1]/UIAWindow[1]/UIAButton[1]
+
+搜索指定商品
+    [Arguments]    ${商品名称}
+    Click Button    searchBar shop
+    Input Text    name=请输入商品名称    ${商品名称}
+    Click Button    shoppingAdd

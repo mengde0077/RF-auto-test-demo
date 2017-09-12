@@ -1,0 +1,3 @@
+*** Variables ***
+${支付失败}           支付失败    # name
+${页面返回按钮ID}       com.ndol.sale.starter:id/iv_left    # ID

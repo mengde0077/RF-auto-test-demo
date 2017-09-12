@@ -1,0 +1,44 @@
+*** Settings ***
+Library           OperatingSystem
+Library           String
+Resource          R_CSV读写操作.txt
+Library           RequestsLibrary
+
+
+*** Variables ***
+${base_path}      ~/Desktop/qita/
+${file}           ~/Desktop/qita/mobileAndUserid.txt
+
+*** Test Cases ***
+目录
+    ${image_path}    join path    ${base_path}    image_path_test    #组合目录，可以适配操作系统的不同目录结构
+    Create Directory    ${image_path}    #检查目录是否存在，不存在则创建目录
+    ${file_path}    join path    ${image_path}    example.csv
+    set suite variable    ${S_file_path}    ${file_path}
+    set suite variable    ${S_image_path}    ${image_path}
+
+写入CSV
+    Directory Should Exist    ${S_image_path}    msg=目录不存在    #判断目录是否存在，不存在则报错，并输出msg信息
+    Create File    ${S_file_path}    用户名,密码,VF\n    #创建文件，并写入Hello,world
+    append to file    ${S_file_path}    15195995661,123456,123\n    #写入一条数据
+    append to file    ${S_file_path}    15195995662,123456,123\n    #写入一条数据
+    ${file_size}    get file size    ${S_file_path}
+    ${file_modified_time}    get modified time    ${S_file_path}
+    Directory Should not Be Empty    ${S_image_path}    msg=目录为空
+
+S_读取CSV
+    ${list}    读取CSV    ${file}    1    2
+    ${listlen}    evaluate    len(${list})
+    : FOR    ${i}    IN    ${listlen}
+    \    log    ${list}[${i}]
+    \    ${i}    evaluate    ${i}+1
+
+删除
+    remove file    ${S_file_path}
+    Remove Directory    ${S_image_path}    #移除目录    image_path
+
+读取文件
+    ${rule_data}    get file    ./rule_data.json
+    log    ${rule_data}
+    ${data}    to json    ${rule_data}
+    ${employName}    get from dictionary    ${data}    employName

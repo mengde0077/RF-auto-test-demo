@@ -1,0 +1,279 @@
+*** Settings ***
+Documentation     项目关键字：
+...               \ \ \ \ 用于记录单个项目中的业务关键字，不涉及具体的资源；
+...               本业务关键字记录，8 天在线 B2C的Android版本的功能关键字；
+Library           AppiumLibrary
+Resource          ../../公共关键字.txt
+Resource          ../../app_配置.txt
+Resource          ../resource/8dol_分类.txt
+Library           TestLibrary
+
+*** Variables ***
+
+*** Keywords ***
+# 写入类型关键字
+#     comment    *******************************************************************************************************************
+#     comment    此下区域放    写入类型关键字
+#     comment    写入时，注意调整手机的输入法
+
+8dol_app_清除_商品搜索页_搜索框
+    [Documentation]       输入  搜索  内容
+    ${locator}    获取_商品搜索页_搜索框_locator
+    Clear Text    ${locator}
+
+8dol_app_输入_商品搜索页_搜索框
+    [Arguments]    ${text}
+    [Documentation]       输入  搜索  内容
+    ${locator}    获取_商品搜索页_搜索框_locator
+    Input Text    ${locator}    ${text}
+
+
+
+# 操作类型关键字
+#     comment    *******************************************************************************************************************
+#     comment    此下区域放    操作类型关键字
+#     comment    进行元素的对象的操作，点击、长按，拖拽、划屏等
+#     comment    进行换页操作，需要确认子页面的的资源是否加载
+
+
+
+8dol_app_点击_分类_搜索_搜索入口
+    [Documentation]       进入搜索页
+    ${locator}    获取_分类_搜索_搜索入口_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击_分类_搜索_扫码
+    [Documentation]       进入扫码页
+    ${locator}    获取_分类_搜索_扫码_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击_扫码页_返回
+    [Documentation]       返回
+    ${locator}    获取_扫码页_返回_locator
+    PK_等待并点击_locator    ${locator}
+
+
+
+8dol_app_点击_商品搜索页_搜索框
+    ${locator}    获取_商品搜索页_搜索框_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击_商品搜索页_热门搜索_信息
+    [Arguments]    ${index}=1
+    [Documentation]       可以获取 所有的热门搜索 ，可点击进行搜索
+    ${locator}    获取_商品搜索页_热门搜索_信息_locator    ${index}
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击_商品搜索页_历史搜索_信息
+    [Arguments]    ${index}=1
+    [Documentation]       可以获取 所有的历史搜索 ，可点击进行搜索
+    ${locator}    获取_商品搜索页_历史搜索_信息_locator    ${index}
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击_商品搜索页_清空历史搜索
+    ${locator}    获取_商品搜索页_清空历史搜索_locator
+    PK_等待并点击_locator    ${locator}
+
+
+8dol_app_点击_扫码页_开关照明
+    ${locator}    获取_扫码页_开关照明_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击_扫码页_浏览图片
+    ${locator}    获取_扫码页_浏览图片_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击_扫码页_浏览图片_返回
+    [Documentation]       返回 扫码页
+    ${locator}    获取_扫码页_浏览图片_返回_locator
+    PK_等待并点击_locator    ${locator}
+
+
+8dol_app_点击进入_分类_活动_当前活动
+    [Documentation]       进入当前活动商品聚合页
+    ${locator}    获取_分类_活动_活动标题_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击_分类_活动_展开活动列表
+    [Documentation]       展开活动列表
+    ${locator}    获取_分类_活动_活动数_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_分类_全部
+    PK_等待并点击_name    全部
+
+8dol_app_分类_销量
+    PK_等待并点击_name    销量
+
+8dol_app_分类_价格
+    PK_等待并点击_name    价格
+
+8dol_app_点击切换_分类_商品展示type
+    ${locator}    获取_分类_商品展示type_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_分类_折扣专区
+    PK_等待并点击_name    折扣专区
+
+8dol_app_分类_休闲零食
+    PK_等待并点击_name    休闲零食
+
+8dol_app_分类_烟酒粮油
+    PK_等待并点击_name    烟酒粮油
+
+8dol_app_分类_商品列表框
+    [Documentation]       一个商品信息的 父节点  框
+    ${locator}    获取_分类_商品列表框_locator
+    [return]    ${locator}
+
+8dol_app_点击_分类_商品图片
+    [Arguments]    ${index}=0
+    [Documentation]       可以点击查看大图
+    ${locator}    获取_分类_商品图片_locator    ${index}
+    [return]    ${locator}
+
+8dol_app_点击_分类_商品_立即抢
+    [Arguments]    ${index}=0
+    [Documentation]       折扣专区 的 立即抢  按钮
+    ${locator}    获取_分类_商品_立即抢_locator    ${index}
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击_分类_商品_立即抢2
+    [Documentation]       可以获取 商品的 名称
+    ${locator}    获取_分类_商品_立即抢_locator
+    @{locators}    Get Webelements    ${locator}
+    ${value}    Get Text    @{locators}[0]
+    ${value}    Get Text    @{locators}[1]
+    ${value}    Get Text    @{locators}[2]
+    ${value}    Get Text    @{locators}[3]
+
+8dol_app_点击_分类_商品_购物车_加
+    [Arguments]    ${index}=0
+    [Documentation]       将商品添加入购物车 ，增加购物车中该商品的数量
+    ${locator}    获取_分类_商品_购物车_加_locator    ${index}
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击_商品_购物车_加
+    ${locator}    获取_商品_购物车_加_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击_分类_商品_购物车_减
+    [Arguments]    ${index}=0
+    [Documentation]       减少  购物车中 该商品的数量
+    ${locator}    获取_分类_商品_购物车_减_locator    ${index}
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_判断_分类_商品_活动图标
+    [Arguments]    ${index}=0
+    [Documentation]      判断是否存在 ，参加获取的商品  会有该图标
+    ${locator}    获取_分类_商品_活动图标_locator    ${index}
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击_分类_购物车按钮
+    [Documentation]       进入购物车
+    ${locator}    获取_分类_购物车按钮_locator
+    PK_等待并点击_locator    ${locator}
+
+
+
+# 获取类型关键字
+#     comment    *******************************************************************************************************************
+#     comment    此下区域放    获取类型关键字
+#     comment    需要返回值，或列表
+8dol_app_获取_分类_搜索_提示
+    ${locator}    获取_分类_搜索_提示_locator
+    ${value}    PK_获取文本_locator    ${locator}
+    [return]    ${value}
+
+
+8dol_app_获取_商品搜索页_热门搜索_信息
+    [Arguments]    ${index}=1
+    [Documentation]       可以获取 所有的热门搜索
+    ${locator}    获取_商品搜索页_热门搜索_信息_locator    ${index}
+    ${value}    PK_获取文本_locator    ${locator}
+    [return]    ${value}
+
+
+8dol_app_获取_商品搜索页_搜索框
+    [Documentation]       获取  搜索框  内容
+    ${locator}    获取_商品搜索页_搜索框_locator
+    ${value}    PK_获取文本_locator    ${locator}
+    [return]    ${value}
+
+8dol_app_获取_商品搜索页_历史搜索_信息
+    [Arguments]    ${index}=1
+    [Documentation]       可以获取 所有的历史搜索
+    ${locator}    获取_商品搜索页_历史搜索_信息_locator    ${index}
+    ${value}    PK_获取文本_locator    ${locator}
+    [return]    ${value}
+
+
+8dol_app_获取_商品搜索页_热门搜索_信息数
+    ${xpath}    获取_商品搜索页_热门搜索_信息_xpath
+    PK_等待_locator    xpath=${xpath}
+    ${count}    PK_获取xpath的对象的数量    ${xpath}
+    [return]    ${count}
+
+8dol_app_获取_商品搜索页_历史搜索_信息数
+    ${xpath}    获取_商品搜索页_历史搜索_信息_xpath
+    ${count}    PK_获取xpath的对象的数量    ${xpath}
+    [return]    ${count}
+
+8dol_app_获取_分类_活动_活动标题
+    ${locator}    获取_分类_活动_活动标题_locator
+    ${value}    PK_获取文本_locator    ${locator}
+    [return]    ${value}
+
+8dol_app_获取_分类_活动_活动数
+    ${locator}    获取_分类_活动_活动数_locator
+    ${value}    PK_获取文本_locator    ${locator}
+    [return]    ${value}
+
+8dol_app_获取_分类_商品名称
+    [Documentation]       可以获取 商品的 名称
+    [Arguments]    ${index}=0
+    ${locator}    获取_分类_商品名称_locator    ${index}
+    ${value}    PK_获取文本_locator    ${locator}
+    [return]    ${value}
+
+8dol_app_获取_商品列表中_商品个数
+    ${xpath}    获取_分类_商品名称_xpath
+    PK_等待_locator    xpath=${xpath}
+    ${count}    PK_获取xpath的对象的数量    ${xpath}
+    [return]    ${count}
+
+8dol_app_获取_分类_商品价格
+    [Documentation]       可以获取 商品的 销售价格
+    [Arguments]    ${index}=0
+    ${locator}    获取_分类_商品价格_locator    ${index}
+    ${value}    PK_获取文本_locator    ${locator}
+    ${value}    Set Variable    ${value[1:]}   #将 ￥ 截取掉
+    [return]    ${value}
+
+8dol_app_获取_分类_商品原价
+    [Documentation]       可以获取 商品的 销售 原价
+    [Arguments]    ${index}=0
+    ${locator}    获取_分类_商品原价_locator    ${index}
+    ${value}    PK_获取文本_locator    ${locator}
+    ${value}    Set Variable    ${value[1:]}   #将 ￥ 截取掉
+    [return]    ${value}
+
+8dol_app_获取_分类_商品销量
+    [Arguments]    ${index}=0
+    [Documentation]       可以获取 商品的 销量
+    ${locator}    获取_分类_商品销量_locator    ${index}
+    ${value}    PK_获取文本_locator    ${locator}
+    [return]    ${value}
+
+8dol_app_获取_分类_商品_购物车_数量
+    [Arguments]    ${index}=0
+    [Documentation]       获取 该商品 已加入购物的 数量
+    ${locator}    获取_分类_商品_购物车_数量_locator    ${index}
+    ${value}    PK_获取文本_locator    ${locator}
+    [return]    ${value}
+
+8dol_app_获取_分类_购物车_数量
+    [Documentation]       获取购物车中 有效商品的 数量 （不包含 下架的 无库存的）
+    ${locator}    获取_分类_购物车_数量_locator
+    ${value}    PK_获取文本_locator    ${locator}
+    [return]    ${value}

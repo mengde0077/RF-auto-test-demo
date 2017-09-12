@@ -1,0 +1,41 @@
+*** Settings ***
+Documentation     场景：
+Library           Selenium2Library
+Library           Collections
+Library           TestLibrary
+
+*** Variables ***
+${y}     1
+${x}     None
+${data}
+*** Test Cases ***
+获取空值
+    test
+    log    ${data}
+
+通过返回值获取空值
+    ${data}    test2
+    log    ${data}
+
+如果为None通过返回值获取空值
+    ${data}    test3    ${x}
+    log    ${data}
+
+*** Keywords ***
+test
+    run keyword if     ${y}==1   Set Suite Variable    ${data}
+    run keyword if     ${y}!=1   Set Suite Variable    ${data}    a
+
+test2
+    run keyword if     ${y}==1   Set Suite Variable    ${data}
+    run keyword if     ${y}!=1   Set Suite Variable    ${data}    a
+    [return]    ${data}
+
+test3
+    [Arguments]     ${v}
+    ${status}    run keyword and return status    should be equal as strings    ${v}    None
+    run keyword if     ${status}==1   Set Suite Variable    ${data}
+    run keyword if     ${status}!=1   Set Suite Variable    ${data}    ${v}
+    [return]    ${data}
+
+

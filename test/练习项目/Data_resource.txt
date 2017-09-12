@@ -1,0 +1,22 @@
+*** Settings ***
+Library           DatabaseLibrary
+
+*** Variables ***
+
+*** Keywords ***
+连接测试数据库
+    Connect To Database Using Custom Params    pymysql    database='saledb', user='sale', password='sela', host='121.41.51.178', port=3306
+
+连接14sale数据库
+    Connect To Database Using Custom Params    pymysql    database='saledb', user='root', password='8dolpress', host='192.168.100.14', port=3306
+
+连接生成只读库
+    Connect To Database Using Custom Params    pymysql    database='saledb', user='sale', password='sela', host='121.41.51.178', port=3306
+
+查询
+    ${result}    Query    select * from t_user_bag t where t.user_id in (15158992,886699,1514191);
+    [Return]    ${result}
+
+查询规则
+    ${result}    Query    select * from t_rules
+    [Return]    ${result}

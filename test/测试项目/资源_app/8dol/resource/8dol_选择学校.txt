@@ -1,0 +1,33 @@
+*** Settings ***
+Documentation     项目子资源：
+...               \ \ \ \ 用于记录单个项目中的单个activity的子资源，资源的内容随项目的升级而变化；
+...
+...               1.记录对应项目的，功能页面及功能页面包含的元素对象；
+...               2.记录项目中可复用的资源关键字；
+...
+...
+...               本资源记录，8 天在线 B2C的Android版本的资源；
+
+Resource          ../../公共关键字.txt
+Resource          ../../app_配置.txt
+*** Variables ***
+${选择配送地址_搜索框_and}    //*[@resource-id="com.ndol.sale.starter:id/placeedit"]
+
+${搜索页_搜索框_and}    //*[@resource-id="com.ndol.sale.starter:id/searchEdit"]
+
+${搜索页_搜索结果_and}    //*[@resource-id="com.ndol.sale.starter:id/address"]
+
+*** Keywords ***
+获取_选择配送地址_搜索框_locator
+    ${locator}    PK_获取相应平台的locator    xpath=${选择配送地址_搜索框_and}    xpath=${选择配送地址_搜索框_and}
+    [return]    ${locator}
+
+获取_地址搜索页_搜索框_locator
+    # 在  选择配送地址_搜索框 点击 进入 后
+    ${locator}    PK_获取相应平台的locator    xpath=${搜索页_搜索框_and}    xpath=${搜索页_搜索框_and}
+    [return]    ${locator}
+
+获取_地址搜索页_搜索结果_locator
+    # 搜索出来的结果 列表  地址 元素对象
+    ${locator}    PK_获取相应平台的locator    xpath=${搜索页_搜索结果_and}    xpath=${搜索页_搜索结果_and}
+    [return]    ${locator}

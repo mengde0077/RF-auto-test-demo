@@ -1,0 +1,58 @@
+*** Settings ***
+Documentation     验证8dol接口测试
+Force Tags        lianxi    API    8dol
+Library           RequestsLibrary
+Library           Collections
+
+*** Variables ***
+${GET_充值卡充值}      /chargeCard/charge?passcode=125&app_version=AD_2.2.0&user_id=1514191&verify_code=b616daf5cc61730a0ff176a3970b1ff8&
+${POST_充值卡充值}     /chargeCard/charge
+${POST_充值卡充值_testView}    'user_id=1514191&passcode=1111&verify_code=b616daf5cc61730a0ff176a3970b1ff8'
+${POST_充值卡充值_data_json}    {"Duser_id":1514191,"passcode":WWQ458EJ6AP,"verify_code":b616daf5cc61730a0ff176a3970b1ff8}
+${GET盒子订单_下单}     /box/order/3400ab1d8bc0a88e3f57fcaaab9f547875ec3821d792bd2b85534d3998bfc251/preGenerate?
+${GET盒子订单_下单_data}    {%22areaId%22:%22672638%22,%22client%22:%22WECHAT%22,%22goodsList%22:[{%22goodsExtendId%22:121107,%22goodsId%22:8061,%22id%22:5,%22quantity%22:10}],%22orgId%22:%22222%22,%22userId%22:%221514097%22}&type=WECHAT
+
+*** Test Cases ***
+POST_充值卡充值
+    [Documentation]    使用json解析的方式
+    create session    api    http://b2ctest.dev.8dol.com
+    ${addr}    post request    api    ${POST_充值卡充值}    ${POST_充值卡充值_testView}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    should be equal as strings    ${responsedata['result']}    ok
+    ${items}    get dictionary items    ${responsedata}
+    ${list}    get dictionary values    ${responsedata}
+    ${dictionary}    Get From List    ${list}    0    #获取列表中标签为0的值
+    ${username}    get from dictionary    ${dictionary}    username
+    delete all sessions
+
+POST盒子订单_下单
+    [Documentation]    使用json解析的方式
+    create session    api    http://192.168.100.27:8082
+    ${addr}    get request    api    ${PUT盒子订单_下单}data=${PUT盒子订单_下单_data}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    message
+    ${core}    get from dictionary    ${responsedata}    core
+    should be equal as strings    ${core}    0
+    ${items}    get dictionary items    ${responsedata}
+    ${list}    get dictionary values    ${responsedata}
+    ${dictionary}    Get From List    ${list}    0    #获取列表中标签为0的值
+    ${username}    get from dictionary    ${dictionary}    username
+    delete all sessions
+
+GET_充值卡充值
+    [Documentation]    使用json解析的方式
+    create session    api    http://b2ctest.dev.8dol.com
+    ${addr}    post request    api    ${GET_充值卡充值}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${headersdata}    set variable    ${addr.headers}
+    ${str}    get from dictionary    ${responsedata}    msg
+    should be equal as strings    ${responsedata['result']}    ok
+    ${items}    get dictionary items    ${responsedata}
+    ${list}    get dictionary values    ${responsedata}
+    ${dictionary}    Get From List    ${list}    0    #获取列表中标签为0的值
+    ${username}    get from dictionary    ${dictionary}    username
+    delete all sessions

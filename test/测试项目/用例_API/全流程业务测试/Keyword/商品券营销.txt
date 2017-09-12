@@ -1,0 +1,244 @@
+*** Settings ***
+
+
+*** Keywords ***
+K_商品券营销_商品场景初始化
+    K_获取当前日期当前时间
+    K_8dol选择学校_获取学校信息_byName
+    #sql_查询验证数据_下单前
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName}    ${S_org_id}
+    ${goods_id}    get from dictionary    ${dictionary}    goods_id
+    ${goods_extend_id}    get from dictionary    ${dictionary}    goods_extend_id
+    ${origin_goods_id}    get from dictionary    ${dictionary}    origin_goods_id
+    ${stock}    get from dictionary    ${dictionary}    stock
+    Set Suite Variable    ${S_goods_extend_id}    ${goods_extend_id}
+    Set Suite Variable    ${S_origin_goods_id}    ${origin_goods_id}
+    #8dol数据库中修改我的余额
+    sql_修改用户余额为ByMobile    1000    ${S_8天用户名}
+    #8dol数据库中修改超市商品库存
+    K_修改超市商品库存    ${S_goods_extend_id}    ${S_origin_goods_id}
+    Set Suite Variable    ${S_stock_下单前}    ${S_stock}
+    #sql_修改超市商品salePrice为
+    sql_修改超市商品salePrice为    ${S_sale_price}    ${S_goods_extend_id}
+
+K_商品券营销_用户场景初始化
+    ${dictionary}    8dol用户登录_ByLoginNameAndPassword    ${S_8天用户名}    ${S_8天用户登录密码}
+    ${API基础信息}    get from dictionary    ${dictionary}    API基础信息_new
+    #4.0.1 去结算 判断了版本   大于 4.0.0版本 才 显示可用及不可用红包列表
+    ${API基础信息_4}    get from dictionary    ${dictionary}    API基础信息_4
+    ${user_id}    get from dictionary    ${dictionary}    user_id
+    ${user_no}    get from dictionary    ${dictionary}    user_no
+    Set Suite Variable    ${S_API基础信息}    ${API基础信息}
+    Set Suite Variable    ${S_API基础信息_4}    ${API基础信息_4}
+    Set Suite Variable    ${S_user_id}    ${user_id}
+    Set Suite Variable    ${S_user_no}    ${user_no}
+    #8dol用户登录_ByLoginNameAndPassword_8仔
+    ${dictionary}    8dol用户登录_ByLoginNameAndPassword    ${S_8仔用户名}    ${S_8仔用户登录密码}
+    ${API基础信息}    get from dictionary    ${dictionary}    API基础信息_new
+    ${user_id}    get from dictionary    ${dictionary}    user_id
+    Set Suite Variable    ${S_8仔_API基础信息}    ${API基础信息}
+    Set Suite Variable    ${S_wlyIds}    ${user_id}
+    #8dol我的_余额_下单前
+    ${responsedata}    8dol我的_获取基本信息    ${S_API基础信息}    ${S_org_id}
+    ${data}    get from dictionary    ${responsedata}    data
+    ${balance}    get from dictionary    ${data}    balance
+    Set Suite Variable    ${S_balance_下单前}    ${balance}
+    ${dictionary}    YDPC_用户登录    ${S_系统管理员userName}    ${S_云店用户密码password}
+    ${系统管理员_基础信息}    get from dictionary    ${dictionary}    YDPC_API基础信息
+    Set Suite Variable    ${S_系统管理员_基础信息}    ${系统管理员_基础信息}
+    #确保有一个正确的收货地址
+    K_默认地址_如果不存在_则创建
+
+
+K_商品券营销_超市下单_校验订单金额流程
+    K_超市下单_清空购物车_添加购物车两次_查看购物车_去结算
+    K_超市下单_普通商品_提交订单_下单成功
+
+
+K_商品券营销_运费券_超市下单_校验订单金额流程
+    K_超市下单_清空购物车_添加购物车两次_查看购物车_去结算
+    K_超市下单_普通商品_红包_免运费券_提交订单_下单成功_V4    ${S_material_id}    ${S_运费券id}
+
+
+K_商品券营销_流程_下单后用户完结流程
+    K_店长登录_店长确认_店长配货_8仔配送
+    K_超市下单流程_完结订单_用户确认收货
+
+
+K_商品券营销_流程_下单后8仔确认收货流程
+    K_店长登录_店长确认_店长配货_8仔配送
+    K_超市下单流程_完结订单_8仔
+
+
+K_商品券营销_流程_下单后店长完结流程
+    K_店长登录_店长确认_店长配货_8仔配送
+    K_超市下单流程_完结订单_店长
+
+
+K_商品券营销_单品券分享_初始化
+    [Arguments]    ${promotionId}    ${originGoodsId}=    ${shareUserNo}=    ${API基础信息}=${S_API基础信息}
+    ${data}    8dol商品券营销_单品券分享_初始化    ${API基础信息}    ${promotionId}    ${shareUserNo}    ${originGoodsId}
+    log    ${data}
+    ${myShareAwardInfo}    get from dictionary    ${data}    myShareAwardInfo
+    Set Suite Variable    ${S_freeGoodsNum}    ${data['freeGoodsNum']}
+    [return]    ${myShareAwardInfo}
+
+K_商品券营销_获取_分享的免费商品_广告分享
+    [Documentation]    生成 分享 链接
+    #| shareCode | string | 分享码,针对 广告分享免费商品 | 60KpTfsAQrrP41pG34vBoA== |
+    #| orderId | integer | 订单id,针对 订单支付成功分享 | 11579181 |
+    #| originGoodsId | integer | 商品id,针对 商品抵用券分享 | 166326 |
+    [Arguments]    ${promotionId}    ${shareCode}=    ${shareUserId}=    ${orgId}=
+    ${responsedata}    8dol商品券营销_获取_分享的免费商品    ${S_API基础信息}    ${promotionId}&shareCode=${shareCode}    ${shareUserId}    ${orgId}
+    ${data}    get from dictionary    ${responsedata}    data
+    should be equal as strings    ${responsedata['result']}    ok
+    log    ${data}
+    ${url}    get from dictionary    ${data}    url
+    ${values}    evaluate    "${url}".split('#')[-1]
+    ${shareId_广告分享}    evaluate    "${values}".split('/')[1]
+    ${shareCode_广告分享}    evaluate    "${values}".split('/')[2]
+    Set Suite Variable    ${S_shareId_广告分享}    ${shareId_广告分享}
+    Set Suite Variable    ${S_shareCode_广告分享}    ${shareCode_广告分享}
+
+
+
+K_商品券营销_获取_分享的免费商品_订单分享
+    [Documentation]    生成 分享 链接
+    #| shareCode | string | 分享码,针对 广告分享免费商品 | 60KpTfsAQrrP41pG34vBoA== |
+    #| orderId | integer | 订单id,针对 订单支付成功分享 | 11579181 |
+    #| originGoodsId | integer | 商品id,针对 商品抵用券分享 | 166326 |
+    [Arguments]    ${promotionId}    ${orderNo}    ${shareUserId}=    ${orgId}=
+    ${responsedata}    8dol商品券营销_获取_分享的免费商品    ${S_API基础信息}    ${promotionId}&orderNo=${orderNo}    ${shareUserId}    ${orgId}
+    ${data}    get from dictionary    ${responsedata}    data
+    should be equal as strings    ${responsedata['result']}    ok
+    log    ${data}
+    ${url}    get from dictionary    ${data}    url
+    ${values}    evaluate    "${url}".split('#')[-1]
+    ${shareId_订单分享}    evaluate    "${values}".split('/')[1]
+    ${shareCode_订单分享}    evaluate    "${values}".split('/')[2]
+    Set Suite Variable    ${S_shareId_订单分享}    ${shareId_订单分享}
+    Set Suite Variable    ${S_shareCode_订单分享}    ${shareCode_订单分享}
+
+K_商品券营销_获取_分享的免费商品_订单分享_异常
+    [Documentation]    生成 分享 链接
+    #| shareCode | string | 分享码,针对 广告分享免费商品 | 60KpTfsAQrrP41pG34vBoA== |
+    #| orderId | integer | 订单id,针对 订单支付成功分享 | 11579181 |
+    #| originGoodsId | integer | 商品id,针对 商品抵用券分享 | 166326 |
+    [Arguments]    ${promotionId}    ${orderNo}    ${shareUserId}=    ${orgId}=
+    ${responsedata}    8dol商品券营销_获取_分享的免费商品    ${S_API基础信息}    ${promotionId}&orderNo=${orderNo}    ${shareUserId}    ${orgId}
+    log    ${responsedata}
+    ${data}    get from dictionary    ${responsedata}    data
+    should be equal as strings    ${responsedata['result']}    fail
+
+K_商品券营销_获取_分享的免费商品_商品抵用券分享
+    [Documentation]    生成 分享 链接
+    #| shareCode | string | 分享码,针对 广告分享免费商品 | 60KpTfsAQrrP41pG34vBoA== |
+    #| orderId | integer | 订单id,针对 订单支付成功分享 | 11579181 |
+    #| originGoodsId | integer | 商品id,针对 商品抵用券分享 | 166326 |
+    [Arguments]    ${promotionId}    ${originGoodsId}    ${shareUserId}=    ${API基础信息}=${S_API基础信息}    ${orgId}=
+    ${responsedata}    8dol商品券营销_获取_分享的免费商品    ${API基础信息}    ${promotionId}&originGoodsId=${originGoodsId}    ${shareUserId}    ${orgId}
+    ${data}    get from dictionary    ${responsedata}    data
+    should be equal as strings    ${responsedata['result']}    ok
+    log    ${data}
+    ${url}    get from dictionary    ${data}    url
+    ${values}    evaluate    "${url}".split('#')[-1]
+    ${shareId_商品抵用券分享}    evaluate    "${values}".split('/')[1]
+    ${shareCode_商品抵用券分享}    evaluate    "${values}".split('/')[2]
+    Set Suite Variable    ${S_shareId_商品抵用券分享}    ${shareId_商品抵用券分享}
+    Set Suite Variable    ${S_shareCode_商品抵用券分享}    ${shareCode_商品抵用券分享}
+
+
+K_商品券营销_领取者_点击链接
+    [Arguments]    ${shareId}    ${shareCode}
+    [Documentation]    | originGoodsId | integer | 商品id,非必填 | 166326 |
+    ${data}    8dol商品券营销_领取者_点击链接    ${shareId}    ${shareCode}
+    log    ${data}
+    log    ${data['freeGoods']['goodsName']}
+    log    ${data['freeGoods']['originGoodsId']}
+    Set Suite Variable    ${S_leftFreeGoodsNum}    ${data['leftFreeGoodsNum']}
+    [return]    ${data['freeGoods']['originGoodsId']}
+
+
+K_商品券营销_领取者_输入手机号领取
+    [Documentation]    | receiveUserId | integer | 领取者用户id,非必填 | 11398626 |
+    #| orgId | integer | 微仓id,非必填 | 746 |
+    #| mobile | string | 手机号码,必填 | 13330987235 |
+    #| originGoodsId | integer | 商品id,必填 | 166326 |
+    [Arguments]    ${shareId}    ${shareCode}    ${originGoodsId}    ${mobile}=${S_8天用户名}    ${orgId}=
+    ${responsedata}    8dol商品券营销_领取者_输入手机号领取    ${shareId}    ${shareCode}    ${mobile}    ${originGoodsId}    ${orgId}
+    should be equal as strings    ${responsedata['result']}    ok
+    ${data}    get from dictionary    ${responsedata}    data
+
+K_商品券营销_领取者_输入手机号领取_异常
+    [Documentation]    | receiveUserId | integer | 领取者用户id,非必填 | 11398626 |
+    #| orgId | integer | 微仓id,非必填 | 746 |
+    #| mobile | string | 手机号码,必填 | 13330987235 |
+    #| originGoodsId | integer | 商品id,必填 | 166326 |
+    [Arguments]    ${shareId}    ${shareCode}    ${originGoodsId}    ${mobile}=${S_8天用户名}    ${orgId}=
+    ${responsedata}    8dol商品券营销_领取者_输入手机号领取    ${shareId}    ${shareCode}    ${mobile}    ${originGoodsId}    ${orgId}
+    should be equal as strings    ${responsedata['result']}    fail
+
+
+K_商品券营销_根据用户订单_获取promotionId
+    [Documentation]    | orderNo | string | 订单no,非必填 | M2017072502044300001 |
+    [Arguments]    ${userId}    ${orderNo}
+    ${data}    8dol商品券营销_根据用户订单_获取promotionId    ${userId}    ${orderNo}
+
+
+K_商品券营销_查询获取到的红包状态
+    [Arguments]    ${share_id}    ${mobile}=${S_8天用户名}
+    ${data}    sql_查询分享红包获取记录    ${share_id}    ${mobile}
+    Set Suite Variable    ${S_material_id_订单分享}    ${data['material_id']}
+    Set Suite Variable    ${S_origin_goods_id_订单分享}    ${data['origin_goods_id']}
+    ${status}    sql_查询用户userMaterials红包状态    ${S_material_id_订单分享}
+    Set Suite Variable    ${S_status}    ${status}
+
+K_商品券营销_根据分享id获取红包id
+    [Arguments]    ${share_id}    ${mobile}=${S_8天用户名}
+    ${data}    sql_查询分享红包获取记录    ${share_id}    ${mobile}
+    Set Suite Variable    ${S_material_id}    ${data['material_id']}
+
+
+K_商品券营销_验证商品详情中的分享标签
+    [Arguments]    ${goodsId}    ${geId}    ${org_id}=${S_org_id}
+    ${data}    8dol商品_获取商品详情_V2    ${S_API基础信息}    ${goodsId}    ${geId}    ${org_id}    ${S_area_id}
+    should not be equal as strings    ${data['shareDetail']}    null
+
+
+K_商品券营销_我的_可用红包验证1
+    [Arguments]    ${index}    ${discount}    ${limit_order_price}    ${title}
+    Set Suite Variable    ${S_我的可用红包}    ${S_我的可用红包列表[${index}]}
+    log    ${S_我的可用红包}
+    should be equal as numbers    ${S_我的可用红包['discount']}    ${discount}
+    should be equal as numbers    ${S_我的可用红包['limit_order_price']}    ${limit_order_price}
+    should be equal as strings    ${S_我的可用红包['title']}    ${title}
+
+K_商品券营销_我的_可用红包验证2
+    [Arguments]    ${goodsRange}    ${useKind}    ${goodsKind}    ${areaName}=    ${is_used}=0
+    should be equal as numbers    ${S_我的可用红包['goodsRange']}    ${goodsRange}
+    should be equal as strings    ${S_我的可用红包['useKind']}    ${useKind}
+    should be equal as strings    ${S_我的可用红包['goodsKind']}    ${goodsKind}
+    should be equal as strings    ${S_我的可用红包['areaName']}    ${areaName}
+    should be equal as strings    ${S_我的可用红包['is_used']}    ${is_used}
+
+
+K_商品券营销_去结算_可用红包验证
+    [Arguments]    ${index}    ${discount}    ${limit_order_price}    ${title}    ${is_used}=0
+    Set Suite Variable    ${S_可用红包}    ${S_可用红包列表[${index}]}
+    log    ${S_可用红包}
+    should be equal as numbers    ${S_可用红包['discount']}    ${discount}
+    should be equal as strings    ${S_可用红包['is_used']}    0
+    should be equal as numbers    ${S_可用红包['limit_order_price']}    ${limit_order_price}
+    should be equal as strings    ${S_可用红包['title']}    ${title}
+
+K_商品券营销_去结算_不可用红包验证
+    [Arguments]    ${index}    ${discount}    ${limit_order_price}    ${title}    ${message}=    ${is_used}=0
+    Set Suite Variable    ${S_不可用红包}    ${S_不可用红包列表[${index}]}
+    log    ${S_不可用红包}
+    should be equal as numbers    ${S_不可用红包['discount']}    ${discount}
+    should be equal as strings    ${S_不可用红包['is_used']}    0
+    should be equal as numbers    ${S_不可用红包['limit_order_price']}    ${limit_order_price}
+    should be equal as strings    ${S_不可用红包['title']}    ${title}
+    should be equal as strings    ${S_不可用红包['message']}    ${message}
+
+

@@ -1,0 +1,2 @@
+*** Variables ***
+${网页视图id}         com.ndol.sale.starter:id/web

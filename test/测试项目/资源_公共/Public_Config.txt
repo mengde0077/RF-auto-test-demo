@@ -1,0 +1,33 @@
+*** Settings ***
+Documentation     公共配置
+...               14(auto_test) 用于存放数据驱动用例数据，请自建表设计表数据，并将数据脚本化；
+...               上线测试4线隔离服务器：137(coredb9) 测试组ZYYW,138(coredb138) 测试组JMYW,139(coredb139) 测试组ZYBL,140(coredb140) 测试组ZYHH,
+...               master分支（coredb）
+...
+...               如：测试数据库地址； 230(PC_db_test_cor230)
+
+*** Variables ***
+#**********************************************************************************************
+#测试环境数据库
+${PC_db_test_co3120}    database='coredb', user='8dol', password='8dol', host='172.23.3.125', port=3306
+${PC_db_test_cor380}    database='coredb', user='8dol', password='8dol', host='172.23.3.85', port=3306
+${PC_db_test_cor360}    database='coredb', user='8dol', password='8dol', host='172.23.3.65', port=3306
+${PC_db_test_cor390}    database='coredb', user='8dol', password='8dol', host='172.23.3.95', port=3306
+${PC_db_test_cor370}    database='coredb', user='8dol', password='8dol', host='172.23.3.75', port=3306
+${PC_db_test_cor230}    database='coredb', user='8dol', password='8dol', host='172.23.1.35', port=3306    #原35环境
+${PC_db_test_cored0}    database='coredb', user='8dol', password='8dol', host='192.168.100.141', port=3306
+${PC_db_test_core50}    database='coredb', user='8dol', password='8dol', host='172.23.3.27', port=3306
+${PC_db_test_core10}    database='coredb', user='8dol', password='8dol', host='172.23.1.15', port=3306
+${PC_db_test_core20}    database='coredb', user='8dol', password='8dol', host='172.23.1.25', port=3306
+${PC_db_test_core30}    database='coredb', user='8dol', password='8dol', host='172.23.3.55', port=3306
+${PC_db_test_core15}    database='coredb', user='root', password='123456', host='172.23.3.15', port=3306
+${PC_db_test_cor120}    database='coredb120', user='8dol', password='8dol', host='192.168.100.141', port=3306
+${PC_db_test_cor124}    database='coredb124', user='8dol', password='8dol', host='192.168.100.141', port=3306
+${PC_db_test_cor128}    database='coredb128', user='8dol', password='8dol', host='192.168.100.141', port=3306
+${PC_db_test_cor132}    database='coredb132', user='8dol', password='8dol', host='192.168.100.141', port=3306
+${PC_db_test_cor133}    database='coredb', user='8dol', password='8dol', host='172.23.3.135', port=3306
+${PC_db_test_sal141}    database='saledb', user='8dol', password='8dol', host='192.168.100.141', port=3306    #测试VPC 临时 2017-01-05
+${PC_db_test_cor335}    database='coredb', user='8dol', password='8dol', host='172.23.3.35', port=3306
+${PC_db_test_82core}    database='saledb', user='saledb', password='saledb', host='192.168.100.82', port=3306
+${PC_db_onLine_saledb2}    database='saledb', user='saledb_read', password='saledb_read8dol', host='rm-bp16x45ptwgve9o06.mysql.rds.aliyuncs.com', port=3306
+${PC_db_onLine_saledb}    database='saledb', user='autotest', password='Nj8dolauto40', host='rdsuneeqnnu2maj.mysql.rds.aliyuncs.com', port=3306

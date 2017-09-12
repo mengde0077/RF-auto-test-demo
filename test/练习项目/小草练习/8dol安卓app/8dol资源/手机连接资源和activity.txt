@@ -1,0 +1,9 @@
+*** Variables ***
+${REMOTE_URL}     http://localhost:4723/wd/hub
+${platformName}    Android
+${platformVersion}    4.4.4    #测试手机的Android版本
+${deviceName}     3dec908a    # 小米4 CMD中使用 （ adb devices ）查看
+${8dol_appPackage}    com.ndol.sale.starter    # cmd \ adb shell dumpsys activity | find \ "ActivityRecord" 中可查看
+# ${首页activity}     .patch.ui.MainTabActivity
+${登录activity}     .patch.ui.user.login.LoginActivity
+${选择学校activity}    .patch.ui.place.ChooseSchoolActivity

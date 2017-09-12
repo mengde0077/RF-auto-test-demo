@@ -1,0 +1,15 @@
+*** Settings ***
+Resource          Data_resource.txt
+
+*** Variables ***
+${sql}            select t.id from 8dol_user t where t.mobile=15195995661
+${sql1}           select t.level from t_user_states t where t.id=1514174
+
+*** Test Cases ***
+查询数据
+    连接14sale数据库
+    ${result}    查询
+    log    ${result}
+
+测试库执行脚本文件
+    测试库执行脚本文件

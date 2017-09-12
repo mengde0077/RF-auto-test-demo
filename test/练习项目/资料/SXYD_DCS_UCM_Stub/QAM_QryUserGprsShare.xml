@@ -1,0 +1,37 @@
+﻿<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+   <soapenv:Header/>
+   <soapenv:Body>
+	<businessCallResponse>
+        <![CDATA[
+			<?xml version="1.0" encoding="UTF-8"?>
+			<SvcInfo>
+			<Header>
+			<System>
+			<COMMUNICATE value="02" index="0" />
+			<TRANSFER value="01" index="0" />
+			<ORGCHANNELID value="A002" index="0" />
+			<HOMECHANNELID />
+			<CONTACTID value="003200903120000" index="0" />
+			</System>
+			<Inparam>
+			<CHANNEL_TRADE_ID value="E00320090401165020000000000000" index="0" />
+			</Inparam>
+			<Outparam><RESULT_CODE value="0" />
+			<RESULT_INFO value="OK!" />
+			</Outparam><TESTFLAG value="0" index="0" />
+			<ACTIONCODE value="1" index="0" />
+			</Header><Body><SVC_CONTENT>{REMARK=[""], 
+			A_DISCNT_ID=["2001","6033541"] , SUM_DISCNT_VALUE=["102400"], 
+			EXTRA_VALUE=["0"], CYCLE_START_TIME=["20140501"], FEE10=["6193"], FEE11=["0"], FEE12=["1551"], 
+			HIGH_FEE=["102400","102400"],
+			FEE1=["0","20480"], START_DATE=["2014-05-01 00:00:00"], ASSIA_SHARE_VALUE=["0"], FEE2=["4642"], FEE3=["4642"], CYCLE_BEGIN_DAY=["20140501"], X_RECORDNUM=["1"], FEE4=["703181"], FEE5=["60"], USER_ID=["2902102404168680"], FEE6=["1551"], ACCT_DAY=["20140601"], X_RESULTCODE=["0"], X_RESULTINFO=["OK!"], MAIN_CARD=[""], CYCLE_ENDDATE_SUM=["20140531"], LIMIT_TYPE=["0"], IF_SHARE_RELATION=["false"], SHAR
+			E_MEMBERS_INFOS=[""], 
+			ACTUAL_VALUE=["184320"], CYCLE_STARTDATE_SUM=["20140501"], 
+			FEE=["102400","81920"], ITEM_TYPE_CODE=["10"], ALL_FEE=["97280"], CYCLE_END_TIME=["20140531"], DISCNT_NUMBER=["1"], GROUP_USER_ID=["0"], 
+			DISCNT_NAME=["产品必选优惠-送移动数据流量1G","产品必选优惠-送移动数据流量1G"], RSRV_TAG1=[""], END_DATE=["2050-12-31 23:59:59"], FEEPOLICY_INS_ID=["2914042812390851"], IF_MAIN_CARD=["false"], ADDUP_ITEM_CODE=["30888"], CYCLE_COUNT=["1"], ITEM_NAME=["30888"], CYCLE_END_DAY=["20140531"]}</SVC_CONTENT>
+			</Body>
+			</SvcInfo>
+		]]> 
+	</businessCallResponse>
+   </soapenv:Body>
+</soapenv:Envelope>

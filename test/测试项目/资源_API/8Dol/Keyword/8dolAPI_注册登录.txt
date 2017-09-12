@@ -1,0 +1,142 @@
+*** Settings ***
+Documentation     接口关键字资源：
+...               \ \ \ \ 用于记录单个项目中的打开app时对应获取类、操作类、入口类接口资源，资源的内容随项目的升级而变化；
+...
+...               1.记录对应项目的，功能页面及功能页面包含的各类接口关键资源，用于接口与常量的固话；
+...               2.记录项目中可复用的资源关键字；
+...
+...
+...               本资源记录，8 天在线 B2C 我的 及子页面 的API的关键字资源；
+Resource          ../../API配置.txt
+Resource          ../../API公共关键字.txt
+Resource          ../../../资源_公共/数据操作资源.txt
+Resource          ../Resource/8dolAPI_注册登录.txt
+Library           RequestsLibrary
+Library           Collections
+Library           TestLibrary
+
+*** Variables ***
+
+*** Keywords ***
+8dol用户登录
+    ${addr}    get request    api    ${GET用户登录}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    [Return]    ${responsedata}
+
+8dol未登录登录_基础信息获取
+    ${API基础信息_未登录}    set variable    app_version=${P_app_version3}&appVersion=${P_app_version3}&deviceNo=${P_deviceNo}
+    ${API基础信息_未登录带坐标}    set variable    app_version=${P_app_version3}&appVersion=${P_app_version3}&deviceNo=${P_deviceNo}&longitude=118.770822&latitude=31.975761
+    @{keys}    set variable    API基础信息_未登录    API基础信息_未登录带坐标
+    @{k_v}    set variable    ${API基础信息_未登录}    ${API基础信息_未登录带坐标}
+    ${dictionary}    拼装成字典    ${keys}    ${k_v}
+    [Return]    ${dictionary}
+
+8dol用户登录_ByLoginNameAndPassword_未清除风控记录
+    [Arguments]    ${loginName}    ${password}
+    [Documentation]    使用用户名，为手机号 ${loginName} 和 ${password} 密码 登录
+    ${password}    获取MD5    ${password}
+    ${randomString}    生成随机字符串
+    ${addr}    用户登录    ${loginName}    ${password}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    ${data}    get from dictionary    ${responsedata}    data
+    ${verify_code}    get from dictionary    ${data}    verify_code
+    ${user_id}    get from dictionary    ${data}    user_id   #有可能给的是 user_no
+    ${username}    get from dictionary    ${data}    username
+    ${user_id_B}    sql_查询获取用户userIdBymobile    ${loginName}     #准确的 user_id
+    #用于验证老版本接
+    ${API基础信息}    set variable    app_version=${P_app_version}&appVersion=${P_app_version}&user_id=${user_id}&userId=${user_id}&verify_code=${verify_code}&verifyCode=${verify_code}&randomString=${randomString}&deviceNo=${P_deviceNo}
+    #开始有购物车
+    ${API基础信息0}    set variable    app_version=${P_app_version0}&appVersion=${P_app_version0}&user_id=${user_id}&userId=${user_id}&verify_code=${verify_code}&verifyCode=${verify_code}&deviceNo=${P_deviceNo}&randomString=${randomString}
+    #微信端
+    ${API基础信息_wx}    set variable    &app_version=${P_app_version2}&appVersion=${P_app_version2}&client=1&user_id=${user_id}&userId=${user_id}&verify_code=${verify_code}&verifyCode=${verify_code}&deviceNo=${P_deviceNo}&randomString=${randomString}
+    #云购物车，去结算需要最新的版本 2.4.0 ，并加上设备ID
+    ${API基础信息_new}    set variable    app_version=${P_app_version_new}&appVersion=${P_app_version_new}&user_id=${user_id}&userId=${user_id}&verify_code=${verify_code}&verifyCode=${verify_code}&deviceNo=${P_deviceNo}&randomString=${randomString}
+    ${API基础信息_4}    set variable    app_version=${P_app_version_4}&appVersion=${P_app_version_4}&user_id=${user_id}&userId=${user_id}&verify_code=${verify_code}&verifyCode=${verify_code}&deviceNo=${P_deviceNo}&randomString=${randomString}
+    ${API基础信息_3_0_1}    set variable    app_version=${P_app_version3}&appVersion=${P_app_version3}&user_id=${user_id}&userId=${user_id}&verify_code=${verify_code}&verifyCode=${verify_code}&deviceNo=${P_deviceNo}&randomString=${randomString}
+    ${8天基础信息box}    set variable    "userId":"${user_id}","verifyCode":"${verify_code}","client":"${PHZ_client}"
+    # 无客户端及版本信息
+    ${API基础信息_ios}    set variable    &user_id=${user_id}&userId=${user_id}&verify_code=${verify_code}&verifyCode=${verify_code}&deviceNo=${P_deviceNo}&app_version=${P_版本信息_ios}&randomString=${randomString}
+    @{keys}    set variable    API基础信息    API基础信息_new    username    user_id    user_no    verify_code    8天基础信息box    API基础信息_wx    API基础信息_3_0_1    API基础信息0    API基础信息_4    API基础信息_ios
+    @{k_v}    set variable    ${API基础信息}    ${API基础信息_new}    ${username}    ${user_id_B}    ${user_id}    ${verify_code}    ${8天基础信息box}    ${API基础信息_wx}    ${API基础信息_3_0_1}    ${API基础信息0}    ${API基础信息_4}    ${API基础信息_ios}
+    ${dictionary}    拼装成字典    ${keys}    ${k_v}
+    [Return]    ${dictionary}
+
+清除登录风控记录
+    #登录时，如果一个设备号上有多个手机号登录
+    #redis key  20170310_设备号
+    # 代码中默认是 3次  可以通过修改sale 的 配置  改大一些 appConfig.longin-device-up-limit=5
+    ${date}    获取当前日期2
+    ${key}    set variable    ${date}_${P_deviceNo}
+    log    ${P_redis_host}
+    删除redis_db的KEY    ${key}    ${P_redis_host}    0
+
+8dol用户登录_ByLoginNameAndPassword
+    [Arguments]    ${loginName}    ${password}
+    清除登录风控记录
+    ${dictionary}    8dol用户登录_ByLoginNameAndPassword_未清除风控记录    ${loginName}    ${password}
+    [Return]    ${dictionary}
+
+8dol用户密码登录
+    [Arguments]    ${loginName}    ${password}
+    [Documentation]    使用用户名，为手机号 ${loginName} 和 ${password} 密码 登录
+    ${password}    获取MD5    ${password}
+    ${randomString}    生成随机字符串
+    ${addr}    用户登录    ${loginName}    ${password}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    ${data}    get from dictionary    ${responsedata}    data
+
+8dol用户登录_获取verify_code
+    ${addr}    get request    api    ${GET用户登录}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${data}    get from dictionary    ${responsedata}    data
+    ${verify_code}    get from dictionary    ${data}    verify_code
+    [Return]    ${verify_code}
+
+8dol发送注册验证码
+    [Documentation]    使用固定的使用可能性手机号码注册发送验证码
+    [Arguments]    ${mobile}
+    ${addr}    获取注册验证码    ${mobile}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${msg}    get from dictionary    ${responsedata}    msg
+    should be equal as strings    ${responsedata['result']}    ok
+
+8dol用户注册
+    [Arguments]    ${mobile}    ${validate_code}    ${password}
+    [Documentation]    使用固定的手机号码注册，需要验证码
+    ${password}    获取MD5    ${password}
+    ${addr}    用户注册    ${mobile}    ${validate_code}    ${password}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${msg}    get from dictionary    ${responsedata}    msg
+    should be equal as strings    ${responsedata['result']}    ok
+    [Return]    ${responsedata}
+
+8dol被邀请_用户注册
+    [Arguments]    ${mobile}    ${validate_code}    ${password}    ${spreadUserId}    ${area_id}
+    [Documentation]    使用固定的手机号码注册，需要验证码
+    ${password}    获取MD5    ${password}
+    ${addr}    被邀请_用户注册    ${mobile}    ${validate_code}    ${password}    ${spreadUserId}    ${area_id}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${msg}    get from dictionary    ${responsedata}    msg
+    should be equal as strings    ${responsedata['result']}    ok
+    [Return]    ${responsedata}
+
+8dol用户修改密码
+    [Arguments]    ${verify_code}    ${user_id}    ${password}    ${new_password}
+    ${password}    获取MD5    ${password}
+    ${new_password}    获取MD5    ${new_password}
+    ${addr}    用户修改密码    ${verify_code}    ${user_id}    ${password}    ${new_password}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${msg}    get from dictionary    ${responsedata}    msg
+    should be equal as strings    ${responsedata['result']}    ok
+    [Return]    ${responsedata}

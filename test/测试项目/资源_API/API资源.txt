@@ -1,0 +1,3 @@
+*** Settings ***
+Resource          8Dol/8dolAPI_业务关键字.txt
+Resource          yundian/yundianAPI_业务关键字.txt

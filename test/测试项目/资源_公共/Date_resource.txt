@@ -1,0 +1,125 @@
+*** Settings ***
+Library           DateTime
+Library           String
+Library           TestLibrary
+
+*** Keyword ***
+获取当前时间
+    [Documentation]    格式：2016-02-27 18:00:02
+    ${当前时间}    Get Current Date
+    ${当前时间}    Fetch From Left    ${当前时间}    .    #取.左边的字符串
+    [Return]    ${当前时间}
+
+获取当前时间2
+    [Documentation]    格式：Jul 10, 2017 10:09:19
+    ${当前时间}    Get Current Date    result_format=%b %d, %Y %H:%M:%S
+    [Return]    ${当前时间}
+
+获取今天的00_00_00
+    [Documentation]    格式：2016-02-27 00:00:00
+    ${当前日期}    Get Current Date    result_format=%Y-%m-%d 00:00:00
+    [Return]    ${当前日期}
+
+获取今天的23_59_59
+    [Documentation]    格式：2016-02-27 23:59:59
+    ${当前日期}    Get Current Date    result_format=%Y-%m-%d 23:59:59
+    [Return]    ${当前日期}
+
+获取当前日期
+    [Documentation]    格式：2016-02-27
+    ${当前日期}    Get Current Date    result_format=%Y-%m-%d
+    [Return]    ${当前日期}
+
+获取当前日期2
+    [Documentation]    格式：20160227
+    ${当前日期}    Get Current Date    result_format=%Y%m%d
+    [Return]    ${当前日期}
+
+获取当前是几号
+    [Documentation]    格式：01
+    ${date}    Get Current Date    result_format=%d
+    ${当前是几号}    Evaluate    int('${date}')
+    [Return]    ${当前是几号}
+
+获取当前年月
+    [Documentation]    格式：2016-02
+    ${当前年月}    Get Current Date    result_format=%Y-%m
+    [Return]    ${当前年月}
+
+获取N天前日期
+    [Arguments]    ${n}
+    [Documentation]    格式：2016-02-27 18:00:02
+    ${当前日期}    Get Current Date    result_format=%Y-%m-%d
+    ${dateTime}    Subtract Time From Date    ${当前日期}    ${n} days
+    ${n天前}    Set Variable    ${dateTime[0:10]}
+    [Return]    ${n天前}
+
+获取N天前时间
+    [Arguments]    ${n}
+    [Documentation]    格式：2016-02-27 18:00:02
+    ${当前时间}    Get Current Date    result_format=%Y-%m-%d 00:00:00
+    ${n天前}    Subtract Time From Date    ${当前时间}    ${n} days
+    ${n天前}    Fetch From Left    ${n天前}    .    #取.左边的字符串
+    [Return]    ${n天前}
+
+获取N天后日期
+    [Arguments]    ${n}
+    [Documentation]    格式：2016-02-27
+    ${当前日期}    Get Current Date    result_format=%Y-%m-%d
+    ${dateTime}    Add Time To Date    ${当前日期}    ${n} days
+    ${n天后}    Set Variable    ${dateTime[0:10]}
+    [Return]    ${n天后}
+
+获取N天后时间
+    [Arguments]    ${n}
+    [Documentation]    格式：2016-02-27 18:00:02
+    ${当前日期}    Get Current Date    result_format=%Y-%m-%d
+    ${n天后}    Add Time To Date    ${当前日期}    ${n} days
+    ${n天后}    Fetch From Left    ${n天后}    .    #取.左边的字符串
+    [Return]    ${n天后}
+
+获取N天后12点
+    [Arguments]    ${n}
+    [Documentation]    格式：2016-02-27 12:00
+    ${当前日期}    Get Current Date    result_format=%Y-%m-%d
+    ${dateTime}    Add Time To Date    ${当前日期}    ${n} days
+    ${n天后12点}    Set Variable    ${dateTime[0:10]} 12
+    [Return]    ${n天后12点}
+
+获取N月后日期
+    [Arguments]    ${n}
+    [Documentation]    格式：2016-02-27
+    ${n月后}    Get Today Month    ${n}
+    [Return]    ${n月后}
+
+获取当前年月日
+    ${dateTime}    Get Time
+    ${Date}    Set Variable    ${dateTime[0:10]}
+    [Return]    ${Date}
+
+获取当前时分秒
+    ${dateTime}    Get Time
+    ${time}    Set Variable    ${dateTime[-8:]}
+    [Return]    ${time}
+
+获取endTime
+    ${dateTime}    Get Time
+    ${time}    Set Variable    ${dateTime[0:10]} 23:59:59
+    [Return]    ${time}
+
+获取startTime
+    ${ymd}    Get Time    year month day    NOW-7day
+    ${link}    Set Variable    -
+    ${y-m-d}    Evaluate    '${link}'.join(${ymd})
+    ${time}    Set Variable    ${y-m-d} 00:00:00
+    [Return]    ${time}
+
+
+获取N小时后时间
+    [Arguments]    ${n}
+    [Documentation]    格式：2016-02-27 12:00
+    ${当前时间}    Get Current Date
+    ${当前时间}    Fetch From Left    ${当前时间}    .
+    ${n小时后}    Add Time To Date    ${当前时间}    ${n}:00:00
+    ${n小时后}    Fetch From Left    ${n小时后}    .
+    [Return]    ${n小时后}

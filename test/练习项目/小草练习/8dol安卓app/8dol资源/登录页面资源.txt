@@ -1,0 +1,9 @@
+*** Variables ***
+${手机号}            18761809344
+${密码}             123123
+${用户名ID}          com.ndol.sale.starter:id/edt_account
+${使密码可见ID}        com.ndol.sale.starter:id/togbtn_show_pwd
+${密码ID}           com.ndol.sale.starter:id/edt_password
+${登录按钮name}       登录
+${快速注册按钮ID}       com.ndol.sale.starter:id/to_register_txt
+${找回密码ID}         com.ndol.sale.starter:id/forgot_password_txt

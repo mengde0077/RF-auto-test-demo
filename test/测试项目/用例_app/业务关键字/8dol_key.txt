@@ -1,0 +1,22 @@
+*** Settings ***
+Force Tags        8dol
+Library           AppiumLibrary
+# Library           XML
+Resource          ../../资源_API/API常量.txt
+Resource          ../../资源_API/API公共关键字.txt
+Resource          ../../资源_API/API资源.txt
+Resource          ../../资源_公共/公共资源.txt
+Resource          ../../资源_app/app_资源.txt
+Resource          ../../资源_app/8dol/8dol_业务关键字.txt
+
+*** Keywords ***
+K_APP_获取指定商品的父节点序号
+    [Arguments]    ${goods_name}
+    # ${对象name}    Set Variable    酪艺奶酪芝士条荷意英经典风味28g
+    : FOR    ${index}    IN RANGE    5    #列表中最多商品数量
+    \    ${name}    8dol_app_获取_分类_商品名称    ${index}
+    \    ${status}    evaluate    cmp('${goods_name}','${name}')
+    \    exit for loop if    ${status} == 0
+    \    run keyword if    ${status} == -1    continue for loop
+    should be equal as numbers    ${status}    0
+    [return]    ${index}

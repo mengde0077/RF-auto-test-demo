@@ -1,0 +1,39 @@
+*** Settings ***
+Library           Selenium2Library
+Resource          resource.txt
+Resource          Data_resource.txt
+
+*** Test Cases ***
+baidu
+    Open Browser    http://www.baidu.com    chrome
+    Input Text    id=kw    robot
+    Click Button    id=su
+    sleep    20
+    close Browser
+
+if_keyword
+    [Documentation]    if 简单分支
+    ${a}    Set Variable    0
+    ${b}    Set Variable    5
+    Run Keyword If    ${a}>=1    log    1
+    ...    ELSE IF    ${B}<=4    LOG    2
+    ...    ELSE    LOG    3
+
+for_keyword
+    [Documentation]    一个简单的for循环；
+    ...    IN RANGE主要是用一个整数序列做循环的计数器，如图的IN RANGE 10，运行时就是从0到9，如果写IN RANGE 1 \ 10，那就是从1-9。
+    ...    需要注意的就是RANGE里不会执行到最后那个数字，也就是10是不执行的，到9就结束了。
+    : FOR    ${i}    IN RANGE    10
+    \    log    joo${i}
+
+for_keyword2
+    [Documentation]    跳步式for循环
+    ...    当然既然是序列也可以加step步进，即序列的间隔。如果要加step，就必须把起始和结束的数字都写上，然后在后面写上step，可以是正数也可以是负数，如下图就是一个负数step的例子：
+    : FOR    ${i}    IN RANGE    10    1    -2
+    \    log    joo${i}
+
+for_keyword3
+    [Documentation]    双重循环
+    : FOR    ${j}    IN RANGE    1    10
+    \    log    joo${j}
+    \    forI

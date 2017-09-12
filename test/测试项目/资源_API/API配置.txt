@@ -1,0 +1,9 @@
+*** Settings ***
+Documentation     API配置：用于记录一些基础的，线上、线下数据库都相同的共性数据
+...               \ \ \ \ 存放测试报文，中的基础参数信息
+Library           DateTime
+Resource          API常量.txt
+Resource          /apps/29_test/API测试环境配置.txt    #用于192.168.100.40 Jenkins的自动检测配置
+Resource          API配置明细/API测试环境精简库配置.txt    #API测试环境coredb配置
+
+*** Variables ***

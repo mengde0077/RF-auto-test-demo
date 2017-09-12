@@ -1,0 +1,7 @@
+*** Variables ***
+${登录/注册ID}        com.ndol.sale.starter:id/tv_user_name
+${余额数目ID}         com.ndol.sale.starter:id/tv_balance
+${天金数目ID}         com.ndol.sale.starter:id/tv_tianj
+${天天花数目ID}        com.ndol.sale.starter:id/tv_loan
+${昵称ID}           com.ndol.sale.starter:id/tv_user_name
+${余额TabID}        com.ndol.sale.starter:id/fm_ll_myBalance

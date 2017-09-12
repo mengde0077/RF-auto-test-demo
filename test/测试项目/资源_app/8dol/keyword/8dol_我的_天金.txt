@@ -1,0 +1,12 @@
+*** Settings ***
+Resource          ../resource/8dol_我的_天金.txt
+Library           AppiumLibrary
+Library           TestLibrary
+Resource          ../../公共关键字.txt
+Resource          ../../app_配置.txt
+
+*** Keywords ***
+8dol查看我的天金页面显示的元素
+    ${v}    PK_等待_id    ${去兑换ID}
+    PK_8dol截屏    我的余额页面
+    [Return]    ${v}

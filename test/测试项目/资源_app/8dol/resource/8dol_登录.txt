@@ -1,0 +1,81 @@
+*** Settings ***
+Documentation     项目子资源：
+...               \ \ \ \ 用于记录单个项目中的单个activity的子资源，资源的内容随项目的升级而变化；
+...
+...               1.记录对应项目的，功能页面及功能页面包含的元素对象；
+...               2.记录项目中可复用的资源关键字；
+...
+...
+...               本资源记录，8 天在线 B2C的Android版本的资源；
+Library           AppiumLibrary
+Library           TestLibrary
+
+*** Variables ***
+${用户名id_and}          com.ndol.sale.starter:id/edt_account
+${用户名_ios}          //*[@name="mobileLeft newLogIn"]
+${使密码可见id_and}        com.ndol.sale.starter:id/togbtn_show_pwd
+${密码id_and}           com.ndol.sale.starter:id/edt_password
+${密码_ios}           //*[@name="pswLeft newLogIn"]
+${登录按钮id_and}         com.ndol.sale.starter:id/btn_login
+${登录按钮name}       登录
+${快速注册按钮id_and}       com.ndol.sale.starter:id/title2
+${查看用户协议id_and}       com.ndol.sale.starter:id/tv_register_agree
+${验证码登录id_and}         com.ndol.sale.starter:id/verificationCode_txt
+${找回密码id_and}         com.ndol.sale.starter:id/forgot_password_txt
+
+#3.0.8之后版本
+${登录引导_手机号登录_and}    //*[@resource-id="com.ndol.sale.starter:id/ll_ad"]
+${登录引导_微信登录_and}    //*[@resource-id="com.ndol.sale.starter:id/tv_ad_wechat_login"]
+${密码登录_手机号_and}    //*[@resource-id="com.ndol.sale.starter:id/viewpager"]/android.widget.LinearLayout[1]/android.widget.RelativeLayout[1]
+${密码登录_密码_and}    //*[@resource-id="com.ndol.sale.starter:id/edt_password"]
+
+${微信登录_关闭_and}    //*[@resource-id="com.tencent.mm:id/h4"]
+${微信登录_确认登录_and}    //*[@resource-id="com.tencent.mm:id/btg"]
+*** Keywords ***
+用户登录_and
+    #3.0.7之前版本
+    [Arguments]    ${contact_name}    ${contact_password}
+    Input Text    id=${用户名id_and}    ${contact_name}
+    Click Element    id=${使密码可见id_and}    #先点击一下显示明文密码，便于截图
+    Input PassWord    id=${密码id_and}    ${contact_password}    #输入有问题，长按输入框，选择输入法，appium输入法
+    Click Element    id=${登录按钮id_and}
+
+用户登录_ios
+    #3.0.7之前版本
+    [Arguments]    ${contact_name}    ${contact_password}
+    Input Text    xpath=${用户名_ios}    ${contact_name}
+    Input PassWord    xpath=${密码_ios}    ${contact_password}    #输入有问题，长按输入框，选择输入法，appium输入法
+    Click Text    ${登录按钮name}
+
+快速注册
+    Click Element    id=${快速注册按钮id}    #点击登录页面的快速注册
+
+查看用户协议
+    Click Element    id=${查看用户协议id}    #点击查看 8天在线用户协议
+
+
+#3.0.8之后版本
+使用密码登录_and
+    [Arguments]    ${contact_name}    ${contact_password}
+    Clear Text    xpath=${密码登录_手机号_and}
+    Input Text    xpath=${密码登录_手机号_and}    ${contact_name}
+    Click Element    id=${使密码可见id_and}    #先点击一下显示明文密码，便于截图
+    Input PassWord    xpath=${密码登录_密码_and}    ${contact_password}    #输入有问题，长按输入框，选择输入法，appium输入法
+    Click Element    id=${登录按钮id_and}
+
+使用密码登录_ios
+    [Arguments]    ${contact_name}    ${contact_password}
+    Input Text    xpath=${用户名_ios}    ${contact_name}
+    Input PassWord    xpath=${密码_ios}    ${contact_password}    #输入有问题，长按输入框，选择输入法，appium输入法
+    Click Text    ${登录按钮name}
+
+获取_登录引导_微信登录_locator
+    ${locator}    PK_获取相应平台的locator    xpath=${登录引导_微信登录_and}    xpath=${登录引导_微信登录_and}
+    [return]    ${locator}
+
+获取_微信登录页_locator
+    ${locator}    PK_获取相应平台的locator    xpath=${微信登录_确认登录_and}    xpath=${微信登录_确认登录_and}
+    [return]    ${locator}
+
+
+

@@ -1,0 +1,130 @@
+*** Settings ***
+Documentation     验证8dol接口测试
+...        参考  https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+
+Force Tags        lianxi    API    8dol
+Library           RequestsLibrary
+Library           Collections
+
+*** Variables ***
+${S_ELK_url}    http://192.168.10.9:9200
+${S_ELK_uri_11}    /logstash-2017.09.10/_search
+${S_POST_data_12}    {"query":{"filtered":{"query":{"bool":{"should":[{"query_string":{"query":"\"/v3/order/generate\" AND \"OPPOA59s\"  AND \"AD_4.0.2\""}}]}},"filter":{"bool":{"must":[{"range":{"@timestamp":{"from":1504576173668,"to":1505180973668}}}]}}}},"highlight":{"fields":{},"fragment_size":2147483647,"pre_tags":["@start-highlight@"],"post_tags":["@end-highlight@"]},"size":500,"sort":[{"@timestamp":{"order":"desc","ignore_unmapped":true}},{"@timestamp":{"order":"desc","ignore_unmapped":true}}]}
+${S_POST_data_11}    {"query":{"filtered":{"query":{"bool":{"should":[{"query_string":{"query":"\"/v3/order/generate\" AND \"OPPOA59s\"  AND \"AD_4.0.2\""}}]}},"filter":{"bool":{"must":[{"range":{"@timestamp":{"from":1504576173783,"to":1505180973783}}}]}}}},"highlight":{"fields":{},"fragment_size":2147483647,"pre_tags":["@start-highlight@"],"post_tags":["@end-highlight@"]},"size":500,"sort":[{"@timestamp":{"order":"desc","ignore_unmapped":true}},{"@timestamp":{"order":"desc","ignore_unmapped":true}}]}
+${S_POST_data_111}    {"query":{"filtered":{"query":{"bool":{"should":[{"query_string":{"query":"\"/v3/order/generate\" AND \"OPPOA59s\"  AND \"AD_4.0.2\""}}]}},"filter":{"bool":{"must":[{"range":{"@timestamp":{}}}]}}}},"highlight":{"fields":{},"fragment_size":2147483647,"pre_tags":["@start-highlight@"],"post_tags":["@end-highlight@"]},"size":500,"sort":[{"@timestamp":{"order":"desc","ignore_unmapped":true}},{"@timestamp":{"order":"desc","ignore_unmapped":true}}]}
+${S_POST_data_112}    {"query":{"match_all":{}}}
+${S_POST_data_113}    {"query":{"filtered":{"query":{"bool":{"should":[{"query_string":{"query":"\"/v3/order/generate\" AND \"OPPOA59s\"  AND \"AD_4.0.2\""}}]}}}},"size":500}
+${S_POST_data_114}    {"query":{"filtered":{}},"size":10}
+${S_POST_data_115}    {"query":"\"/v3/order/generate\" AND \"OPPOA59s\"  AND \"AD_4.0.2\"","size":10}
+${S_POST_data_116}    {"query":{"query_string":{"query":"\"/v3/order/generate\" AND \"OPPOA59s\"  AND \"AD_4.0.2\""}},"size":10}
+${S_POST_data_117}    {"query":{"query_string":{"query":"generate AND OPPOA59s AND AD_4.0.2 AND ok"}},"size":100}
+
+
+${S_POST_headers_111}    {}
+
+*** Test Cases ***
+# POST_获取elk报文
+#     [Documentation]    使用json解析的方式
+#     create session    api    ${S_ELK_url}
+#     ${addr}    post request    api    ${S_ELK_uri_11}    data=${S_POST_data_112}
+#     should be equal as strings    ${addr.status_code}    200
+#     ${responsedata}    to json    ${addr.content}
+#     delete all sessions
+
+# POST_获取elk报文2
+#     [Documentation]    有效的  size 控制
+#     create session    api    ${S_ELK_url}
+#     ${addr}    post request    api    ${S_ELK_uri_11}    data=${S_POST_data_114}
+#     should be equal as strings    ${addr.status_code}    200
+#     ${responsedata}    to json    ${addr.content}
+#     delete all sessions
+
+POST_获取elk报文3
+    [Documentation]    query_string
+    # url 中的 “/” 需要处理 ，查询  /v3/order/generate  会导致报错
+    create session    api    ${S_ELK_url}
+    ${addr}    post request    api    ${S_ELK_uri_11}    data=${S_POST_data_117}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    set suite Variable     ${S_responsedata}    ${responsedata}
+    delete all sessions
+
+
+获取报文中的订单响应报文
+    ${hits}    get from dictionary    ${S_responsedata}    hits
+    ${hits}    get from dictionary    ${hits}    hits
+    set suite Variable     ${S_hits}    ${hits}
+    ${hits0}    get from list    ${hits}    0
+    ${_source}    get from dictionary    ${hits0}    _source
+    ${resultObject}    get from dictionary    ${_source}    resultObject
+    log    ${resultObject}
+    set suite Variable     ${S_resultObject}    ${resultObject}
+
+
+
+
+获取订单no_11
+    ${order_no}    evaluate     re.findall(r'M[0-9]+','${S_resultObject}')    re
+
+
+获取所有的订单no
+    ${order_nos}    set Variable
+    ${listlen}    evaluate    len(${S_hits})
+    : FOR    ${i}    IN RANGE    ${listlen}
+    \    ${dictionary}    Get From List    ${S_hits}    ${i}
+    \    ${i}    evaluate    ${i}+1
+    \    ${_source}    get from dictionary    ${dictionary}    _source
+    \    ${resultObject}    get from dictionary    ${_source}    resultObject
+    \    ${order_no}    evaluate     re.findall(r'M[0-9]+','${resultObject}')    re
+    \    ${order_nos}    set Variable    ${order_nos},'${order_no[0]}'
+    ${order_nos}    set Variable    (${order_nos[1:]})
+    log    ${order_nos}
+
+
+# 11 号
+# select * from 8dol_order where order_no in ('M2017091104422710638','M2017091111512826262','M2017091112252027786','M2017091104425010677','M2017091104422710638','M2017091111480126099','M2017091104425010677','M2017091112252027786','M2017091111512826262','M2017091111480126099','M2017091107495516140','M2017091109353020297','M2017091107495516140','M2017091109353020297','M2017091110150622050','M2017091110202322304','M2017091110193222262','M2017091114005133151','M2017091108043416780','M2017091110202322304','M2017091110150622050','M2017091110193222262','M2017091108415618352','M2017091113330831714','M2017091113284931421','M2017091108043416780','M2017091108415618352','M2017091113284931421','M2017091113330831714','M2017091114005133151');
+# 10 号
+# select * from 8dol_order where order_no in ('M2017091008192212586','M2017091006511910152','M2017091006530810214','M2017091012374321190','M2017091015471525299','M2017091015443125278','M2017091010472117219','M2017091012283120804','M2017091012374321190','M2017091008192212586','M2017091006474610033','M2017091006530810214','M2017091006511910152','M2017091006524410199','M2017091006524410199','M2017091006500110106','M2017091015471525299','M2017091010472117219','M2017091006474610033','M2017091006500110106','M2017091007505311774','M2017091007505311774','M2017091012283120804','M2017091015443125278','M2017091008092112265','M2017091006322609546','M2017091002552704079','M2017091009182514290','M2017091009305814678','M2017091014032124310','M2017091014035924336','M2017091009305814678','M2017091012503921608','M2017091008092112265','M2017091006322609546','M2017091002552704079','M2017091004471306741','M2017091009151414213','M2017091009182514290','M2017091008541713668','M2017091014035924336','M2017091014032124310','M2017091012231520614','M2017091008541713668','M2017091009151414213','M2017091004471306741','M2017091012503921608','M2017091012231520614');
+
+
+# 获取订单no_10
+#     #  ${S_resultObject} 不是标准的  json 字符串
+#     ${S_resultObject}   evaluate    json.loads('${S_resultObject}')    json
+#     ${order_no}    get from dictionary    ${S_resultObject}    order_no
+
+
+# 获取订单no_9
+#     ${S_resultObject}   evaluate    eval('${S_resultObject}')
+#     ${order_no}    get from dictionary    ${S_resultObject}    order_no
+
+# 获取订单no_1
+#     # 写法不支持
+#     ${order_no}    evaluate     re.findall(r'/d+','${S_resultObject}')    re
+
+
+# 获取订单no_2
+#     # 写法不支持
+#     ${order_no}    evaluate     re.findall(r'M + /d+','${S_resultObject}')    re
+
+# 获取订单no_3
+#     # 写法不支持
+#     ${order_no}    evaluate     re.findall(r'/b/d{19}/b','${S_resultObject}')    re
+
+
+# 获取订单no_4
+#     # 写法不支持
+#     ${order_no}    evaluate     re.findall(r'M2017091104422710638','${S_resultObject}')    re
+
+# 获取订单no_5
+#     # 写法不支持
+#     ${order_no}    evaluate     re.findall(r'.+','${S_resultObject}')    re
+
+
+# 获取订单no_7
+#     # 写法不支持
+#     ${order_no}    evaluate     re.findall(r'M+','${S_resultObject}')    re
+
+# 获取订单no_8
+#     # 写法不支持
+#     ${order_no}    evaluate     re.findall(r'//w/+','${S_resultObject}')    re
+

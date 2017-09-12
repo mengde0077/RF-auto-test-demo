@@ -1,0 +1,37 @@
+*** Settings ***
+Documentation     验证app的xpath定位
+Force Tags        lianxi    cloud
+Library           AppiumLibrary
+Library           TestLibrary
+Resource          ../../测试项目/资源_android/8dol/resource/8dol_首页.txt
+Resource          ../../测试项目/资源_android/8dol/resource/8dol_我的.txt
+Resource          ../../测试项目/资源_android/8dol/resource/8dol_我的_设置.txt
+
+*** Variables ***
+${REMOTE_URL}     http://localhost:4723/wd/hub
+${REMOTE_URL_1}    http://localhost:4755/wd/hub
+${cloud_appPackage}    com.ndol.b2b.cloud
+${8dol_appPackage}    com.ndol.sale.starter
+${platformName}    Android
+${platformVersion}    4.4.4    #测试手机的Android版本
+#${deviceName}    482ede3a    #测试手机的设备名，CMD中使用 （ adb devices ）查看
+${deviceName}     1L521W018328    #红米2A手机，黑面板的！
+#${deviceName}    3dec908a    #小米手机，白面板的！
+${app_activity}    .Main    #登录页
+${初始化位置y坐标}       358
+${订单编号name}       订单编号：M2015120420573700231
+${对象所在id}         com.ndol.b2b.cloud:id/iol_order_no
+${对象name}         订单编号：M2015120420573700231
+
+*** Test Cases ***
+打开两个app
+    [Documentation]    练习打开两个app
+    ${8dol_app}    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    appPackage=${8dol_appPackage}
+    ...    appActivity=${8dol_appActivity_main_tab}
+    ${cloud_app}    Open Application    ${REMOTE_URL_1}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    appPackage=${cloud_appPackage}
+    ...    appActivity=${app_activity}
+    Click Element    id=com.ndol.b2b.cloud:id/btn_login
+    sleep    10
+    Switch Application    ${8dol_app}
+    sleep    10
+    Click Element    id=${我的id}

@@ -1,0 +1,71 @@
+*** Settings ***
+Documentation     项目子资源：
+...               \ \ \ \ 用于记录单个项目中的单个activity的子资源，资源的内容随项目的升级而变化；
+...
+...               1.记录对应项目的，功能页面及功能页面包含的元素对象；
+...               2.记录项目中可复用的资源关键字；
+...
+...
+...               本资源记录，8 天在线 B2C的Android版本的资源；
+Library           AppiumLibrary
+Library           TestLibrary
+
+*** Variables ***
+
+${订单列表_父节点_and}        //*[@resource-id="com.ndol.sale.starter:id/list"]
+${订单列表_下单时间_and}         //*[@resource-id="com.ndol.sale.starter:id/order_type_des"]
+${订单列表_订单状态_and}         //*[@resource-id="com.ndol.sale.starter:id/order_status"]
+${订单列表_呼叫_and}         //*[@resource-id="com.ndol.sale.starter:id/call"]
+${订单列表_进入订单详情_and}         //*[@resource-id="com.ndol.sale.starter:id/ll_products"]
+${订单列表_订单金额_and}         //*[@resource-id="com.ndol.sale.starter:id/order_des"]
+
+${订单列表_删除_and}         //*[@resource-id="com.ndol.sale.starter:id/btn_delete"]
+
+*** Keywords ***
+_获取_订单列表_父节点
+    [Documentation]       一个商品信息的 父节点
+    [Arguments]    ${index}=1
+    ${xpath}    Set Variable    ${订单列表_父节点_and}/android.widget.RelativeLayout[${index}]
+    [return]    ${xpath}
+
+获取_订单列表_下单时间_locator
+    [Documentation]       可以获取 订单下单时间
+    [Arguments]    ${index}=1
+    ${xpath}    _获取_订单列表_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${订单列表_下单时间_and}    xpath=${xpath}${订单列表_下单时间_and}
+    [return]    ${locator}
+
+获取_订单列表_订单状态_locator
+    [Documentation]       可以获取 订单状态
+    [Arguments]    ${index}=1
+    ${xpath}    _获取_订单列表_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${订单列表_订单状态_and}    xpath=${xpath}${订单列表_订单状态_and}
+    [return]    ${locator}
+
+获取_订单列表_呼叫_locator
+    [Documentation]       点击 有弹窗
+    [Arguments]    ${index}=1
+    ${xpath}    _获取_订单列表_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${订单列表_呼叫_and}    xpath=${xpath}${订单列表_呼叫_and}
+    [return]    ${locator}
+
+获取_订单列表_进入订单详情_locator
+    [Documentation]       点击 进入 订单详情
+    [Arguments]    ${index}=1
+    ${xpath}    _获取_订单列表_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${订单列表_进入订单详情_and}    xpath=${xpath}${订单列表_进入订单详情_and}
+    [return]    ${locator}
+
+获取_订单列表_订单金额_locator
+    [Documentation]       可以获取 订单 金额
+    [Arguments]    ${index}=1
+    ${xpath}    _获取_订单列表_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${订单列表_订单金额_and}    xpath=${xpath}${订单列表_订单金额_and}
+    [return]    ${locator}
+
+获取_订单列表_删除_locator
+    [Documentation]       超市订单 删除
+    [Arguments]    ${index}=1
+    ${xpath}    _获取_订单列表_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${订单列表_删除_and}    xpath=${xpath}${订单列表_删除_and}
+    [return]    ${locator}

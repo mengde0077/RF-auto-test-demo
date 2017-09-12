@@ -1,0 +1,15 @@
+*** Settings ***
+Library           AppiumLibrary
+
+*** Variables ***
+${南京}             南京
+${南京科技职业学院}       南京科技职业学院
+
+*** Keywords ***
+选择城市
+    [Arguments]    ${城市}
+    Click Element    name=${城市}
+
+选择学校
+    [Arguments]    ${学校}
+    Click Element    name=${学校}

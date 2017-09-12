@@ -1,0 +1,54 @@
+*** Settings ***
+Documentation     个人资源：相当于个人配置文件
+...               \ \ \ \ 用于管理带个人特色的信息或设备信息，随测试测试执行人、支持测试设备的变化而变化；
+...
+...
+...               如：待测试设备名称；
+Library           AppiumLibrary
+
+*** Variables ***
+#**********************************************************************************************
+#**********************************************************************************************
+#app类型
+${AP_app_type}    1    #android
+# ${AP_app_type}    2    #ios
+${AP_app_V}    4.0.1    #被测应用版本，不同的版本走的业务页面会略有差异
+
+#**********************************************************************************************
+#app启动通用资源
+${AP_REMOTE_URL}     http://localhost:4723/wd/hub
+${AP_REMOTE_URL_1}    http://localhost:4755/wd/hub
+${AP_platformName}    Android
+${AP_app_path}       /Users/caolinming/Desktop/qita/B2Capk/   #测试包存放位置
+${AP_app_name}       b2c_v3.0.5_2017-05-05.apk
+${AP_platformVersion}    5.1.1    #测试手机的Android版本
+${AP_分辨率_x}    1080
+${AP_分辨率_y}    1920
+${AP_app_deviceName}     f4301fe8
+${AP_adb}     /Users/caolinming/tools/sdk/platform-tools/adb
+#**********************************************************************************************
+#包Package资源
+${AP_8dol_appPackage}    com.ndol.sale.starter
+${AP_cloud_appPackage}    com.ndol.b2b.cloud
+
+#**********************************************************************************************
+#测试设备资源
+#${AP_app_deviceName}     482ede3a    #测试手机的设备名，CMD中使用 （ adb devices ）查看
+#${AP_app_deviceName}    1L521W018328    #红米2A手机，黑面板的！
+#${AP_app_deviceName}    3dec908a    #小米手机，白面板的！
+# ${AP_app_deviceName}     f4301fe8
+# ${AP_app_deviceName}     device    #模拟器
+#**********************************************************************************************
+#测试截图存放路径
+${AP_image_path}     /Users/caolinming/Desktop/qita/image_path
+#${image_path}    F:\\auto\\robot\\image
+${AP_8dol_image_path}    8dol
+${AP_cloud_image_path}    cloud
+#**********************************************************************************************
+#其他配置
+${AP_截屏开关}           1    # 0 表示关闭截屏， 1 | 表示开启截屏
+${AP_最大划屏查找次数}       10
+${AP_等待加载时间}    8sec
+${AP_等待加载检查间隔}    1sec
+
+*** Keywords ***

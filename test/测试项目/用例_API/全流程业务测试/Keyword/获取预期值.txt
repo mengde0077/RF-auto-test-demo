@@ -1,0 +1,72 @@
+*** Settings ***
+Documentation     前置条件：
+...               1.各种规范试的 期望值获取 关键字
+...
+
+Resource          ../../../资源_API/API资源.txt
+Resource          ../../../资源_公共/数据操作资源.txt
+Resource          ../../../资源_API/API常量.txt
+Resource          ../../../资源_公共/公共资源.txt
+Library           Collections
+
+*** Variables ***
+
+*** Keywords ***
+K_满件减优惠_预期
+    [Arguments]    ${A_goodsNum}
+    ${dictionary}    sql_查询活动规则信息byId    ${S_t_promotion_id}
+    ${value}    get from dictionary    ${dictionary}    value
+    ${max_usage}    get from dictionary    ${dictionary}    max_usage
+    ${value}    sql_查询活动梯度信息    ${S_t_promotion_id}    ${S_grade}
+    Run Keyword If    ${A_goodsNum}<${S_grade}    Set Suite Variable    ${S_满件减活动优惠_预期}    0
+    ...    ELSE    Set Suite Variable    ${S_满件减活动优惠_预期}    ${value}
+
+
+K_满减优惠_预期
+    ${dictionary}    sql_查询活动规则信息byId    ${S_t_promotion_id}
+    ${value}    get from dictionary    ${dictionary}    value
+    ${max_usage}    get from dictionary    ${dictionary}    max_usage
+    Set Suite Variable    ${S_满减活动优惠_预期}    ${value}
+
+K_满额折优惠_预期
+    ${dictionary}    sql_查询活动规则信息byId    ${S_t_promotion_id}
+    ${value}    get from dictionary    ${dictionary}    value
+    ${max_usage}    get from dictionary    ${dictionary}    max_usage
+    ${满折折扣金额}    evaluate    float(${S_sale_price})*float(${S_goodsNum})*(1-float(${value}))
+    Run Keyword If    float(${满折折扣金额})>float(${max_usage})    Set Suite Variable    ${S_满额折折扣金额_预期}    ${max_usage}
+    ...    ELSE    Set Suite Variable    ${S_满额折折扣金额_预期}    ${满折折扣金额}
+
+K_满件折优惠_预期
+    ${dictionary}    sql_查询活动规则信息byId    ${S_t_promotion_id}
+    ${value}    get from dictionary    ${dictionary}    value
+    ${max_usage}    get from dictionary    ${dictionary}    max_usage
+    ${value}    sql_查询活动梯度信息    ${S_t_promotion_id}    ${S_grade}
+    ${满折折扣金额}    evaluate    float(${S_sale_price})*float(${S_goodsNum})*(1-float(${value}))
+    Run Keyword If    float(${满折折扣金额})>float(${max_usage})    Set Suite Variable    ${S_满件折折扣金额_预期}    ${max_usage}
+    ...    ELSE    Set Suite Variable    ${S_满件折折扣金额_预期}    ${满折折扣金额}
+
+K_满x件减y件优惠_预期
+    [Arguments]    ${A_goodsNum}    ${A_grade}
+    ${dictionary}    sql_查询活动规则信息byId    ${S_t_promotion_id}
+    ${value}    get from dictionary    ${dictionary}    value
+    ${max_usage}    get from dictionary    ${dictionary}    max_usage
+    ${value}    sql_查询活动梯度信息    ${S_t_promotion_id}    ${A_grade}
+    ${折扣金额}    evaluate    float(${S_sale_price})*${value}
+    Run Keyword If    ${A_goodsNum}<${A_grade}    Set Suite Variable    ${S_满件减件优惠_预期}    0
+    ...    ELSE    Set Suite Variable    ${S_满件减件优惠_预期}    ${折扣金额}
+
+K_每满x元减y元优惠_预期
+    [Arguments]    ${A_goodsNum}
+    ${dictionary}    sql_查询活动规则信息byId    ${S_t_promotion_id}
+    ${value}    get from dictionary    ${dictionary}    value
+    ${min_usage}    get from dictionary    ${dictionary}    min_usage
+    ${S_每满x元减y元优惠_预期}    evaluate    float(${value})*int(((${S_sale_price}*${A_goodsNum})/${min_usage}))
+    Set Suite Variable    ${S_每满x元减y元优惠_预期}
+
+K_套餐原价与优惠_预期
+    ${套餐商品优惠金额}    sql_获取套餐商品的优惠金额    ${S_套餐id}
+    ${套餐商品优惠金额}    evaluate    ${套餐商品优惠金额}*${S_goodsNum_套餐}
+    Set Suite Variable    ${S_套餐商品优惠_预期}    ${套餐商品优惠金额}
+    ${套餐商品原价}    sql_获取套餐商品原价    ${S_套餐id}    ${S_org_id}    ${S_admin_id}
+    ${套餐商品原价}    evaluate    ${套餐商品原价}*${S_goodsNum_套餐}
+    Set Suite Variable    ${S_套餐商品原价_预期}    ${套餐商品原价}

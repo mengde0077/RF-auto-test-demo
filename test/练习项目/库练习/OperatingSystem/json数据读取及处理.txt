@@ -1,0 +1,66 @@
+*** Settings ***
+Library           OperatingSystem
+Library           String
+Resource          R_CSV读写操作.txt
+Library           RequestsLibrary
+
+
+*** Variables ***
+${base_path}      ~/Desktop/qita/
+${file}           ~/Desktop/qita/mobileAndUserid.txt
+
+*** Test Cases ***
+读取文件
+    ${rule_data}    get file    ./rule_data.json
+    log    ${rule_data}
+    ${data}    to json    ${rule_data}
+    ${name}    get from dictionary    ${data}    name
+    Set To Dictionary    ${data}    name="自动化测试"
+    remove_from_dictionary    ${data}    zhushi
+    ${name}    get from dictionary    ${data}    name
+    ${rulesAreas}    get from dictionary    ${data}    rulesAreas
+    ${rulesAreas0}    get from list    ${rulesAreas}    0
+    ${rulesAreas0_name}    get from dictionary    ${rulesAreas0}    name
+    ${rulesAreas0_name}    evaluate    '${data['rulesAreas'][0]['name']}'
+    log    ${data}
+    #字典  没有 encode 属性
+    # ${data}    evaluate    str(${data}.decode("UTF-8"))
+    ${data}    evaluate    str(${data}).decode("UTF-8")
+    log    ${data}
+    ${data}    evaluate    str(${data}).encode("UTF-8")
+    ${data}    to json    ${data}
+    ${name}    get from dictionary    ${data}    name
+    log    ${data}
+
+
+读取文件2
+    ${rule_data}    get file    ./rule_data.json
+    log    ${rule_data}
+    ${data}    to json    ${rule_data}
+    ${name}    get from dictionary    ${data}    name
+    Set To Dictionary    ${data}    name="自动化测试"
+    remove_from_dictionary    ${data}    zhushi
+    ${name}    get from dictionary    ${data}    name
+    ${data}    evaluate    json.dumps(${data}, ensure_ascii=False)    json
+    log    ${data}
+
+编码转换
+    #字典  没有 encode 属性
+    ${s}    set Variable    "人生苦短"
+    log    ${s}
+    ${u}    evaluate     ${s}.decode("UTF-8")
+    log    ${u}
+    # ${u2}    evaluate     ${s}.encode("UTF-8")    #UnicodeDecodeError: 'ascii' codec can't decode byte 0xe4 in position 0: ordinal not in range(128)
+    # log    ${u2}
+    # ${u3}    evaluate    str(${u})     #SyntaxError: invalid syntax (<string>, line 1)
+    # log    ${u3}
+    ${u4}    evaluate     ${s}.decode('ascii')
+    log    ${u4}
+    ${u5}    evaluate     ${u4}.encode("UTF-8")
+    log    ${u5}
+
+
+
+
+
+

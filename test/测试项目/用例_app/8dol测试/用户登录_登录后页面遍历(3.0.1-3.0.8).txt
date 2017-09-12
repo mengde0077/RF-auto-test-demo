@@ -1,0 +1,353 @@
+*** Settings ***
+Suite Setup       opencv连接接口服务
+Suite Teardown    delete all sessions
+Force Tags        8dol
+Library           AppiumLibrary
+# Library           XML
+# Resource          ../../资源_API/API常量.txt
+# Resource          ../../资源_API/API公共关键字.txt
+# Resource          ../../资源_API/API资源.txt
+Resource          ../../资源_公共/公共资源.txt
+Resource          ../../资源_app/app_资源.txt
+Resource          ../../资源_app/8dol/8dol_业务关键字.txt
+Resource          ../业务关键字/8dol_key.txt
+
+*** Variables ***
+${S_8天用户名}    18700000002
+${S_contact_password}      1234567
+${S_element_name}    心愿单
+${S_image_i_know}    ./image/i_know.png
+${S_首页商品}    青岛经典啤酒330ml
+*** Test Cases ***
+进入首页
+    8dol_app_启动App
+    sleep    5
+
+进入我的
+    8dol_app_进入我的
+
+进入我的_登录/注册_跳转到登录页
+    8dol_app_点击我的_登录/注册
+    PK_8dol截屏    登录/注册
+
+8dol点击我的_登录
+    8dol_app_用户登录    ${S_8天用户名}    ${S_contact_password}
+    8dol_app_进入我的    #点掉 操作提示
+
+校验登录成功
+    ${昵称}    8dol_app_获取_我的昵称
+    PK_8dol截屏    我的_已登录
+
+获取用户余额
+    ${余额}    8dol_app_获取_我的余额
+
+获取用户佣金
+    ${佣金}    8dol_app_获取_我的佣金
+
+获取用户天金
+    ${天金}    8dol_app_获取_我的天金
+
+获取用户校花
+    ${校花}    8dol_app_获取_我的校花
+
+# 进行页面遍历 首页 ******************************************************
+
+进入首页2
+    8dol_app_进入首页
+
+点击进入_首页_地址入口
+    8dol_app_点击进入_首页_地址入口
+
+点击进入_选择配送地址_新增地址
+    8dol_app_点击_选择配送地址_新增地址
+
+8dol返回_选择配送地址
+    8dol_app_点击左上角_返回图标
+
+点击_选择配送地址_搜索框_进入搜索页
+    8dol_app_点击_选择配送地址_搜索框
+
+搜索地址_楚翘城
+    8dol_app_点击_搜索页_搜索框_搜索地址
+
+8dol返回_选择配送地址01
+    PK_等待并点击_name    取消
+
+点击进入_选择配送地址_更多地址
+    ${locator}    PK_将name转换成xpath    更多地址
+    PK_向下划屏查找对象_locator    ${locator}
+    8dol_app_点击_选择配送地址_更多地址
+
+点击进入_选择配送地址_更多地址_全部
+    PK_等待并点击_name    全部
+
+点击进入_选择配送地址_更多地址_学校
+    PK_等待并点击_name    学校
+
+点击进入_选择配送地址_更多地址_写字楼
+    PK_等待并点击_name    写字楼
+
+点击进入_选择配送地址_更多地址_小区
+    PK_等待并点击_name    小区
+
+8dol返回_选择配送地址1
+    8dol_app_点击左上角_返回图标
+
+8dol返回首页0
+    8dol_app_点击左上角_返回图标
+
+进入首页_休闲零食_跳转到分类列表页
+    8dol_app_进入首页_休闲零食
+    sleep    1
+    PK_等待_name    全部
+
+8dol返回首页
+    8dol_app_点击左上角_返回图标
+
+进入首页_话费游戏_进入话费游戏充值页
+    8dol_app_进入首页_话费游戏
+    PK_8dol截屏    话费游戏
+
+8dol返回首页1
+    8dol_app_点击左上角_返回图标1
+
+进入首页_苏宁直供
+    8dol_app_点击首页_苏宁直供
+    PK_8dol截屏    苏宁直供_待确认地址
+    PK_等待并点击_name    确定     #第一次进入 苏宁直供 页面 需要确认收货地址
+    PK_8dol截屏    苏宁直供
+
+8dol返回首页2
+    8dol_app_点击左上角_返回图标
+
+进入首页_邀请好友
+    8dol_app_点击首页_邀请好友
+    PK_8dol截屏    邀请好友
+
+8dol返回首页21
+    8dol_app_点击左上角_返回图标
+
+进入首页_摸我吧_弹窗
+    8dol_app_点击首页_摸我吧
+    PK_8dol截屏    红包弹窗
+
+8dol关闭弹窗
+    8dol_app_关闭_广告弹窗
+
+进入首页_苏宁直供2
+    8dol_app_点击首页_苏宁易购
+    PK_8dol截屏    苏宁易购
+
+8dol返回首页4
+    8dol_app_点击左上角_返回图标
+
+进入首页_心愿单功能页
+    8dol_app_点击首页_心愿单
+    PK_8dol截屏    心愿单
+
+8dol返回首页5
+    8dol_app_点击左上角_返回图标1
+
+滑屏_显示右边隐藏的功能按钮
+    sleep    3
+    ${locator}    PK_将name转换成xpath    ${S_element_name}
+    PK_参照element属性滑动    ${locator}    lift    2
+    sleep    3
+    PK_8dol截屏    摸我吧栏滑动后
+
+
+进入首页_余额充值
+    8dol_app_点击首页_余额充值
+    PK_8dol截屏    余额充值
+
+8dol返回首页6
+    8dol_app_点击左上角_返回图标
+
+进入首页_服务评价
+    8dol_app_点击首页_服务评价
+    PK_8dol截屏    服务评价
+
+8dol返回首页7
+    8dol_app_点击左上角_返回图标1
+
+进入首页_超市商品分类列表
+    8dol_app_点击首页_超市
+    PK_8dol截屏    超市分类列表
+
+8dol返回首页8
+    8dol_app_点击左上角_返回图标
+
+向下滚动_查找商品
+    ${locator}    PK_将name转换成xpath    ${S_首页商品}
+    PK_向下划屏查找对象_locator    ${locator}
+    # PK_向下滚动    ${locator}
+    click element    ${locator}
+    sleep    2
+    8dol_app_点击首页_商品大图_加入购物车
+    sleep    2
+    PK_点击_坐标    50    900               #退出商品大图
+
+#登录后页面遍历  分类 ******************************************************
+进入分类2
+    8dol_app_进入分类
+    PK_等待并点击_name    分类
+
+#登录后页面遍历  订单 ******************************************************
+
+进入订单_跳转到登录页
+    8dol_app_进入订单
+
+点击订单_夜8
+    8dol_app_点击订单_夜8
+    PK_8dol截屏    订单_夜8
+
+点击订单_苏宁
+    8dol_app_点击订单_苏宁
+    PK_8dol截屏    订单_苏宁
+
+点击订单_盒子
+    8dol_app_点击订单_盒子
+    PK_8dol截屏    订单_盒子
+
+点击订单_粮票
+    8dol_app_点击订单_粮票
+    PK_8dol截屏    订单_粮票
+
+点击订单_预售
+    8dol_app_点击订单_预售
+    PK_8dol截屏    订单_预售
+
+点击订单_充值
+    8dol_app_点击订单_充值
+    PK_8dol截屏    订单_充值
+
+点击订单_特卖
+    8dol_app_点击订单_特卖
+    PK_8dol截屏    订单_特卖
+
+滑屏_显示左边被隐藏的功能按钮
+    sleep    3
+    ${locator}    PK_将name转换成xpath    盒子
+    PK_参照element属性滑动    ${locator}    right    10
+    sleep    3
+
+点击订单_超市
+    8dol_app_点击订单_超市
+    PK_8dol截屏    订单_超市
+
+
+#登录后页面遍历  我的 ******************************************************
+
+
+进入我的2
+    8dol_app_进入我的
+
+进入我的消息
+    8dol_app_点击我的_消息
+    PK_8dol截屏    我的_消息
+
+8dol返回我的
+    8dol_app_点击左上角_返回图标
+
+进入我的_设置
+    8dol_app_点击我的_设置
+    PK_8dol截屏    我的_设置
+
+进入我的_设置_账户安全
+    8dol_app_我的设置_进入_帐户安全
+    PK_8dol截屏    设置_账户安全
+
+8dol返回我的_设置
+    8dol_app_点击左上角_返回图标1
+
+8dol返回我的2
+    8dol_app_点击左上角_返回图标
+
+进入我的余额
+    8dol_app_点击我的_余额
+    PK_8dol截屏    我的_余额
+
+8dol返回我的3
+    8dol_app_点击左上角_返回图标
+
+进入我的佣金
+    8dol_app_点击我的_佣金
+    PK_8dol截屏    我的_佣金
+
+8dol返回我的4
+    8dol_app_点击左上角_返回图标
+
+进入我的天金
+    8dol_app_点击我的_天金
+    PK_8dol截屏    我的_天金
+
+8dol返回我的5
+    8dol_app_点击左上角_返回图标
+
+进入我的校花
+    8dol_app_点击我的_校花
+    PK_8dol截屏    我的_校花
+
+8dol返回我的6
+    8dol_app_点击左上角_返回图标
+
+进入我的_信用盒子
+    8dol_app_点击我的_信用盒子
+    PK_8dol截屏    我的_信用盒子
+
+8dol返回我的7
+    8dol_app_点击左上角_返回图标
+
+进入我的_赚钱
+    8dol_app_点击我的_赚钱
+    PK_8dol截屏    我的_赚钱
+
+8dol返回我的8
+    8dol_app_点击左上角_返回图标
+
+进入我的_红包
+    8dol_app_点击我的_红包
+    PK_8dol截屏    我的_红包
+
+8dol返回我的9
+    8dol_app_点击左上角_返回图标
+
+进入我的_粮包
+    8dol_app_点击我的_粮包
+    PK_8dol截屏    我的_粮包
+
+8dol返回我的10
+    8dol_app_点击左上角_返回图标
+
+进入我的_邀请好友
+    8dol_app_点击我的_邀请好友
+    PK_8dol截屏    我的_邀请好友
+
+8dol返回我的11
+    8dol_app_点击左上角_返回图标
+
+进入我的_收货地址
+    8dol_app_点击我的_收货地址
+    PK_8dol截屏    我的_收货地址
+
+8dol返回我的12
+    8dol_app_点击左上角_返回图标
+
+
+
+
+关闭应用
+    CloseApp
+
+*** Keywords ***
+获取账户信息验证数据
+    # sql_修改用户余额为ByMobile    1000    ${S_8天用户名}
+    ${dictionary}    sql_查询账户信息ByMobile    ${S_8天用户名}
+    ${balance}    get from dictionary    ${dictionary}    balance
+    ${salary}    get from dictionary    ${dictionary}    salary
+    ${commission}    get from dictionary    ${dictionary}    commission
+    ${loan_balance}    get from dictionary    ${dictionary}    loan_balance
+    Set Suite Variable    ${S_balance}    ${balance}
+    Set Suite Variable    ${S_salary}    ${salary}
+    Set Suite Variable    ${S_commission}    ${commission}
+    Set Suite Variable    ${S_loan_balance}    ${loan_balance}

@@ -1,0 +1,2 @@
+*** Settings ***
+Resource          8dol/8dol_业务关键字.txt

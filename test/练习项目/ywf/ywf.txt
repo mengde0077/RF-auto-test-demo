@@ -1,0 +1,10 @@
+*** Settings ***
+Suite Setup       Start Selenium Server
+Suite Teardown    Stop Selenium Server
+Library           /Library/Python/2.7/site-packages/robotframework_selenium2library-1.7.4-py2.7.egg/Selenium2Library
+
+*** Test Cases ***
+test1
+    [Setup]    Start Selenium Server
+    open browser    http://www.baidu.com
+    [Teardown]    Stop Selenium Server

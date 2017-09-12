@@ -1,0 +1,8 @@
+*** Variables ***
+${50元按钮}          50元    # name
+${100元按钮}         100元    # name
+${150元按钮}         150元    # name
+${输入金额输入框}        com.ndol.sale.starter:id/edtv_recharge_amount    # id
+${微信支付方式}         微信    # name
+${支付宝支付方式}        支付宝    # name
+${我要充值按钮ID}       com.ndol.sale.starter:id/btn_recharge    # id

@@ -1,0 +1,8 @@
+*** Settings ***
+Documentation     公共资源集合
+Resource          Public_resource.txt
+Resource          数据操作资源.txt
+Resource          Date_resource.txt
+Resource          Data_resource.txt
+Resource          B2C_redis_key.txt
+Resource          Opencv_Client.txt

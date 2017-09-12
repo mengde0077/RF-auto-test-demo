@@ -1,0 +1,23 @@
+*** Settings ***
+Documentation     查询类操作
+...               2016-05-26 更新
+...               1、t_user_relation_bind 删除 改为t_user_relation_bind_bak(临时备份)
+...               2、t_user 新增 `account_id` (t_account表的主键)
+...               3、auth_user_new 新增 `user_id` (t_user表主键)
+...               4、auth_org 新增 account_id(t_account表的主键) 给加盟店使用
+...               2016-07-20 更新
+...               1. auth_user_new 改为 auth_user 删除一些冗余字段
+Resource          ../Data_resource.txt
+Resource          ../../资源_API/API配置.txt
+Library           TestLibrary
+
+*** Variables ***
+
+*** Keywords ***
+sql_查询盒子商品信息
+    [Arguments]    ${box_id}    ${goods_id}
+    ${data}    执行查询语句    select g.stock,g.sell_price from t_box_goods g where g.id=${box_id} and g.goods_id=${goods_id};
+    @{keys}    set variable    stock    sell_price
+    ${dictionary}    _转换data成字典    ${keys}    ${data}
+    [Return]    ${dictionary}
+

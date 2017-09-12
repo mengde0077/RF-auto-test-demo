@@ -1,0 +1,91 @@
+*** Settings ***
+Documentation     项目子资源：
+...               \ \ \ \ 用于记录单个项目中的单个activity的子资源，资源的内容随项目的升级而变化；
+...
+...               1.记录对应项目的，功能页面及功能页面包含的元素对象；
+...               2.记录项目中可复用的资源关键字；
+...
+...
+...               本资源记录，8 天在线 B2C的Android版本的资源；
+Library           AppiumLibrary
+Library           TestLibrary
+
+*** Variables ***
+${消息_and}         //*[@resource-id="com.ndol.sale.starter:id/iv_user_msgCount"]
+${设置id_and}           com.ndol.sale.starter:id/btn_setting
+
+
+${余额数id_and}         com.ndol.sale.starter:id/balance
+${佣金数_and}         //*[@resource-id="com.ndol.sale.starter:id/salary"]
+${天金数id_and}         com.ndol.sale.starter:id/score
+${校花数id_and}        com.ndol.sale.starter:id/loan
+${余额_and}    //android.widget.TextView[@text="余额"]
+${佣金_and}    //android.widget.TextView[@text="佣金"]
+${天金_and}    //*[@text="天金"]
+${校花_and}    //*[@text="校花"]
+
+#登录之后
+${头像id_and}         com.ndol.sale.starter:id/iv_avatar
+${昵称id_and}           com.ndol.sale.starter:id/user_name
+
+*** Key word ***
+点击消息_and
+    [Documentation]    点击消息
+    PK_等待_locator    xpath=${消息_and}
+    Click Element    xpath=${消息_and}
+
+我的设置_and
+    [Documentation]    进入我的设置
+    Click Element    id=${设置id}
+
+点击余额_and
+    [Documentation]    点击余额
+    PK_等待_locator    xpath=${余额_and}
+    Click Element    xpath=${余额_and}
+
+点击佣金_and
+    [Documentation]    点击佣金
+    PK_等待_locator    xpath=${佣金_and}
+    Click Element    xpath=${佣金_and}
+
+点击天金_and
+    [Documentation]    点击天金
+    PK_等待_locator    xpath=${天金_and}
+    Click Element    xpath=${天金_and}
+
+点击校花_and
+    [Documentation]    点击校花
+    PK_等待_locator    xpath=${校花_and}
+    Click Element    xpath=${校花_and}
+
+
+进入我的资料_and
+    [Documentation]    进入我的资料
+    PK_等待_locator    id=${头像id_and}
+    Click Element    id=${头像id_and}
+
+
+获取_我的_昵称_locator
+    [Documentation]    获取我的昵称
+    ${locator}    PK_获取相应平台的locator    id=${昵称id_and}    id=${昵称id_and}
+    [return]    ${locator}
+
+获取_我的_余额_locator
+    [Documentation]    获取我的余额
+    ${locator}    PK_获取相应平台的locator    id=${余额数id_and}    id=${余额数id_and}
+    [return]    ${locator}
+
+获取_我的_佣金_locator
+    [Documentation]    获取我的佣金
+    ${locator}    PK_获取相应平台的locator    xpath=${佣金数_and}    xpath=${佣金数_and}
+    [return]    ${locator}
+
+获取_我的_天金_locator
+    [Documentation]    获取我的天金
+    ${locator}    PK_获取相应平台的locator    id=${天金数id_and}    id=${天金数id_and}
+    [return]    ${locator}
+
+获取_我的_校花_locator
+    [Documentation]    获取我的校花
+    ${locator}    PK_获取相应平台的locator    id=${校花数id_and}    id=${校花数id_and}
+    [return]    ${locator}

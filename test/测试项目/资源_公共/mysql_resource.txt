@@ -1,0 +1,32 @@
+*** Settings ***
+Documentation     项目mysql关键字
+Library           TestLibrary
+
+*** Variables ***
+${测试库}            host='192.168.100.14',user='root',password='8dolpress',database='saledb',port=3306
+${sql2}           source D:\\Program Files\\Git\\auto-test\\test\\sql\\update_user_balance.sql
+${school_name}    直仓直营测试学校
+*** Test Cases ***
+sql_查询云店学校信息_bySchoolName
+    ${data}    测试库查询    select ao.title,s.org_id,s.area_id,s.city from 8dol_store s,auth_org ao where ao.id=s.org_id and s.name=${school_name} and s.status=1 and ao.status=1;
+
+*** Keywords ***
+测试库查询
+    [Arguments]    ${sql}
+    [Documentation]    查询返回的结果是一个元组
+    ${result}    Mysql Query One    ${测试库}    ${sql}
+    run keyword if    ${result}==None    log    查询结果为空
+    [Return]    ${result}
+
+测试库执行sql
+    [Arguments]    ${sql}
+    [Documentation]    执行更新sql，没有返回数据
+    Mysql Execute    ${测试库}    ${sql}
+
+测试库执行脚本文件
+    [Arguments]    ${sql}
+    ${result}    Mysql Execute    ${测试库}    ${sql}
+    [Return]    ${result}
+
+
+

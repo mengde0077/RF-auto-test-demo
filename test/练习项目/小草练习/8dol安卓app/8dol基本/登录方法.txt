@@ -1,0 +1,38 @@
+*** Settings ***
+Library           AppiumLibrary
+Resource          ../8dol资源/手机连接资源和activity.txt
+Resource          ../8dol资源/登录页面资源.txt
+Resource          ../8dol资源/首页资源.txt
+Resource          ../8dol资源/我的个人中心资源.txt
+Resource          ../8dol资源/选择学校页面资源.txt
+Resource          常用关键字.txt
+
+*** Keywords ***
+打开app，登录页面
+    [Documentation]    打开app，登录页面
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    appPackage=${8dol_appPackage}    appActivity=${登录activity}
+
+打开app，登录页面，登录成功
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    appPackage=${8dol_appPackage}    appActivity=${登录activity}
+    Input Text    id=${用户名ID}    ${手机号}
+    Input Password    id=${密码ID}    ${密码}
+    Go Back
+    页面操作之前等待加载Name    ${登录按钮name}
+    Click Element    name=${登录按钮name}
+
+打开app，首页
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    appPackage=${8dol_appPackage}    appActivity=${首页activity}
+
+选择学校之后登录
+    [Documentation]    APP已登录
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    appPackage=${8dol_appPackage}    appActivity=${选择学校activity}
+    选择城市    ${南京}
+    选择学校    ${南京科技职业学院}
+    Click Element    id=${我的TabID}
+    Click Element    id=${登录/注册ID}
+
+选择学校后无需登录
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    appPackage=${8dol_appPackage}    appActivity=${选择学校activity}
+    选择城市    ${南京}
+    选择学校    ${南京科技职业学院}
+    Click Element    id=${我的TabID}

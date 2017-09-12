@@ -1,0 +1,71 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Collections
+
+*** Variables ***
+${sql}            select t.id from 8dol_user t where t.mobile=15195995661
+${sql1}           select t.level from t_user_states t where t.id=1514174
+${dic1}           {key1:value1,key2:value1}
+${dic2}           {key1:value2,key2:value2}
+@{l1}             1    2    3
+@{l2}             4    5    6
+${la}             []
+@{list}           end
+
+*** Test Cases ***
+加入列表
+    append to list    ${l1}    1
+    log    ${l1}
+
+错误的加入列表方式
+    [Documentation]    这种情况出错的原因就在于，在定义一个空列表的时候，没有使用@定义列表，而是定义成$的字符串类型
+    append to list    ${la}    1
+    log    ${la}
+
+插入列表
+    Collections.Insert Into List    ${list}    0    1
+    log    ${list}
+
+列表
+    @{a}    set variable    1    2    3
+    @{b}    create list    3    2    1
+    @{la}    set variable    @{l1}    @{l2}
+    @{lb}    set variable    ${l1}    ${l2}
+    log many    @{a}
+    log many    @{b}
+    log many    @{la}
+    log many    @{lb}
+    log many    @{lb[1]}
+    log    ${a[1]}
+    fail    ${a}
+    fail    @{a}
+
+8dolyanz
+    [Documentation]    对列表的操作
+    ${resultlist}    set variable    fail    fail    fail    fail    fail
+    ...    fail    ok
+    #${listlen}    evaluate    len(${resultlist})
+    : FOR    ${i}    IN RANGE    len(${resultlist})
+    \    ${result}    set variable    ${resultlist[${i}]}
+    \    should be equal as strings    ${resultlist[${i}]}    ${result}
+
+8dol字典
+    [Documentation]    对字典的操作
+    ${resultlist}    set variable    fail    fail    fail    fail    fail
+    ...    fail    ok
+    #${listlen}    evaluate    len(${resultlist})
+    : FOR    ${i}    IN RANGE    len(${resultlist})
+    \    ${result}    set variable    ${resultlist[${i}]}
+    \    should be equal as strings    ${resultlist[${i}]}    ${result}
+
+获取endTime
+    ${dateTime}    Get Time
+    ${time}    Set Variable    ${dateTime[0:10]} 23:59:59
+    log    ${time}
+
+获取startTime
+    ${ymd}    Get Time    year month day    NOW-7day
+    ${link}    Set Variable    -
+    ${y-m-d}    Evaluate    '${link}'.join(${ymd})
+    ${time}    Set Variable    ${y-m-d} 00:00:00
+    log    ${time}

@@ -1,0 +1,50 @@
+*** Settings ***
+Documentation     说明：
+...               1.用于整个服务的初始化
+...               1.如：口令红包，希望在所有用例执行前进行一次系统初始化，开启活动；
+Suite Setup       8dol和YD连接接口服务
+Suite Teardown    8dol和YD关闭接口服务连接
+Force Tags        APIYW    APIZYYW    APIJMYW    APIZYBL    API1LZY    API2LZY    API3LZY    API4L    API5L1    API6L    API7L    API8L    API9L
+# Test Timeout      30 seconds
+Resource          ../../资源_API/API资源.txt
+Resource          ../../资源_API/API常量.txt
+Resource          ../../资源_公共/数据操作资源.txt
+Library           Collections
+
+*** Variables ***
+${S_rule_id}    ${P_rule_id_口令红包}
+${S_rule_id2}    ${P_rule_id_新用户}
+${S_规则开启}         3
+${S_规则失效}         2
+${S_redis_host}    ${P_redis_host}
+${S_系统管理员userName}    ${P_系统管理员userName}
+${S_云店用户密码password}    ${P_云店用户密码password}
+
+${S_rule_id_被邀请者红包}    ${P_rule_id_被邀请者红包}
+${S_rule_id_邀请者红包}    ${P_rule_id_邀请者红包}
+
+*** Test Cases ***
+YD_系统管理员登录
+    ${dictionary}    YD_用户登录    ${S_系统管理员userName}    ${S_云店用户密码password}
+    ${系统管理员_基础信息}    get from dictionary    ${dictionary}    YDPC_API基础信息
+    ${username}    get from dictionary    ${dictionary}    username
+    Set Suite Variable    ${S_系统管理员_基础信息}    ${系统管理员_基础信息}
+    Set Suite Variable    ${S_username}    ${username}
+
+初始化_清除
+    清除redis缓存1    ${S_redis_host}
+
+初始化_生效口令红包规则_1
+    YD抢券8_生效券8    ${S_系统管理员_基础信息}    ${S_rule_id}
+
+初始化_生效口令红包规则2
+    YD抢券8_生效券8    ${S_系统管理员_基础信息}    ${S_rule_id2}
+
+初始化_生效口令红包规则3
+    YD抢券8_生效券8    ${S_系统管理员_基础信息}    ${S_rule_id_被邀请者红包}
+
+初始化_生效口令红包规则4
+    YD抢券8_生效券8    ${S_系统管理员_基础信息}    ${S_rule_id_邀请者红包}
+
+
+

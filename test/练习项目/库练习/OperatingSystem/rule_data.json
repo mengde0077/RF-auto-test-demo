@@ -1,0 +1,97 @@
+{
+	"zhushi": {
+		"描述": "用于 注释说明 该data 中 重要字段的含义，请将描述记录在 zhushi 字段内，方便使用时删除",
+    	"messageType": {
+    		"name": "规则类型",
+    		"info": "SECOND_KILL_COUPON_MESSAGE:秒杀 ， USER_TOUCH_ME：摸我8"
+    	},
+        "id": "规则id，新建时为空，修改时 必须赋值"
+    },
+    "allCheckOn": false,
+    "code": "",
+    "countPerDay": "100",
+    "employId": "28997",
+    "employName": "guozongren",
+    "endTime": "endTime",
+    "giveAdminId": "0",
+    "giveAdminName": "全国",
+    "giveAreaId": "",
+    "giveAreaName": "",
+    "giveCityCode": "",
+    "giveCityName": "",
+    "id": "",
+    "info": "测试",
+    "maxLimit": 100,
+    "messageType": "SECOND_KILL_COUPON_MESSAGE",  
+    "name": "测试",
+    "perUserPerLimit": 1,
+    "restLimit": 100,
+    "rowNo": 1,
+    "ruleGroups": [
+        {
+            "$$hashKey": "object:2132",
+            "allCheckOn": false,
+            "beginDay": 1,
+            "cashLimit": "0.0",
+            "check": true,
+            "content": "测试",
+            "countLimit": 0,
+            "endDay": 31,
+            "id": "",
+            "image": "",
+            "name": "测试",
+            "orderMax": "0.0",
+            "orderMin": "10.0",
+            "ruleId": "",
+            "ruleItems": [
+                {
+                    "$$hashKey": "object:2146",
+                    "awardType": "COUPON",
+                    "beginHour": 0,
+                    "check": true,
+                    "endHour": 24,
+                    "groupId": "",
+                    "id": "",
+                    "material": {
+                        "areaType": "COUNTRY",
+                        "distributionRateId": 0,
+                        "distributionRateName": "",
+                        "goodsCategoryId": "",
+                        "goodsId": "",
+                        "goodsName": "",
+                        "orderMaxUsage": "0.0",
+                        "orderMinUsage": "10.0",
+                        "partner": 0,
+                        "serveType": "UNIVERSITY",
+                        "specialMinUsage": "0.0",
+                        "useDays": 1,
+                        "useLandmineDays": 1,
+                        "value": 1
+                    },
+                    "useRange": "DAY",
+                    "value": 1,
+                    "weight": 1
+                }
+            ],
+            "title": "测试",
+            "weight": 1
+        }
+    ],
+    "rulesAreas": [
+        {
+            "$$hashKey": "object:2247",
+            "check": true,
+            "giveAdminId": "0",
+            "giveAreaId": "",
+            "giveCityCode": "",
+            "name": "全国",
+            "serveType": "UNIVERSITY",
+            "serveTypeName": "校园微仓"
+        }
+    ],
+    "startTime": "beginTime",
+    "status": "TESTING",
+    "strategyType": "MUTEX_WEIGHT_RANDOM",
+    "userLevel": 0,
+    "userRoleType": "ALL"
+}

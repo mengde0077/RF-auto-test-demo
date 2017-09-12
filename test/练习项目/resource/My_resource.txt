@@ -1,0 +1,13 @@
+*** Settings ***
+Documentation     个人资源：
+...               \ \ \ \ 用于管理带个人特色的信息或设备信息，随测试测试执行人、支持测试设备的变化而变化；
+...
+...
+...               如：待测试设备名称；
+Library           AppiumLibrary
+
+*** Variables ***
+${app_path}       E:\\apk\\20151104\\    #测试包存放位置
+${platformName}    Android
+${platformVersion}    4.4.4    #测试手机的Android版本
+${deviceName}     482ede3a    #测试手机的设备名，CMD中使用 （ adb devices ）查看

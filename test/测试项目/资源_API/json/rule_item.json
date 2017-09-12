@@ -1,0 +1,42 @@
+{
+    "zhushi": {
+        "描述": "用于 注释说明 该data 中 重要字段的含义，请将描述记录在 zhushi 字段内，方便使用时删除",
+        "awardType": {
+            "name": "红包类型",
+            "info": "COUPON:余额红包 , CATEGORY:品类红包 , TAG:TAG类红包 , SUB_DISTRICT:单品红包 "
+        },
+        "id": "item_id，新建时为空，修改时 必须赋值",
+        "$$hashKey": "多个item 时 数字需要不同",
+        "awardType": " 奖励类型:     COUPON:红包券, CATEGORY:品类券, TAG:TAG商品券, SINGLE:单品券, LANDMINE:地雷红包   ",
+        "areaType": "红包使用区域:   COUNTRY:全国, CITY:城市 , MINI_WAREHOUSE:微仓, SUB_DISTRICT:学校     ",
+        "serveType": "店铺类型:  COMMON:通用,  UNIVERSITY:校园微仓,  OFFICE:办公区 ",
+        "useRange" : " 使用范围:   GENERAL:全场, SN_3C:苏宁, PRESELL:预售, DAY:白8超市  "
+    },
+    "$$hashKey": "object:2146",
+    "awardType": "COUPON",
+    "beginHour": 0,
+    "check": true,
+    "endHour": 24,
+    "groupId": "",
+    "id": "",
+    "material": {
+        "areaType": "COUNTRY",
+        "distributionRateId": 0,
+        "distributionRateName": "",
+        "categoryName": "",
+        "goodsCategoryId": "",
+        "goodsId": "",
+        "goodsName": "",
+        "orderMaxUsage": "0.0",
+        "orderMinUsage": "10.0",
+        "partner": 0,
+        "serveType": "UNIVERSITY",
+        "specialMinUsage": "0.0",
+        "useDays": 1,
+        "useLandmineDays": 1,
+        "value": 1
+    },
+    "useRange": "DAY",
+    "value": 1,
+    "weight": 1
+}

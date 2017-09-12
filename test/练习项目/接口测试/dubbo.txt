@@ -1,0 +1,12 @@
+*** Settings ***
+Documentation     验证8dol接口测试
+Force Tags        lianxi    API    8dol
+Library           RequestsLibrary
+Library           Collections
+
+*** Variables ***
+${旗舰店_超市_进口特产}    dubbo://192.168.100.18:20880/com.edol.core.inf.rule.PromotionInterface?accesslog=true&anyhost=true&application=core_service&default.delay=-1&default.retries=0&default.service.filter=providerInterfaceLogFilter&default.timeout=10000&delay=-1&dubbo=2.5.3-2&interface=com.edol.core.inf.rule.PromotionInterface&logger=slf4j&methods=batchSave,executeMZPromotion,modify,executePromotion,closePromotionByIds,queryCityFreeGoodsByCityOrgId,openPromotionByIds,query,count,queryCitySingleGoodsByOrgId&pid=8874&revision=1.0-SNAPSHOT&side=provider&timestamp=1451306132830 to registry registry://127.0.0.1:2181/com.alibaba.dubbo.registry.RegistryService?application=core_service&dubbo=2.5.3-2&logger=slf4j&pid=8874&register=true&registry=zookeeper&subscribe=true&timestamp=1451306132830
+
+*** Test Cases ***
+2015-12-28 20:35:32.853 [main] INFO
+    c.a.dubbo.config.AbstractConfig -    [DUBBO] Register dubbo service com.edol.core.inf.rule.PromotionInterface url dubbo://192.168.100.18:20880/com.edol.core.inf.rule.PromotionInterface?accesslog=true&anyhost=true&application=core_service&default.delay=-1&default.retries=0&default.service.filter=providerInterfaceLogFilter&default.timeout=10000&delay=-1&dubbo=2.5.3-2&interface=com.edol.core.inf.rule.PromotionInterface&logger=slf4j&methods=batchSave,executeMZPromotion,modify,executePromotion,closePromotionByIds,queryCityFreeGoodsByCityOrgId,openPromotionByIds,query,count,queryCitySingleGoodsByOrgId&pid=8874&revision=1.0-SNAPSHOT&side=provider&timestamp=1451306132830 to registry registry://127.0.0.1:2181/com.alibaba.dubbo.registry.RegistryService?application=core_service&dubbo=2.5.3-2&logger=slf4j&pid=8874&register=true&registry=zookeeper&subscribe=true&timestamp=1451306132830, dubbo version: 2.5.3-2, current host: 127.0.0.1

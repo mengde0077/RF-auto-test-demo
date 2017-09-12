@@ -1,0 +1,47 @@
+*** Settings ***
+Library           OperatingSystem
+Library           String
+Library           Collections
+
+*** Variables ***
+${base_path}      ~/Desktop/qita/
+
+*** KeyWord ***
+目录
+    ${image_path}    join path    ${base_path}    image_path_test    #组合目录，可以适配操作系统的不同目录结构
+    Create Directory    ${image_path}    #检查目录是否存在，不存在则创建目录
+    ${file_path}    join path    ${image_path}    example.csv
+    set suite variable    ${S_file_path}    ${file_path}
+    set suite variable    ${S_image_path}    ${image_path}
+
+写入CSV
+    Directory Should Exist    ${S_image_path}    msg=目录不存在    #判断目录是否存在，不存在则报错，并输出msg信息
+    Create File    ${S_file_path}    用户名,密码,VF\n    #创建文件，并写入Hello,world
+    append to file    ${S_file_path}    15195995661,123456,123\n    #写入一条数据
+    append to file    ${S_file_path}    15195995662,123456,123\n    #写入一条数据
+    ${file_size}    get file size    ${S_file_path}
+    ${file_modified_time}    get modified time    ${S_file_path}
+    Directory Should not Be Empty    ${S_image_path}    msg=目录为空
+
+读取CSV
+    [Arguments]    ${file_path}    ${L}    ${C}
+    [Documentation]    读取 ${file_path} 文件，从中${L} 行开始 ${c}列的值，一般从1开始，将值存入一个列表
+    @{r_list}    set variable    a    b    #定义一个列表
+    ${L}    evaluate    ${L}-1    #读取数据是从0开始的
+    ${C}    evaluate    ${C}-1
+    File Should Exist    ${file_path}    msg=文件不存在    #判断文件是否存在，不存在则报错，并输出msg信息
+    ${file_content}    get file    ${file_path}    #读取文件的内容
+    ${listlen}    get line count    ${file_content}    #获取CSV文件内容的行数
+    : FOR    ${L}    IN RANGE    ${listlen}
+    \    ${line_L}    get line    ${file_content}    ${L}
+    \    ${line_L}    evaluate    '${line_L}'.replace(',','\\n')    #将CSV的，号行替换成回车符号
+    \    ${str_C}    get line    ${line_L}    ${C}    #获取第${C}的值
+    \    Append To List    ${r_list}    ${str_C}
+    \    ${L}    evaluate    ${L}+1
+    remove from list    ${r_list}    0    #删除初定义列表时的两个值
+    remove from list    ${r_list}    0
+    [Return]    ${r_list}
+
+删除
+    remove file    ${S_file_path}
+    Remove Directory    ${S_image_path}    #移除目录    image_path

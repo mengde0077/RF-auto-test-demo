@@ -1,0 +1,141 @@
+*** Settings ***
+Documentation     项目关键字：
+...               \ \ \ \ 用于记录单个项目中的业务关键字，不涉及具体的资源；
+...               本业务关键字记录，8 天在线 B2C的Android版本的功能关键字；
+Library           AppiumLibrary
+Library           TestLibrary
+Resource          ../../公共关键字.txt
+Resource          ../../app_配置.txt
+Resource          ../resource/8dol_首页.txt
+
+*** Variables ***
+
+*** Keywords ***
+8dol_app_启动App
+    启动8dolApp_and
+    PK_等待并点击_name    确定
+
+8dol_app_启动App_H5
+    启动8dolApp_H5_and
+    PK_等待并点击_name    确定
+
+8dol_app_重启App
+    ${output}    重启8dolApp_and
+    log    ${output}
+    [return]    ${output}
+
+# 操作类型关键字
+#     comment    *******************************************************************************************************************
+#     comment    该区域放    操作类型关键字
+#     comment    进行元素的对象的操作，点击、长按，拖拽、划屏等
+#     comment    进行换页操作，需要确认子页面的的资源是否加载
+
+
+8dol_app_点击进入_首页_地址入口
+    ${locator}    获取_首页_地址入口_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击进入_首页_商品搜索入口
+    ${locator}    获取_首页_商品搜索入口_locator
+    PK_等待并点击_locator    ${locator}
+
+
+8dol_app_关闭_获取红包弹窗
+    ${locator}    获取_红包弹窗_关闭_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_关闭_广告弹窗
+    ${locator}    获取_广告弹窗_关闭_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_进入首页_休闲零食
+    PK_等待并点击_name    休闲零食
+
+8dol_app_进入首页_话费游戏
+    PK_等待并点击_name    话费游戏
+
+8dol_app_进入首页_话费游戏_V4
+    #V4.0.0 之后改名 ，不过名字是在 CRM 新版分类管理 配置的
+    PK_等待并点击_name    话费充值
+
+8dol_app_点击首页_苏宁直供
+    ${locator}    获取_首页_ad广告位_locator
+    PK_等待并点击_locator_index    ${locator}    0
+
+8dol_app_点击首页_邀请好友
+    ${locator}    获取_首页_ad广告位_locator
+    PK_等待并点击_locator_index    ${locator}    1
+
+8dol_app_点击首页_摸我吧
+    ${locator}    获取_摸我吧栏功能_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击首页_红包_V4
+    ${locator}    获取_红包按钮_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_点击首页_苏宁易购
+    PK_等待并点击_name    苏宁易购
+
+8dol_app_点击首页_心愿单
+    PK_等待并点击_name    心愿单
+
+8dol_app_点击首页_余额充值
+    PK_等待并点击_name    余额充值
+
+8dol_app_点击首页_服务评价
+    PK_等待并点击_name    服务评价
+
+8dol_app_点击首页_超市
+    PK_等待并点击_name    超市
+
+8dol_app_点击首页_商品大图_加入购物车
+    ${locator}    获取_首页_商品大图_加入购物车_locator
+    PK_等待并点击_locator    ${locator}
+
+8dol_app_进入首页
+    [Documentation]    切换到首页
+    PK_等待并点击_name    首页
+    PK_8dol截屏    主页_首页
+
+
+8dol_app_进入分类
+    [Documentation]    切换到分类
+    PK_等待并点击_name    分类
+    PK_8dol截屏    主页_分类
+
+8dol_app_进入订单
+    [Documentation]    切换到订单
+    PK_等待并点击_name    订单
+    PK_8dol截屏    主页_订单
+
+8dol_app_进入我的
+    [Documentation]    切换到我的
+    PK_等待并点击_name    我的
+    PK_8dol截屏    主页_我的
+
+
+8dol已签到则退出用例
+    Wait Until Page Does Not Contain Element    name=您已签到    timeout=5sec    error=已经签过到
+
+8dol_app_点击摸我8
+    首页功能    摸我8
+    ${v}    PK_等待_name    恭喜你!
+    run keyword if    ${v}==0    log    已经摸过
+    [Return]    ${v}
+
+# 获取类型关键字
+#     comment    *******************************************************************************************************************
+#     comment    此下区域放    获取类型关键字
+#     comment    需要返回值，或列表
+
+8dol_app_摸我8红包内容
+    [Documentation]    获取摸我8红包、或者天金的数量
+    ${value}    Get Element Attribute    id=${摸我8_红包_内容id}    name
+    [Return]    ${value}
+
+
+
+
+
+

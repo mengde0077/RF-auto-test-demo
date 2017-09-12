@@ -1,0 +1,26 @@
+*** Settings ***
+Documentation     数据操作类资源集合
+Resource          数据操作/查询.txt
+Resource          数据操作/修改.txt
+Resource          数据操作/删除.txt
+Resource          数据操作/YD新增.txt
+Resource          数据操作/YD查询.txt
+Resource          数据操作/YD修改.txt
+Resource          数据操作/YD删除.txt
+Resource          数据操作/兼职查询.txt
+Resource          数据操作/用户账户查询.txt
+Resource          数据操作/活动相关.txt
+Resource          数据操作/sql用户推荐.txt
+Resource          数据操作/sql超级会员.txt
+Resource          数据操作/sql现金款相关.txt
+Resource          数据操作/sql商品相关.txt
+Resource          数据操作/线上数据监控.txt
+Resource          数据操作/采购异常数据提醒_sql.txt
+Resource          数据驱动源/Y_sql发现相关.txt
+Resource          数据操作/仓储异常数据提醒_sql.txt
+Resource          数据操作/问题邮箱异常数据提醒_sql.txt
+Resource          数据操作/数据更新提醒_sql.txt
+Resource          数据操作/线上数据验证_第三方平台订单监控.txt
+Resource          数据操作/sql微仓仓位相关.txt
+Resource          数据操作/sql零售商.txt
+Resource          数据操作/B2C定单相关.txt

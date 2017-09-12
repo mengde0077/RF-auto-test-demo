@@ -1,0 +1,18 @@
+*** Settings ***
+Documentation     项目关键字：
+...               \ \ \ \ 用于记录单个项目中的业务关键字，不涉及具体的资源；
+...               本业务关键字记录，8 天在线 B2C的Android版本的功能关键字；
+Resource          Keyword/8dol_通用.txt
+Resource          Keyword/8dol_选择学校.txt
+Resource          Keyword/8dol_登录.txt
+Resource          Keyword/8dol_首页.txt
+Resource          Keyword/8dol_购物车.txt
+Resource          Keyword/8dol_分类.txt
+Resource          Keyword/8dol_订单.txt
+Resource          Keyword/8dol_我的_设置.txt
+Resource          keyword/8dol_充值支付.txt
+Resource          keyword/8dol_我的_余额.txt
+Resource          keyword/8dol_我的.txt
+Resource          Keyword/8dol_订单结算.txt
+Resource          keyword/8dol_我的_天金.txt
+Resource          Keyword/8dol_我的_天天花.txt

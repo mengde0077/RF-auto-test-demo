@@ -1,0 +1,22 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Collections
+Library           TestLibrary
+
+*** Variables ***
+
+*** Test Cases ***
+加入字典
+    ${d1}    create dictionary    name    value    name2    value2    #创建一个字典
+    set to dictionary    ${d1}    key1    a    #在字典中插入新的键值
+    log    ${d1}
+    remove from dictionary    ${d1}    key1    #移除字典中键值
+    log    ${d1}
+
+移除字典数据
+    ${d2}    create dictionary    a    1    b    2    c
+    ...    3    d    4
+    log    ${d2}
+    keep in dictionary    ${d2}    b    d    #移除字典中未标示的keys
+    log    ${d2}
+

@@ -1,0 +1,56 @@
+*** Settings ***
+Documentation     项目资源：
+...               \ \ \ \ 用于记录单个项目中的资源，资源的内容随项目的升级而变化；
+...
+...               1.记录对应项目的，功能页面及功能页面包含的元素对象；
+...               2.记录项目中可复用的业务功能关键字；
+...
+...
+...               本资源记录，8 天在线 B2C的Android版本的资源；
+Library           AppiumLibrary
+Library           TestLibrary
+Resource          ../../公共关键字.txt
+Resource          ../../app_配置.txt
+
+*** Variables ***
+${左上角_返回图标_and}    //*[@resource-id="com.ndol.sale.starter:id/iv_left"]
+${左上角_返回图标_ios}    //*[@name="arrowBack"]
+${左上角_返回图标1_and}    //*[@resource-id="com.ndol.sale.starter:id/iv_left1"]
+
+${新登录H5页_关闭_and}    //*[@resource-id="com.ndol.sale.starter:id/close"]
+${新登录H5页_关闭_ios}    //*[@name="dismiss newLogIn"]
+${新登录H5页_name}    登录
+
+${登录引导页_关闭_and}    //*[@resource-id="com.ndol.sale.starter:id/close_all"]
+
+${通用_取消_and}    //*[@resource-id="com.ndol.sale.starter:id/cancel"]
+*** Keywords ***
+点击左上角_返回图标_and
+    PK_等待_locator    xpath=${左上角_返回图标_and}
+    Click Element    xpath=${左上角_返回图标_and}
+
+点击左上角_返回图标1_and
+    PK_等待_locator    xpath=${左上角_返回图标1_and}
+    Click Element    xpath=${左上角_返回图标1_and}
+
+点击左上角_返回图标_ios
+    PK_等待_locator    xpath=${左上角_返回图标_ios}
+    Click Element    xpath=${左上角_返回图标_ios}
+
+关闭新登录H5页_and
+    PK_等待_name    ${新登录H5页_name}
+    Click Element    xpath=${新登录H5页_关闭_and}
+
+关闭新登录H5页_ios
+    PK_等待_name    ${新登录H5页_name}
+    Click Element    xpath=${新登录H5页_关闭_ios}
+
+获取_登录引导页_关闭_locator
+    [Documentation]       可以点击查看大图
+    ${locator}    PK_获取相应平台的locator    xpath=${登录引导页_关闭_and}    xpath=${登录引导页_关闭_and}
+    [return]    ${locator}
+
+获取_通用_取消_locator
+    [Documentation]       取消  按钮
+    ${locator}    PK_获取相应平台的locator    xpath=${通用_取消_and}    xpath=${通用_取消_and}
+    [return]    ${locator}

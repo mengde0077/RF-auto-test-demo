@@ -1,0 +1,10 @@
+crontab -e
+
+30 3 * * * rm -f /apps/core/target/*
+30 3 * * * rm -f /apps/sale/target/*
+30 3 * * * rm -f /apps/gate/target/*
+30 3 * * * rm -f /apps/cloud/target/*
+30 3 * * * find /apps/core/ -mtime +1 -name "core-1.16*" -exec rm -rf {} \;
+30 3 * * * find /apps/sale/ -mtime +1 -name "sale-1.16*" -exec rm -rf {} \;
+30 3 * * * find /apps/gate/ -mtime +1 -name "pay-1.16*" -exec rm -rf {} \;
+30 3 * * * find /apps/cloud/ -mtime +1 -name "cs-1.16*" -exec rm -rf {} \;

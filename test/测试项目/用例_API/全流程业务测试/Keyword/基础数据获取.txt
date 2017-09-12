@@ -1,0 +1,340 @@
+*** Settings ***
+Documentation     前置条件：
+...               1.记录 流程性的 关键字
+...               3.在直营校园店下单
+...
+
+Resource          ../../../资源_API/API资源.txt
+Resource          ../../../资源_公共/数据操作资源.txt
+Resource          ../../../资源_API/API常量.txt
+Resource          ../../../资源_公共/公共资源.txt
+Library           Collections
+
+*** Variables ***
+
+*** Keywords ***
+K_下单前_获取_超市商品库存销量_用户余额
+    ## 入参    ${S_goodsName}    ${S_org_id}    ${S_8天用户名}
+    ## 返回值    ${S_goods_extend_id}    ${S_origin_goods_id}    ${S_goodsInfos}    ${S_stock_下单前}    ${S_sale_下单前}    ${S_balance_下单前}
+    K_下单前_获取_超市商品id_库存_销量
+    K_查询账户信息ByMobile_下单前
+
+K_下单前_获取_超市商品id_库存_销量
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName}    ${S_org_id}
+    ${goods_id}    get from dictionary    ${dictionary}    goods_id
+    ${goods_extend_id}    get from dictionary    ${dictionary}    goods_extend_id
+    ${origin_goods_id}    get from dictionary    ${dictionary}    origin_goods_id
+    ${stock}    get from dictionary    ${dictionary}    stock
+    ${free_stock}    get from dictionary    ${dictionary}    free_stock
+    ${sale_price}    get from dictionary    ${dictionary}    sale_price
+    ${sale}    get from dictionary    ${dictionary}    sale
+    Set Suite Variable    ${S_goods_extend_id}    ${goods_extend_id}
+    Set Suite Variable    ${S_origin_goods_id}    ${origin_goods_id}
+    Set Suite Variable    ${S_goodsInfos}    ${S_goods_extend_id}:${S_goodsNum}
+    Set Suite Variable    ${S_stock_下单前}    ${stock}
+    Set Suite Variable    ${S_sale_下单前}    ${sale}
+
+K_下单前_获取_超市商品库存销量_爆款计数_满赠库存销量_用户余额
+    K_下单前_获取_超市商品库存销量_用户余额
+    #sql_查询超市商品信息_byNameAndOrgId_赠品下单前
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId   ${S_goodsName_赠品}    ${S_org_id}
+    ${free_stock}    get from dictionary    ${dictionary}    free_stock
+    ${sale}    get from dictionary    ${dictionary}    sale
+    Set Suite Variable    ${S_stock_赠品下单前}    ${free_stock}
+    Set Suite Variable    ${S_sale_赠品下单前}    ${sale}
+    #sql_查询超市爆款商品信息
+    ${dictionary}    sql_查询超市爆款商品信息    ${S_goods_extend_id}    ${S_org_id}
+    ${marketing_price}    get from dictionary    ${dictionary}    marketing_price
+    ${amount}    get from dictionary    ${dictionary}    amount
+    ${is_per_day}    get from dictionary    ${dictionary}    is_per_day
+    ${limit_pur_num}    get from dictionary    ${dictionary}    limit_pur_num
+    Set Suite Variable    ${S_marketing_price}    ${marketing_price}
+    Set Suite Variable    ${S_amount_下单前}    ${amount}
+
+K_下单后_获取_超市商品库存销量_用户余额
+    ## 入参  ${S_goodsName}    ${S_org_id}    ${S_8天用户名}
+    ## 返回值： ${S_sale_下单后}    ${S_stock_下单后}    ${S_balance_下单后}
+    #sql_查询超市商品信息_byNameAndOrgId_下单后
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId   ${S_goodsName}    ${S_org_id}
+    ${stock}    get from dictionary    ${dictionary}    stock
+    ${sale}    get from dictionary    ${dictionary}    sale
+    Set Suite Variable    ${S_sale_下单后}    ${sale}
+    Set Suite Variable    ${S_stock_下单后}    ${stock}
+    K_查询账户信息ByMobile_下单后
+
+K_下单后_获取_超市商品库存销量_爆款计数_满赠库存销量_用户余额
+    K_下单后_获取_超市商品库存销量_用户余额
+    #sql_查询超市商品信息_byNameAndOrgId_赠品下单后
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId   ${S_goodsName_赠品}    ${S_org_id}
+    ${free_stock}    get from dictionary    ${dictionary}    free_stock
+    ${sale}    get from dictionary    ${dictionary}    sale
+    Set Suite Variable    ${S_stock_赠品下单后}    ${free_stock}
+    Set Suite Variable    ${S_sale_赠品下单后}    ${sale}
+    #sql_查询超市爆款商品信息_下单后
+    ${dictionary}    sql_查询超市爆款商品信息    ${S_goods_extend_id}    ${S_org_id}
+    ${marketing_price}    get from dictionary    ${dictionary}    marketing_price
+    ${amount}    get from dictionary    ${dictionary}    amount
+    ${is_per_day}    get from dictionary    ${dictionary}    is_per_day
+    ${limit_pur_num}    get from dictionary    ${dictionary}    limit_pur_num
+    Set Suite Variable    ${S_amount_下单后}    ${amount}
+
+K_取消下单后_获取_超市商品库存销量_用户余额
+    #sql_查询超市商品信息_byNameAndOrgId_取消下单后
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId   ${S_goodsName}    ${S_org_id}
+    ${stock}    get from dictionary    ${dictionary}    stock
+    ${sale}    get from dictionary    ${dictionary}    sale
+    Set Suite Variable    ${S_sale_取消下单后}    ${sale}
+    Set Suite Variable    ${S_stock_取消下单后}    ${S_stock}
+    #sql_查询账户信息ByMobile_取消下单后
+    ${dictionary}    sql_查询账户信息ByMobile    ${S_8天用户名}
+    ${balance}    get from dictionary    ${dictionary}    balance
+    Set Suite Variable    ${S_balance_取消下单后}    ${balance}
+
+K_下单前_获取特卖商品_库存_特卖价格_余额
+    ${dictionary}    sql_查询特卖商品信息_byId    ${S_特卖_goodsId}
+    ${stock}    get from dictionary    ${dictionary}    stock
+    ${estimate_arrival_day}    get from dictionary    ${dictionary}    estimate_arrival_day
+    ${sale_price}    get from dictionary    ${dictionary}    sale_price
+    ${special_price}    get from dictionary    ${dictionary}    special_price
+    Set Suite Variable    ${S_stock_下单前}    ${stock}
+    Set Suite Variable    ${S_estimate_arrival_day}    ${estimate_arrival_day}
+    Set Suite Variable    ${S_sale_price}    ${sale_price}
+    Set Suite Variable    ${S_special_price}    ${special_price}    #sql_查询账户信息ByMobile_下单前
+    K_查询账户信息ByMobile_下单前
+
+K_查询账户信息ByMobile_下单前
+    ${dictionary}    sql_查询账户信息ByMobile    ${S_8天用户名}
+    ${balance}    get from dictionary    ${dictionary}    balance
+    Set Suite Variable    ${S_balance_下单前}    ${balance}
+    Set Suite Variable    ${S_growth_value_下单前}    ${dictionary['growth_value']}
+
+K_查询账户信息ByMobile_下单后
+    ${dictionary}    sql_查询账户信息ByMobile    ${S_8天用户名}
+    ${balance}    get from dictionary    ${dictionary}    balance
+    Set Suite Variable    ${S_balance_下单后}    ${balance}
+    Set Suite Variable    ${S_growth_value_下单后}    ${dictionary['growth_value']}
+
+K_查询账户信息ByMobile_完结后
+    ${dictionary}    sql_查询账户信息ByMobile    ${S_8天用户名}
+    ${balance}    get from dictionary    ${dictionary}    balance
+    Set Suite Variable    ${S_balance_完结后}    ${balance}
+    Set Suite Variable    ${S_growth_value_完结后}    ${dictionary['growth_value']}
+
+
+K_下单后_获取特卖商品_库存_特卖价格_余额
+    ${dictionary}    sql_查询特卖商品信息_byId    ${S_特卖_goodsId}
+    ${stock}    get from dictionary    ${dictionary}    stock
+    ${estimate_arrival_day}    get from dictionary    ${dictionary}    estimate_arrival_day
+    ${sale_price}    get from dictionary    ${dictionary}    sale_price
+    ${special_price}    get from dictionary    ${dictionary}    special_price
+    Set Suite Variable    ${S_stock_下单后}    ${stock}
+    Set Suite Variable    ${S_estimate_arrival_day}    ${estimate_arrival_day}
+    Set Suite Variable    ${S_sale_price}    ${sale_price}
+    Set Suite Variable    ${S_special_price}    ${special_price}    #sql_查询账户信息ByMobile_下单后
+    K_查询账户信息ByMobile_下单后
+
+K_下单后_获取_超市商品id_库存_销量
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName}    ${S_org_id}
+    ${goods_id}    get from dictionary    ${dictionary}    goods_id
+    ${goods_extend_id}    get from dictionary    ${dictionary}    goods_extend_id
+    ${stock}    get from dictionary    ${dictionary}    stock
+    ${sale_price}    get from dictionary    ${dictionary}    sale_price
+    ${sale}    get from dictionary    ${dictionary}    sale
+    Set Suite Variable    ${S_stock_下单后}    ${stock}
+    Set Suite Variable    ${S_sale_下单后}    ${sale}
+
+K_取消下单后_获取_超市商品id_库存_销量
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName}    ${S_org_id}
+    ${goods_id}    get from dictionary    ${dictionary}    goods_id
+    ${goods_extend_id}    get from dictionary    ${dictionary}    goods_extend_id
+    ${stock}    get from dictionary    ${dictionary}    stock
+    ${sale_price}    get from dictionary    ${dictionary}    sale_price
+    ${sale}    get from dictionary    ${dictionary}    sale
+    Set Suite Variable    ${S_stock_取消下单后}    ${stock}
+    Set Suite Variable    ${S_sale_取消下单后}    ${sale}
+
+K_自动化测试套餐_套餐信息获取
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName_套餐_01}    ${S_org_id}
+    ${goods_extend_id}    get from dictionary    ${dictionary}    goods_extend_id
+    ${origin_goods_id}    get from dictionary    ${dictionary}    origin_goods_id
+    ${sale_price}    get from dictionary    ${dictionary}    sale_price
+    Set Suite Variable    ${S_goods_extend_id_套餐_01}    ${goods_extend_id}
+    Set Suite Variable    ${S_origin_goods_id_套餐_01}    ${origin_goods_id}
+    Set Suite Variable    ${S_sale_price_套餐_01}    ${sale_price}
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName_套餐_02}    ${S_org_id}
+    ${goods_extend_id}    get from dictionary    ${dictionary}    goods_extend_id
+    ${origin_goods_id}    get from dictionary    ${dictionary}    origin_goods_id
+    ${sale_price}    get from dictionary    ${dictionary}    sale_price
+    Set Suite Variable    ${S_goods_extend_id_套餐_02}    ${goods_extend_id}
+    Set Suite Variable    ${S_origin_goods_id_套餐_02}    ${origin_goods_id}
+    Set Suite Variable    ${S_sale_price_套餐_02}    ${sale_price}
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName_套餐_03}    ${S_org_id}
+    ${goods_extend_id}    get from dictionary    ${dictionary}    goods_extend_id
+    ${origin_goods_id}    get from dictionary    ${dictionary}    origin_goods_id
+    ${sale_price}    get from dictionary    ${dictionary}    sale_price
+    Set Suite Variable    ${S_goods_extend_id_套餐_03}    ${goods_extend_id}
+    Set Suite Variable    ${S_origin_goods_id_套餐_03}    ${origin_goods_id}
+    Set Suite Variable    ${S_sale_price_套餐_03}    ${sale_price}
+    #sql_获取套餐子商品数量及优惠金额
+    ${套餐01}    sql_获取套餐子商品数量及优惠金额    ${S_套餐id}    ${S_origin_goods_id}
+    ${goods_number_01}    get from dictionary    ${套餐01}    goods_number
+    ${discount_price_01}    get from dictionary    ${套餐01}    discount_price
+    Set Suite Variable    ${S_goods_number_套餐01}    ${goods_number_01}
+    Set Suite Variable    ${S_discount_price_套餐01}    ${discount_price_01}
+    ${套餐02}    sql_获取套餐子商品数量及优惠金额    ${S_套餐id}    ${S_origin_goods_id_套餐_02}
+    ${goods_number_02}    get from dictionary    ${套餐02}    goods_number
+    ${discount_price_02}    get from dictionary    ${套餐02}    discount_price
+    Set Suite Variable    ${S_goods_number_套餐02}    ${goods_number_02}
+    Set Suite Variable    ${S_discount_price_套餐02}    ${discount_price_02}
+    ${套餐03}    sql_获取套餐子商品数量及优惠金额    ${S_套餐id}    ${S_origin_goods_id_套餐_03}
+    ${goods_number_03}    get from dictionary    ${套餐03}    goods_number
+    ${discount_price_03}    get from dictionary    ${套餐03}    discount_price
+    Set Suite Variable    ${S_goods_number_套餐03}    ${goods_number_03}
+    Set Suite Variable    ${S_discount_price_套餐03}    ${discount_price_03}
+    ${goodsNum_套餐01}    evaluate    ${S_goods_number_套餐01}*${S_goodsNum_套餐}
+    ${goodsNum_套餐02}    evaluate    ${S_goods_number_套餐02}*${S_goodsNum_套餐}
+    ${goodsNum_套餐03}    evaluate    ${S_goods_number_套餐03}*${S_goodsNum_套餐}
+    Set Suite Variable    ${S_goodsNum_套餐01}    ${goodsNum_套餐01}
+    Set Suite Variable    ${S_goodsNum_套餐02}    ${goodsNum_套餐02}
+    Set Suite Variable    ${S_goodsNum_套餐03}    ${goodsNum_套餐03}
+
+K_自动化测试套餐2_套餐信息获取
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName_套餐_01}    ${S_org_id}
+    ${goods_extend_id}    get from dictionary    ${dictionary}    goods_extend_id
+    ${origin_goods_id}    get from dictionary    ${dictionary}    origin_goods_id
+    ${sale_price}    get from dictionary    ${dictionary}    sale_price
+    Set Suite Variable    ${S_goods_extend_id_套餐_01}    ${goods_extend_id}
+    Set Suite Variable    ${S_origin_goods_id_套餐_01}    ${origin_goods_id}
+    Set Suite Variable    ${S_sale_price_套餐_01}    ${sale_price}
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName_套餐_02}    ${S_org_id}
+    ${goods_extend_id}    get from dictionary    ${dictionary}    goods_extend_id
+    ${origin_goods_id}    get from dictionary    ${dictionary}    origin_goods_id
+    ${sale_price}    get from dictionary    ${dictionary}    sale_price
+    Set Suite Variable    ${S_goods_extend_id_套餐_02}    ${goods_extend_id}
+    Set Suite Variable    ${S_origin_goods_id_套餐_02}    ${origin_goods_id}
+    Set Suite Variable    ${S_sale_price_套餐_02}    ${sale_price}
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName_套餐_03}    ${S_org_id}
+    ${goods_extend_id}    get from dictionary    ${dictionary}    goods_extend_id
+    ${origin_goods_id}    get from dictionary    ${dictionary}    origin_goods_id
+    ${sale_price}    get from dictionary    ${dictionary}    sale_price
+    Set Suite Variable    ${S_goods_extend_id_套餐_03}    ${goods_extend_id}
+    Set Suite Variable    ${S_origin_goods_id_套餐_03}    ${origin_goods_id}
+    Set Suite Variable    ${S_sale_price_套餐_03}    ${sale_price}
+    #sql_获取套餐子商品数量及优惠金额
+    ${套餐01}    sql_获取套餐子商品数量及优惠金额    ${S_套餐id}    ${S_origin_goods_id}
+    ${goods_number_01}    get from dictionary    ${套餐01}    goods_number
+    ${discount_price_01}    get from dictionary    ${套餐01}    discount_price
+    Set Suite Variable    ${S_goods_number_套餐01}    ${goods_number_01}
+    Set Suite Variable    ${S_discount_price_套餐01}    ${discount_price_01}
+    ${套餐02}    sql_获取套餐子商品数量及优惠金额    ${S_套餐id}    ${S_origin_goods_id_套餐_02}
+    ${goods_number_02}    get from dictionary    ${套餐02}    goods_number
+    ${discount_price_02}    get from dictionary    ${套餐02}    discount_price
+    Set Suite Variable    ${S_goods_number_套餐02}    ${goods_number_02}
+    Set Suite Variable    ${S_discount_price_套餐02}    ${discount_price_02}
+    ${goodsNum_套餐01}    evaluate    ${S_goods_number_套餐01}*${S_goodsNum_套餐}
+    ${goodsNum_套餐02}    evaluate    ${S_goods_number_套餐02}*${S_goodsNum_套餐}
+    Set Suite Variable    ${S_goodsNum_套餐01}    ${goodsNum_套餐01}
+    Set Suite Variable    ${S_goodsNum_套餐02}    ${goodsNum_套餐02}
+
+
+K_修改超市商品库存
+    [Arguments]    ${goods_extend_id}=${S_goods_extend_id}    ${origin_goods_id}=${S_origin_goods_id}    ${stock}=${S_stock}    ${org_id}=${S_org_id}
+    sql_修改超市商品库存为    ${stock}    ${goods_extend_id}    ${org_id}
+    ${KEY}    商品库存key    ${origin_goods_id}    ${org_id}
+    删除redis_db的KEY    ${KEY}    ${S_redis_host}
+
+
+
+K_自动化测试套餐1_套餐信息获取
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName_套餐_11}    ${S_org_id}
+    ${goods_extend_id}    get from dictionary    ${dictionary}    goods_extend_id
+    ${origin_goods_id}    get from dictionary    ${dictionary}    origin_goods_id
+    ${sale_price}    get from dictionary    ${dictionary}    sale_price
+    Set Suite Variable    ${S_goods_extend_id_套餐_11}    ${goods_extend_id}
+    Set Suite Variable    ${S_origin_goods_id_套餐_11}    ${origin_goods_id}
+    Set Suite Variable    ${S_sale_price_套餐_11}    ${sale_price}
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName_套餐_12}    ${S_org_id}
+    ${goods_extend_id}    get from dictionary    ${dictionary}    goods_extend_id
+    ${origin_goods_id}    get from dictionary    ${dictionary}    origin_goods_id
+    ${sale_price}    get from dictionary    ${dictionary}    sale_price
+    Set Suite Variable    ${S_goods_extend_id_套餐_12}    ${goods_extend_id}
+    Set Suite Variable    ${S_origin_goods_id_套餐_12}    ${origin_goods_id}
+    Set Suite Variable    ${S_sale_price_套餐_12}    ${sale_price}
+    #sql_获取套餐子商品数量及优惠金额
+    ${套餐11}    sql_获取套餐子商品数量及优惠金额    ${S_套餐id}    ${S_origin_goods_id}
+    ${goods_number_11}    get from dictionary    ${套餐11}    goods_number
+    ${discount_price_11}    get from dictionary    ${套餐11}    discount_price
+    Set Suite Variable    ${S_goods_number_套餐11}    ${goods_number_11}
+    Set Suite Variable    ${S_discount_price_套餐11}    ${discount_price_11}
+    ${套餐12}    sql_获取套餐子商品数量及优惠金额    ${S_套餐id}    ${S_origin_goods_id_套餐_12}
+    ${goods_number_12}    get from dictionary    ${套餐12}    goods_number
+    ${discount_price_12}    get from dictionary    ${套餐12}    discount_price
+    Set Suite Variable    ${S_goods_number_套餐12}    ${goods_number_12}
+    Set Suite Variable    ${S_discount_price_套餐12}    ${discount_price_12}
+    ${goodsNum_套餐11}    evaluate    ${S_goods_number_套餐11}*${S_goodsNum_套餐}
+    ${goodsNum_套餐12}    evaluate    ${S_goods_number_套餐12}*${S_goodsNum_套餐}
+    Set Suite Variable    ${S_goodsNum_套餐11}    ${goodsNum_套餐11}
+    Set Suite Variable    ${S_goodsNum_套餐12}    ${goodsNum_套餐12}
+
+K_套餐商品_库存_下单前
+    K_修改超市商品库存    ${S_goods_extend_id_套餐_01}    ${S_origin_goods_id_套餐_01}
+    K_修改超市商品库存    ${S_goods_extend_id_套餐_02}    ${S_origin_goods_id_套餐_02}
+    K_修改超市商品库存    ${S_goods_extend_id_套餐_03}    ${S_origin_goods_id_套餐_03}
+    Set Suite Variable    ${S_套餐_01_stock_下单前}    ${S_stock}
+    Set Suite Variable    ${S_套餐_02_stock_下单前}    ${S_stock}
+    Set Suite Variable    ${S_套餐_03_stock_下单前}    ${S_stock}
+
+# K_套餐商品_库存_下单前
+#     sql_修改超市商品库存为    ${S_stock}    ${S_goods_extend_id_套餐_01}    ${S_org_id}
+#     Set Suite Variable    ${S_套餐_01_stock_下单前}    ${S_stock}
+#     sql_修改超市商品库存为    ${S_stock}    ${S_goods_extend_id_套餐_02}    ${S_org_id}
+#     Set Suite Variable    ${S_套餐_02_stock_下单前}    ${S_stock}
+#     sql_修改超市商品库存为    ${S_stock}    ${S_goods_extend_id_套餐_03}    ${S_org_id}
+#     Set Suite Variable    ${S_套餐_03_stock_下单前}    ${S_stock}
+
+# K_套餐商品1_库存_下单前
+#     sql_修改超市商品库存为    ${S_stock}    ${S_goods_extend_id_套餐_11}    ${S_org_id}
+#     Set Suite Variable    ${S_套餐_11_stock_下单前}    ${S_stock}
+#     sql_修改超市商品库存为    ${S_stock}    ${S_goods_extend_id_套餐_12}    ${S_org_id}
+#     Set Suite Variable    ${S_套餐_12_stock_下单前}    ${S_stock}
+
+K_套餐商品1_库存_下单前
+    K_修改超市商品库存    ${S_goods_extend_id_套餐_11}    ${S_origin_goods_id_套餐_11}
+    K_修改超市商品库存    ${S_goods_extend_id_套餐_12}    ${S_origin_goods_id_套餐_12}
+    Set Suite Variable    ${S_套餐_11_stock_下单前}    ${S_stock}
+    Set Suite Variable    ${S_套餐_12_stock_下单前}    ${S_stock}
+
+
+K_套餐商品_库存_下单后
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName_套餐_01}    ${S_org_id}
+    ${stock}    get from dictionary    ${dictionary}    stock
+    Set Suite Variable    ${S_套餐_01_stock_下单后}    ${stock}
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName_套餐_02}    ${S_org_id}
+    ${stock}    get from dictionary    ${dictionary}    stock
+    Set Suite Variable    ${S_套餐_02_stock_下单后}    ${stock}
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName_套餐_03}    ${S_org_id}
+    ${stock}    get from dictionary    ${dictionary}    stock
+    Set Suite Variable    ${S_套餐_03_stock_下单后}    ${stock}
+
+K_套餐商品1_库存_下单后
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName_套餐_11}    ${S_org_id}
+    ${stock}    get from dictionary    ${dictionary}    stock
+    Set Suite Variable    ${S_套餐_11_stock_下单后}    ${stock}
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName_套餐_12}    ${S_org_id}
+    ${stock}    get from dictionary    ${dictionary}    stock
+    Set Suite Variable    ${S_套餐_12_stock_下单后}    ${stock}
+
+K_套餐商品_库存_取消下单后
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName_套餐_01}    ${S_org_id}
+    ${stock}    get from dictionary    ${dictionary}    stock
+    Set Suite Variable    ${S_套餐_01_stock_取消下单后}    ${stock}
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName_套餐_02}    ${S_org_id}
+    ${stock}    get from dictionary    ${dictionary}    stock
+    Set Suite Variable    ${S_套餐_02_stock_取消下单后}    ${stock}
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName_套餐_03}    ${S_org_id}
+    ${stock}    get from dictionary    ${dictionary}    stock
+    Set Suite Variable    ${S_套餐_03_stock_取消下单后}    ${stock}
+
+
+
+

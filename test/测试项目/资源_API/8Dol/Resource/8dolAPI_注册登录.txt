@@ -1,0 +1,46 @@
+*** Settings ***
+Documentation     接口资源：
+...               \ \ \ \ 用于记录单个项目中的单个一个应用UI界面对应获取类、操作类、入口类接口资源，资源的内容随项目的升级而变化；
+...
+...               1.记录对应项目的，功能页面及功能页面包含的各类接口资源；
+...               2.记录项目中可复用的资源关键字；
+...
+...
+...               本资源记录，8 天在线 B2C的API的资源；
+Resource          ../../API配置.txt
+
+*** Variables ***
+${GET用户登录}        /v2/usercenter/8dolLogin?loginSource=3&coordinate=31.980713,118.778845&password=${P_password}&deviceId=${P_deviceNo}&ip=${P_设备ip}&loginName=${P_注册手机号}&app_version=${P_app_version_new}
+${GET用户登录_S}      /v2/usercenter/8dolLogin?loginSource=3&coordinate=31.980713,118.778845&deviceId=${P_deviceNo}&ip=${P_设备ip}&app_version=${P_app_version_4}&loginName=
+${POST获取注册验证码_S}    /v2/usercenter/sendCode4Register?deviceId=${P_deviceNo}&ip=${P_设备ip}&app_version=${P_app_version_new}
+${GET用户注册_S}      /v2/usercenter/8dolRegister?loginSource=3&deviceId=${P_deviceNo}&ip=${P_设备ip}&app_version=${P_app_version_new}&validate_code=
+${GET被邀请_用户注册_S}      /v2/usercenter/8dolRegister?&prefix=&area_id=0&validate_code=
+${GET用户修改密码_S}    /v2/usercenter/modifyPassword?&verify_code=
+
+*** Keywords ***
+获取注册验证码
+    [Arguments]    ${mobile}
+    ${addr}    get request    api    ${POST获取注册验证码_S}&mobile${等号}${mobile}
+    [Return]    ${addr}
+
+用户注册
+    [Arguments]    ${mobile}    ${validate_code}    ${password}
+    ${addr}    get request    api    ${GET用户注册_S}${validate_code}&nickname${等号}${mobile}&mobile${等号}${mobile}&password${等号}${password}&area_id=${P_area_id}
+    [Return]    ${addr}
+
+被邀请_用户注册
+    [Arguments]    ${mobile}    ${validate_code}    ${password}    ${spreadUserId}    ${area_id}
+    ${addr}    get request    api    ${GET用户注册_S}${validate_code}&spreadUserId${等号}${spreadUserId}&mobile${等号}${mobile}&password${等号}${password}&area_id=${area_id}
+    [Return]    ${addr}
+
+用户登录
+    [Arguments]    ${loginName}    ${password}
+    [Documentation]    使用用户名 ${loginName} 和 ${password} 密码 登录
+    ${randomString}    生成随机字符串
+    ${addr}    get request    api    ${GET用户登录_S}${loginName}&password${等号}${password}&randomString${等号}${randomString}
+    [Return]    ${addr}
+
+用户修改密码
+    [Arguments]    ${verify_code}    ${user_id}    ${password}    ${new_password}
+    ${addr}    get request    api    ${GET用户修改密码_S}${verify_code}&user_id${等号}${user_id}&old_password${等号}${password}&new_password${等号}${new_password}
+    [Return]    ${addr}

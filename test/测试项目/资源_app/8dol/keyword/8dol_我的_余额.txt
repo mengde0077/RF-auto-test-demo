@@ -1,0 +1,15 @@
+*** Settings ***
+Documentation     项目关键字：
+...               \ \ \ \ 用于记录单个项目中的业务关键字，不涉及具体的资源；
+...               本业务关键字记录，8 天在线 B2C的Android版本的功能关键字；
+Library           AppiumLibrary
+Library           TestLibrary
+Resource          ../../公共关键字.txt
+Resource          ../../app_配置.txt
+Resource          ../resource/8dol_我的_余额.txt
+
+*** Keywords ***
+8dol查看我的余额页面显示的元素
+    ${v}    PK_等待_id    ${去充值ID}
+    PK_8dol截屏    我的余额页面
+    [Return]    ${v}

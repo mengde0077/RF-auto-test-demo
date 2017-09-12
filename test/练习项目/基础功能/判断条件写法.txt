@@ -1,0 +1,89 @@
+*** Settings ***
+Library           TestLibrary
+
+*** Variables ***
+${版本}    3.0.8
+
+*** Test Cases ***
+test1
+    run keyword if    1==1    log     等于
+
+
+test2
+    #??    为啥   没有执行  log2
+    ${v}    set variable    8
+    run keyword if    ${v}<8    run keyword    log1
+    ...    else if    ${v}==8    run keyword    log2
+    ...    else if    ${v}>8    run keyword    log3
+    ...    else if   ${v}>9    log     4
+
+test21
+    #??    为啥   没有执行  log2
+    ${v}    set variable    8
+    run keyword if    ${v}<8    log1
+    ...    else if    ${v}==8    log2
+    ...    else if    ${v}>8    log3
+    ...    else if   ${v}>9    log4
+
+test3
+    ${v}    set variable    10
+    run keyword if    ${v}<8    log1
+    run keyword if    ${v}==8    log2
+    run keyword if    ${v}>8    log3     #会执行
+    run keyword if    ${v}>9    log4     #同样会被执行
+
+test_判断版本
+    ${v}    比较版本号大小    ${版本}    3.0.8
+    Run Keyword If    ${v}<0    log     小于
+    ...    else If    ${v}>=0    log     大于等于
+
+test4
+    #Run Keyword If 和 Run Keyword Unless 当满足条件表达式要求时，执行指定关键字。可以用于简单的IF/ELSE 逻辑
+    ${var}    set variable    2
+    ${result}    run keyword unless    ${var}==1    set variable      结果不是一
+    LOG    ${result}
+
+
+test5
+    ${var}    set variable    2
+    ${result}    run keyword if    ${var}==1    set variable      结果是一
+    ...    else if    ${var}==2    set variable      结果是二
+    ...    else    set variable      结果不是一二
+    LOG    ${result}
+
+test6
+    #将关键字作为条件返回值  为啥报错？
+    ${rc}    set variable    1
+    ${var}    Run Keyword if    ${rc}==0    set variable    log1
+    ...    ELSE If    ${rc} > 0    set variable    log2
+    ...    ELSE    set variable    log3
+    run keyword    ${var}
+
+test61
+    #将关键字作为条件返回值  为啥报错？
+    ${rc}    set variable    1
+    ${var}    set variable    log4
+    Run Keyword if    ${rc}==0    set Suite variable    ${var}    log1
+    ...    ELSE IF    ${rc} > 0    set Suite variable    ${var}    log2
+    ...    ELSE    set Suite variable    ${var}    log3
+    run keyword    ${var}
+    log    ${rc}
+
+*** Keywords ***
+比较版本号大小
+    [Documentation]   输入版本号 ${v1}    ${v2}   ，返回 1 为 ${v1} 大，-1 为 ${v1} 小， 0 为相等
+    [Arguments]    ${v1}    ${v2}
+    ${v}    version Compare    ${v1}    ${v2}
+    [Return]    ${v}
+
+log1
+    log    1
+
+log2
+    log    2
+
+log3
+    log    3
+
+log4
+    log    4

@@ -1,0 +1,24 @@
+*** Settings ***
+Documentation     验证8dol接口测试
+Force Tags        lianxi    API    8dol
+Library           RequestsLibrary
+Library           Collections
+
+*** Variables ***
+${旗舰店_超市_进口特产}    goods/queryCompress?org_id=222&sortedOrder=0&category_id=814&sort=1&start=0&app_version=AD_2.1.7
+
+*** Test Cases ***
+用户登录
+    [Documentation]    使用json解析的方式
+    create session    api    http://m.8dol.com
+    ${addr}    get request    api    ${用户登录}
+    should be equal as strings    ${addr.status_code}    200
+    ${responsedata}    to json    ${addr.content}
+    ${str}    get from dictionary    ${responsedata}    msg
+    ${result}    get from dictionary    ${responsedata}    result
+    run keyword if    ${result}=='ok'    log    ok
+    ${items}    get dictionary items    ${responsedata}
+    ${list}    get dictionary values    ${responsedata}
+    ${dictionary}    Get From List    ${list}    0    #获取列表中标签为0的值
+    ${username}    get from dictionary    ${dictionary}    username
+    delete all sessions

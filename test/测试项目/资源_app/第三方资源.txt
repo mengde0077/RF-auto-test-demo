@@ -1,0 +1,11 @@
+*** Variables ***
+${支付宝_appPackage}    com.eg.android.AlipayGphone
+${支付宝付款详情页面activity}    com.alipay.android.app.flybird.ui.window.FlyBirdWindowActivity
+${支付宝REMOTE_URL}    http://localhost:4755/wd/hub
+
+*** Keywords ***
+打开支付宝APP,为了支付
+    [Documentation]    为了选择支付宝支付
+    ${支付宝APP}    Open Application    ${支付宝REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${P_app_deviceName}    appPackage=${支付宝_appPackage}
+    ...    appActivity=${支付宝付款详情页面activity}
+    [Return]    ${支付宝APP}

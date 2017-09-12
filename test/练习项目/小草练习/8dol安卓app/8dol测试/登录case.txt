@@ -1,0 +1,10 @@
+*** Settings ***
+Library           AppiumLibrary
+Resource          ../8dol基本/登录方法.txt
+
+*** Test Cases ***
+校验登录成功
+    打开app，登录页面，登录成功
+    Wait Until Keyword Succeeds    5sec    1sec    Page Should Contain Element    id=${昵称ID}
+    ${nickname}    Get Element Attribute    id=com.ndol.sale.starter:id/tv_user_name    name
+    Should Be Equal    ${nickname}    '小草'

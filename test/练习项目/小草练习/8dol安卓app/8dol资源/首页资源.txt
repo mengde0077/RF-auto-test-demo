@@ -1,0 +1,5 @@
+*** Variables ***
+${首页TabID}        com.ndol.sale.starter:id/tab_home_layout
+${发现TabID}        com.ndol.sale.starter:id/tab_discove_layout
+${订单TabID}        com.ndol.sale.starter:id/tab_order_layout
+${我的TabID}        com.ndol.sale.starter:id/tab_mine_layout

@@ -1,0 +1,75 @@
+*** Settings ***
+Documentation     增加 刷库操作.txt 用于一次性将脚本刷到所有的测试库，将脚本存放到sql_script.sql
+...               脚本中使用 “;” 结束一行，以“#” 进行行注释；
+...               | Execute Sql Script | ${EXECDIR}${/}resources${/}DDL-setup.sql |
+Resource          ../Data_resource.txt
+Resource          ../Public_Config.txt
+
+*** Variables ***
+${S_sql_script}    sql_script.sql
+
+*** Test Cases ***
+执行sql脚本到_co3120
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_co3120}
+
+执行sql脚本到_cor380
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_cor380}
+
+执行sql脚本到_cor360
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_cor360}
+
+执行sql脚本到_cor390
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_cor390}
+
+执行sql脚本到_cor370
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_cor370}
+
+执行sql脚本到_cor230
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_cor230}
+
+执行sql脚本到_coredb_141
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_cored0}
+
+执行sql脚本到_core50
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_core50}
+
+执行sql脚本到_core10
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_core10}
+
+执行sql脚本到_cor120
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_cor120}
+
+执行sql脚本到_cor124
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_cor124}
+
+执行sql脚本到_cor128
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_cor128}
+
+执行sql脚本到_cor132
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_cor132}
+
+执行sql脚本到_cor133
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_cor133}
+
+执行sql脚本到_core20
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_core20}
+
+执行sql脚本到_core30
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_core30}
+
+#### 停用
+# 执行sql脚本到_core40
+#     执行sql脚本    ${S_sql_script}    ${PC_db_test_core40}
+
+#### 重复
+# 执行sql脚本到_coredb_15
+#     执行sql脚本    ${S_sql_script}    ${PC_db_test_15core}
+
+执行sql脚本到_15coredb
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_core15}
+
+执行sql脚本到_3.35coredb
+    执行sql脚本    ${S_sql_script}    ${PC_db_test_cor335}
+
+
+*** Keywords ***

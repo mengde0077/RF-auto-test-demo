@@ -1,0 +1,24 @@
+*** Settings ***
+Documentation     接口资源：
+...               \ \ \ \ 用于记录单个项目中的打开app时对应获取类、操作类、入口类接口资源，资源的内容随项目的升级而变化；
+...
+...               1.记录对应项目的，功能页面及功能页面包含的各类接口资源；
+...               2.记录项目中可复用的资源关键字；
+...
+...
+...               本资源记录，8 天在线 B2C的打开app时、选择学校等页面涉及的API的资源；
+Resource          ../../API配置.txt
+
+*** Variables ***
+${GET获取已登录用户信息_S}    /user/getMember?&randomString=&org_id=${P_org_id}&verify_code=
+${GET打开app校验版本}    /apkUpdate/judgeClient?randomString=&version_name=${P_version_name}&version_code=${P_version_code}&app_version=${P_app_version}
+${GET获取launchAds}    /launchAds/queryAds?randomString=&org_id=${P_org_id}&app_version=${P_app_version}&screen_width=${P_screen_width}&area_id=${P_area_id}&screen_height=${P_screen_height}&
+#{GET选择学校_获取微仓列表} 选择学校的列表，包含城市、学校信息列表
+${GET选择学校_获取微仓列表}    /api/store/list?randomString=&app_version=${P_app_version}
+${GET选择学校_获取最近的学校}    /location?randomString=&latitude=31.980719&longitude=118.778828&app_version=${P_app_version}
+
+*** Keywords ***
+获取已登录用户信息_ByVerifyCode
+    [Arguments]    ${verify_code}    ${API基础信息_少verify_code}
+    ${addr}    get request    api    ${GET获取已登录用户信息_S}${verify_code}&verifyCode${等号}${verify_code}&${API基础信息_少verify_code}
+    [Return]    ${addr}

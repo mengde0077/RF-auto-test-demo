@@ -1,0 +1,3 @@
+*** Variables ***
+${去充值ID}          com.ndol.sale.starter:id/ll_to_recharge
+${我的余额页面余额数值id}    com.ndol.sale.starter:id/tv_sum_balance    # id

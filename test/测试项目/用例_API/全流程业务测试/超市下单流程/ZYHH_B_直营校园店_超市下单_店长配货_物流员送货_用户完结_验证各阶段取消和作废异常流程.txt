@@ -1,0 +1,263 @@
+*** Settings ***
+Documentation     前置条件：
+...               1.用户已登录；
+...               3.用户已选择学校，并且已经设置默认送货地址；
+...               4.余额中还有购物金额；
+...
+...               用例：
+...               1.超市下单标准流程 ,在其他流程有改流程的扩展，所以进行下线，但不删除
+...
+...               功能检查点：
+...               1.用户 白8 超市下单
+...               1.店长配货
+...               1.物流员 送货
+...               1.验证 用户 完结 完结时间是当前时间 --- 2016-05-20 曹林明
+...               2016-05-24 补充 销量和库存验证 --曹林明
+
+Suite Setup       8dol和YD连接接口服务
+Suite Teardown    8dol和YD关闭接口服务连接
+Force Tags        APIYW1     APIZYYW1    API6L
+Test Timeout      30 seconds
+Resource          ../../../资源_API/API资源.txt
+Resource          ../../../资源_公共/数据操作资源.txt
+Resource          ../../../资源_API/API常量.txt
+Resource          ../../../资源_公共/公共资源.txt
+Resource          ../Keyword/Keyword.txt
+Library           Collections
+Library           DateTime
+
+*** Variables ***
+${S_系统管理员userName}    ${P_系统管理员userName}
+${S_学校名称}    ${P_schoolName_直仓直营2_学校}
+${S_8天用户名}    ${P_B2C直营APIZYHH用户名}
+${S_8天用户登录密码}           ${P_8天用户登录密码password}
+${S_8天用户余额支付密码}    ${P_password_yue}
+${S_goodsName}     ${P_goodsName_01}
+${S_goodsNum}     1
+${S_area_name_区}    ${P_area_name_区}
+${S_area_name_楼栋}    ${P_area_name_楼栋}
+${S_支付方式}         ${P_CS_余额+支付宝支付}
+${S_店长用户名}    ${P_直仓直营校园2店长userName}
+${S_云店用户密码password}    ${P_云店用户密码password}
+${S_超市下单扣库存}    ${P_reasonType_MICRO_WH_PURCHASE_DAY_ORDER}
+${S_stock}    10
+
+
+
+*** Test Cases ***
+场景初始化
+    场景初始化
+    排班相关验证
+
+场景一_获取下单前数据
+    获取下单前数据
+
+场景一_超市下单_校验订单金额流程
+    超市下单_校验订单金额流程
+
+场景一数据验证
+    下单后数据获取
+    下单后数据验证
+
+场景一_订单完结流程_发货后、完结后作废订单_失败
+    #YDapp_订单_新订单_店长订单确认
+    YDapp_订单_新订单_店长订单确认    ${S_YD_API基础信息}    ${S_order_id}    ${S_当前时间}
+    #YDapp_订单_普通订单店长配货
+    YDapp_订单_普通订单配货    ${S_YD_API基础信息}    ${S_order_id}    ${S_pickingMember}
+    #8dol物流员扫码发货
+    ${S_random_Num}    Get Substring    ${S_order_no}    -5
+    8dol兼职8仔_物流员扫码发货    ${S_API基础信息}    ${S_order_id}    ${S_random_Num}
+    #8dol用户确认收货
+    ${responsedata}    8dol订单_超市_用户确认收货    ${S_API基础信息}    ${S_order_id}    ${S_order_no}
+    log    ${responsedata}
+    #YDPC_已完结订单_客服取消订单_不能取消
+    ${token}    YDPC客服取消订单获取token    ${S_系统管理员_基础信息}
+    ${responsedata}    YDPC客服取消订单    ${S_当前时间}    ${S_orderId}    ${token}    ${S_系统管理员_基础信息}
+    should be equal as strings    ${responsedata['result']}    fail
+
+场景2_超市下单_下单后_可以作废
+    获取下单前数据
+    超市下单_校验订单金额流程
+    #YDPC_已确认订单_客服取消订单_能取消
+    ${token}    YDPC客服取消订单获取token    ${S_系统管理员_基础信息}
+    ${responsedata}    YDPC客服取消订单    ${S_当前时间}    ${S_orderId}    ${token}    ${S_系统管理员_基础信息}
+    should be equal as strings    ${responsedata['result']}    ok
+    下单后数据获取
+    取消或作废后_金额和库存验证
+
+场景3_超市下单_确认后_可以作废
+    获取下单前数据
+    超市下单_校验订单金额流程
+    #YDapp_订单_新订单_店长订单确认
+    YDapp_订单_新订单_店长订单确认    ${S_YD_API基础信息}    ${S_order_id}    ${S_当前时间}
+    #YDPC_已确认订单_客服取消订单_能取消
+    ${token}    YDPC客服取消订单获取token    ${S_系统管理员_基础信息}
+    ${responsedata}    YDPC客服取消订单    ${S_当前时间}    ${S_orderId}    ${token}    ${S_系统管理员_基础信息}
+    should be equal as strings    ${responsedata['result']}    ok
+    下单后数据获取
+    取消或作废后_金额和库存验证
+
+场景4_超市下单_配货后_可以作废
+    获取下单前数据
+    超市下单_校验订单金额流程
+    #YDapp_订单_新订单_店长订单确认
+    YDapp_订单_新订单_店长订单确认    ${S_YD_API基础信息}    ${S_order_id}    ${S_当前时间}
+    #YDapp_订单_普通订单店长配货
+    YDapp_订单_普通订单配货    ${S_YD_API基础信息}    ${S_order_id}    ${S_pickingMember}
+    #YDPC_已配货订单_客服取消订单_能取消
+    ${token}    YDPC客服取消订单获取token    ${S_系统管理员_基础信息}
+    ${responsedata}    YDPC客服取消订单    ${S_当前时间}    ${S_orderId}    ${token}    ${S_系统管理员_基础信息}
+    should be equal as strings    ${responsedata['result']}    ok
+    下单后数据获取
+    取消或作废后_金额和库存验证
+
+场景5_超市下单_发货后_可以作废
+    超市下单_校验订单金额流程
+    #YDapp_订单_新订单_店长订单确认
+    YDapp_订单_新订单_店长订单确认    ${S_YD_API基础信息}    ${S_order_id}    ${S_当前时间}
+    #YDapp_订单_普通订单店长配货
+    YDapp_订单_普通订单配货    ${S_YD_API基础信息}    ${S_order_id}    ${S_pickingMember}
+    #8dol物流员扫码发货
+    ${S_random_Num}    Get Substring    ${S_order_no}    -5
+    8dol兼职8仔_物流员扫码发货    ${S_API基础信息}    ${S_order_id}    ${S_random_Num}
+    #YDPC_已发货订单_客服取消订单_能取消
+    ${token}    YDPC客服取消订单获取token    ${S_系统管理员_基础信息}
+    ${responsedata}    YDPC客服取消订单    ${S_当前时间}    ${S_orderId}    ${token}    ${S_系统管理员_基础信息}
+    should be equal as strings    ${responsedata['result']}    ok
+
+场景6_超市下单_下单后_可以用户取消
+    超市下单_校验订单金额流程
+    #8dol订单_超市_完结之后_取消订单
+    8dol订单_超市_根据订单号取消订单    ${S_API基础信息}    ${S_order_id}    ${S_order_no}
+
+场景7_超市下单_确认后_用户可以取消
+    获取下单前数据
+    超市下单_校验订单金额流程
+    #YDapp_订单_新订单_店长订单确认
+    YDapp_订单_新订单_店长订单确认    ${S_YD_API基础信息}    ${S_order_id}    ${S_当前时间}
+    #8dol订单_超市_完结之后_取消订单
+    8dol订单_超市_根据订单号取消订单    ${S_API基础信息}    ${S_order_id}    ${S_order_no}
+    下单后数据获取
+    取消或作废后_金额和库存验证
+
+场景8_超市下单_配货后、发货后、完结后_用户不可以取消
+    超市下单_校验订单金额流程
+    #YDapp_订单_新订单_店长订单确认
+    YDapp_订单_新订单_店长订单确认    ${S_YD_API基础信息}    ${S_order_id}    ${S_当前时间}
+    #YDapp_订单_普通订单店长配货
+    YDapp_订单_普通订单配货    ${S_YD_API基础信息}    ${S_order_id}    ${S_pickingMember}
+    #8dol订单_超市_配货之后_取消订单失败
+    8dol订单_超市_根据订单号取消订单_异常    ${S_API基础信息}    ${S_order_id}    ${S_order_no}
+    #8dol物流员扫码发货
+    ${S_random_Num}    Get Substring    ${S_order_no}    -5
+    8dol兼职8仔_物流员扫码发货    ${S_API基础信息}    ${S_order_id}    ${S_random_Num}
+    #8dol订单_超市_发货之后_取消订单失败
+    8dol订单_超市_根据订单号取消订单_异常    ${S_API基础信息}    ${S_order_id}    ${S_order_no}
+    #8dol用户确认收货
+    ${responsedata}    8dol订单_超市_用户确认收货    ${S_API基础信息}    ${S_order_id}    ${S_order_no}
+    #8dol订单_超市_完结之后_取消订单失败
+    8dol订单_超市_根据订单号取消订单_异常    ${S_API基础信息}    ${S_order_id}    ${S_order_no}
+
+sql_删除用户物流排班
+    sql_删除用户物流排班    ${S_wlyIds}
+
+
+
+*** Keywords ***
+场景初始化
+    #获取当前日期
+    ${当天日期}    获取当前日期
+    Set Suite Variable    ${S_当天日期}    ${当天日期}
+    #获取当前时间
+    ${当前时间}    获取当前时间
+    Set Suite Variable    ${S_当前时间}    ${当前时间}
+    #8dol数据库中修改我的余额
+    sql_修改用户余额为ByMobile    1000    ${S_8天用户名}
+    #YD_系统管理员登录
+    ${dictionary}    YD_用户登录    ${S_系统管理员userName}    ${S_云店用户密码password}
+    ${系统管理员_基础信息}    get from dictionary    ${dictionary}    YD_API基础信息
+    Set Suite Variable    ${S_系统管理员_基础信息}    ${系统管理员_基础信息}
+    #sql_查询云店学校信息_bySchoolName
+    ${dictionary}    sql_查询云店学校信息_bySchoolName     ${S_学校名称}
+    ${area_id}    get from dictionary    ${dictionary}    area_id
+    ${org_id}    get from dictionary    ${dictionary}    org_id
+    Set Suite Variable    ${S_area_id}    ${area_id}
+    Set Suite Variable    ${S_org_id}    ${org_id}
+    #8dol用户登录_ByLoginNameAndPassword
+    ${dictionary}    8dol用户登录_ByLoginNameAndPassword    ${S_8天用户名}    ${S_8天用户登录密码}
+    ${API基础信息}    get from dictionary    ${dictionary}    API基础信息_new
+    ${user_id}    get from dictionary    ${dictionary}    user_id
+    Set Suite Variable    ${S_API基础信息}    ${API基础信息}
+    Set Suite Variable    ${S_wlyIds}    ${user_id}
+    Set Suite Variable    ${S_user_id}    ${user_id}
+    #确保有一个正确的收货地址
+    K_默认地址_如果不存在_则创建
+
+获取下单前数据
+    #sql_查询超市商品信息_byNameAndOrgId_下单前
+    K_下单前_获取_超市商品id_库存_销量
+    #8dol数据库中修改超市商品库存
+    sql_修改超市商品库存为    ${S_stock}    ${S_goods_extend_id}    ${S_org_id}
+    Set Suite Variable    ${S_stock_下单前}    ${S_stock}
+    #8dol我的_余额_下单前
+    ${responsedata}    8dol我的_获取基本信息    ${S_API基础信息}    ${S_org_id}
+    ${data}    get from dictionary    ${responsedata}    data
+    ${balance}    get from dictionary    ${data}    balance
+    ${天金}    get from dictionary    ${data}    point
+    ${天天花}    get from dictionary    ${data}    loan_balance
+    Set Suite Variable    ${S_balance1}    ${balance}
+
+超市下单_校验订单金额流程
+    comment    去结算
+    ${responsedata}    8dol超市_去结算    ${S_API基础信息}    ${S_org_id}    ${S_goodsInfos}    ${S_areaId}
+    ${data}    get from dictionary    ${responsedata}    data
+    ${物流信息}    get from dictionary    ${data}    deliveryInfo
+    ${用户收货地址信息}    get from dictionary    ${data}    userAddressList
+    ${红包列表}    get from dictionary    ${data}    materialsList
+    ${商品信息}    get from dictionary    ${data}    goodsList
+    ${支付类型信息}    get from dictionary    ${data}    paymentList
+    comment    提交订单
+    ${responsedata}    8dol超市_提交订单    ${S_API基础信息}    ${S_org_id}    ${S_goodsInfos}    ${S_area_id}    ${S_address_id}
+    ...    ${S_8天用户余额支付密码}    ${S_支付方式}
+    ${result}    get from dictionary    ${responsedata}    result
+    ${data}    get from dictionary    ${responsedata}    data
+    ${S_order_no}    get from dictionary    ${data}    order_no
+    ${S_order_id}    get from dictionary    ${data}    id
+    Set Suite Variable    ${S_order_no}    ${S_order_no}
+    Set Suite Variable    ${S_order_id}    ${S_order_id}
+
+下单后数据获取
+    #sql_查询超市商品信息_byNameAndOrgId_下单后
+    K_下单后_获取_超市商品id_库存_销量
+
+
+下单后数据验证
+    #验证下单后商品数据_库存和销量更新正确
+    ${预期的库存_下单后}    evaluate    float(${S_stock_下单前})-float(${S_goodsNum})
+    ${预期的销量_下单后}    evaluate    float(${S_sale_下单前})+float(${S_goodsNum})
+    should be equal as numbers    ${预期的库存_下单后}    ${S_stock_下单后}
+    should be equal as numbers    ${预期的销量_下单后}    ${S_sale_下单后}
+    #验证下单后微仓商品库存库存变动流水正确
+    ${data}    sql_查询库存变动流水记录    ${S_org_id}    ${S_goods_extend_id}    ${S_超市下单扣库存}    ${S_order_id}
+    should be equal as numbers    ${data}    ${S_stock_下单后}
+
+取消或作废后_金额和库存验证
+    should be equal as numbers    ${S_stock_下单前}    ${S_stock_下单后}
+    should be equal as numbers    ${S_sale_下单前}    ${S_sale_下单后}
+
+排班相关验证
+    #YD_店长登录
+    ${dictionary}    YD_用户登录    ${S_店长用户名}    ${S_云店用户密码password}
+    ${YD_API基础信息}    get from dictionary    ${dictionary}    YD_API基础信息
+    ${DZ_userId}    get from dictionary    ${dictionary}    userId
+    Set Suite Variable    ${S_YD_API基础信息}    ${YD_API基础信息}
+    Set Suite Variable    ${S_pickingMember}    ${DZ_userId}
+    #yundian_获取物流员信息
+    ${wly_info}    YDapp_人事_物流员排班管理_获取物流员信息    ${S_YD_API基础信息}    ${S_wlyIds}
+    Set Suite Variable    ${S_wly_info}    ${wly_info}
+    #yundian_根据当前时间获取排班排次
+    ${S_schedule_info}    YDapp_根据当前时间获取排班班次_自动获取班次和时间    ${S_org_id}
+    Set Suite Variable    ${S_schedule_info}
+    #yundian_云店店长_添加排班
+    YDapp_人事_物流员排班管理_添加排班    ${S_YD_API基础信息}    ${S_wly_info}    ${S_schedule_info}
+

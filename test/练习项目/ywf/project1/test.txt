@@ -1,0 +1,13 @@
+*** Settings ***
+Library           /Library/Python/2.7/site-packages/robotframework_selenium2library-1.7.4-py2.7.egg/Selenium2Library
+Library           DatabaseLibrary
+Library           Collections
+Resource          testflow.txt
+
+*** Test Cases ***
+testcase
+    open browser    http://www.baidu.com
+
+多个商品查询
+    ${dictionary}    sql_查询购买商品信息    5841402
+    log    ${dictionary}

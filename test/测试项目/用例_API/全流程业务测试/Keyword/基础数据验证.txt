@@ -1,0 +1,435 @@
+*** Settings ***
+Documentation     前置条件：
+...               1.记录 流程性的 关键字
+...               3.在直营校园店下单
+...
+
+Resource          ../../../资源_API/API资源.txt
+Resource          ../../../资源_公共/数据操作资源.txt
+Resource          ../../../资源_API/API常量.txt
+Resource          ../../../资源_公共/公共资源.txt
+Library           Collections
+
+*** Variables ***
+
+*** Keywords ***
+K_验证_下单后_超市商品库存销量
+    #验证_下单后库存_扣减正确
+    ${预期_stock_下单后}    evaluate    ${S_stock_下单前}-${S_goodsNum}
+    should be equal as numbers    ${预期_stock_下单后}    ${S_stock_下单后}
+    #验证_下单后销量_增加正确
+    ${预期_sale_下单后}    evaluate    ${S_sale_下单前}+${S_goodsNum}
+    should be equal as numbers    ${预期_sale_下单后}    ${S_sale_下单后}
+
+K_验证_下单后_超市商品库存销量_用户余额_实付扣款
+     ## 入参  ${S_stock_下单前}    ${S_goodsNum}    ${S_order_amount}    ${S_real_amount}    ${S_balance_pay}
+    K_验证_下单后_超市商品库存销量
+    #验证_实付金额为扣减红包和满减后的金额
+    ${预期_实付金额}    evaluate    float(${S_order_amount})
+    should be equal as numbers    ${预期_实付金额}    ${S_real_amount}
+    should be equal as numbers    ${预期_实付金额}    ${S_balance_pay}
+    #验证_下单后余额扣减正确
+    ${预期_下单后余额}    evaluate    float(${S_balance_下单前})-float(${S_balance_pay})
+    should be equal as numbers    ${预期_下单后余额}    ${S_balance_下单后}
+
+K_验证_下单后_超市商品库存销量_爆款计数_满赠库存销量_用户余额_超级会员实付扣款
+    #验证订单金额，为（正常商品数量+爆款数量）* 销售价格
+    ${预期_订单金额}    evaluate    float(${S_sale_price})*float(${S_goodsNum}+${S_goodsNum_爆款})
+    should be equal as numbers    ${S_order_amount}    ${预期_订单金额}
+    #验证_实付金额为扣减红包和满减后的金额
+    ${爆款商品_差价}    evaluate    float(${S_sale_price})-float(${S_marketing_price})
+    #验证下单后商品数据_库存和销量更新正确_赠品
+    ${预期的库存_赠品下单后}    evaluate    float(${S_stock_赠品下单前})-1
+    ${预期的销量_赠品下单后}    evaluate    float(${S_sale_赠品下单前})+1
+    should be equal as numbers    ${预期的库存_赠品下单后}    ${S_stock_赠品下单后}
+    #赠品也记销量
+    should be equal as numbers    ${预期的销量_赠品下单后}    ${S_sale_赠品下单后}
+    #验证_下单后爆款销售计数_扣减正确
+    ${预期_amount_下单后}    evaluate    ${S_amount_下单前}-${S_goodsNum_爆款}
+    should be equal as numbers    ${预期_amount_下单后}    ${S_amount_下单后}
+    #验证_下单后库存_扣减正确
+    ${预期_stock_下单后}    evaluate    ${S_stock_下单前}-${S_goodsNum}-${S_goodsNum_爆款}
+    should be equal as numbers    ${预期_stock_下单后}    ${S_stock_下单后}
+    #验证_下单后销量_增加正确
+    ${预期_sale_下单后}    evaluate    ${S_sale_下单前}+${S_goodsNum}+${S_goodsNum_爆款}
+    should be equal as numbers    ${预期_sale_下单后}    ${S_sale_下单后}
+    #验证_下单后余额扣减正确
+    ${预期_下单后余额}    evaluate    float(${S_balance_下单前})-float(${S_balance_pay})
+    should be equal as numbers    ${预期_下单后余额}    ${S_balance_下单后}
+
+K_验证_下单后_超市商品库存销量_爆款计数_满赠库存销量_用户余额_实付扣款
+    K_验证_下单后_超市商品库存销量_爆款计数_满赠库存销量_用户余额_超级会员实付扣款
+    ${预期_实付金额}    evaluate    float(${S_order_amount})-float(${S_红包折扣金额})-float(${S_满减金额})-float(${爆款商品_差价})
+    should be equal as numbers    ${预期_实付金额}    ${S_real_amount}
+    should be equal as numbers    ${预期_实付金额}    ${S_balance_pay}
+
+
+K_验证_下单后_8仔工资及流水
+    #计算用户订单应付金额
+    ${S_订单应付金额}    8dol_计算用户订单应付金额    ${S_goodsNumbList}    ${S_goodsSalePriceList}
+    Set Suite Variable    ${S_订单应付金额}
+    log    ${S_订单应付金额}
+    should be equal as numbers    ${S_订单应付金额}    ${S_order_amount}
+    #计算所购商品记重重量
+    ${S_总重量}    多商品带水时查询并计算总重量    ${S_goodsExtendIdList}    ${S_goodsNumbList}
+    Set Suite Variable    ${S_总重量}
+    #计算物流员预计订单提成
+    ${S_预计订单提成}    order Commission    ${S_order_amount}    ${S_总重量}
+    #Set Suite Variable    ${S_预计订单提成}    5.0
+    Set Suite Variable    ${S_预计订单提成}
+    #获取-S_期望余额
+    ${S_期望余额}    evaluate    float(${S_下单前余额})-float(${S_real_amount})
+    Set Suite Variable    ${S_期望余额}
+    #8dol查看用户余额和物流员佣金
+    ${data}    8dol兼职8仔_查看用户相关信息    ${S_8仔_API基础信息}    ${S_org_id}
+    ${S_下单后balance}    get from dictionary    ${data}    balance
+    ${S_完结订单后物流员工资}    get from dictionary    ${data}    totalSalary
+    should be equal as numbers    ${S_期望余额}    ${S_下单后balance}
+    Set Suite Variable    ${S_完结订单后物流员工资}
+    #8dol查看用户余额流水记录
+    ${data}    8dol兼职8仔_查看用户余额信息    ${S_8仔_API基础信息}    ${S_startTime}    ${S_endTime}
+    ${dictionary}    get from list    ${data}    ${0}
+    ${用户余额}    get from dictionary    ${dictionary}    account
+    should be equal as numbers    ${S_期望余额}    ${用户余额}
+    #查看用户工资流水记录
+    # ${data}    8dol兼职8仔_查看用户工资信息    ${S_8仔_API基础信息}    ${S_startTime}    ${S_endTime}
+    # ${dictionary}    get from list    ${data}    ${0}
+    # ${用户佣金}    get from dictionary    ${dictionary}    money
+    # ${用户提成所属的订单号}    get from dictionary    ${dictionary}    outId
+    # should not be equal as numbers    ${S_预计订单提成}    ${用户佣金}
+    # should not be equal as strings    ${S_order_no}    ${用户提成所属的订单号}
+    # # 20161010  开始  物流员 送货 不计提成！
+    ${data}    sql_查询是否有工资流水记录    ${S_orderId}
+    should be equal as numbers    ${data}    0
+
+
+K_验证_便利店CVS下单接口_金额验证
+    should be equal as numbers    ${S_cvs_实付金额}    ${S_订单实付_预期}
+    should be equal as numbers    ${S_cvs_商品总金额}    ${S_商品金额_预期}
+    should be equal as numbers    ${S_cvs_红包优惠金额}    ${S_红包折扣_预期}
+    should be equal as numbers    ${S_cvs_活动优惠金额}    ${S_活动折扣_预期}
+
+K_验证_便利店CVS下单接口_金额验证_无活动优惠
+    should be equal as numbers    ${S_cvs_实付金额}    ${S_商品金额_预期}
+    should be equal as numbers    ${S_cvs_商品总金额}    ${S_商品金额_预期}
+    should be equal as numbers    ${S_cvs_红包优惠金额}    ${S_红包折扣_预期}
+    should be equal as numbers    ${S_cvs_活动优惠金额}    ${0}
+
+
+
+K_验证_单商品下单订单金额计算
+    [Arguments]    ${A_goodsNum}    ${A_折扣金额}=0    ${A_红包优惠金额}=0    ${A_VIP优惠金额}=0
+    ${商品金额_预期}    evaluate    float(${A_goodsNum})*float(${S_sale_price})
+    ${物流费判断金额_预期}    evaluate    ${商品金额_预期}-${A_折扣金额}-${A_红包优惠金额}
+    Run Keyword If    ${物流费判断金额_预期}<18    Set Suite Variable    ${S_物流费}    ${1}
+    ...    ELSE    Set Suite Variable    ${S_物流费}    ${0}
+    ${订单金额_预期}    evaluate    ${商品金额_预期}+${S_物流费}
+    ${实付金额_预期}    evaluate    ${物流费判断金额_预期}+${S_物流费}
+    Run Keyword If    ${实付金额_预期}<1    Set Suite Variable    ${实付金额_预期}    ${1}
+    Set Suite Variable    ${S_订单金额_预期}    ${订单金额_预期}
+    Set Suite Variable    ${S_实付金额_预期}    ${实付金额_预期}
+    Set Suite Variable    ${S_商品金额_预期}    ${商品金额_预期}
+
+K_验证_单商品下单订单金额计算_多商品
+    [Arguments]    ${A_折扣金额}=0    ${A_红包优惠金额}=0    ${A_VIP优惠金额}=0
+    ${dictionary}    sql_查询订单商品信息    ${S_order_id}
+    ${商品金额_预期}    get from dictionary    ${dictionary}    goods_amount
+    ${商品售价_预期}    get from dictionary    ${dictionary}    goods_real_amount
+    ${物流费判断金额_预期}    evaluate    ${商品金额_预期}-${A_折扣金额}-${A_红包优惠金额}
+    Run Keyword If    ${物流费判断金额_预期}<18    Set Suite Variable    ${S_物流费}    ${1}
+    ...    ELSE    Set Suite Variable    ${S_物流费}    ${0}
+    ${订单金额_预期}    evaluate    ${商品金额_预期}+${S_物流费}
+    ${实付金额_预期}    evaluate    ${物流费判断金额_预期}+${S_物流费}
+    Run Keyword If    ${实付金额_预期}<1    Set Suite Variable    ${实付金额_预期}    ${1}
+    Set Suite Variable    ${S_订单金额_预期}    ${订单金额_预期}
+    Set Suite Variable    ${S_实付金额_预期}    ${实付金额_预期}
+    Set Suite Variable    ${S_商品金额_预期}    ${商品金额_预期}
+    Set Suite Variable    ${S_商品售价_预期}    ${商品售价_预期}
+
+
+K_验证_单商品下单订单金额计算_满赠
+    [Arguments]    ${A_goodsNum}    ${A_折扣金额}=0    ${A_红包优惠金额}=0    ${A_VIP优惠金额}=0
+    ${商品金额_预期}    evaluate    float(${A_goodsNum})*float(${S_sale_price})+float(${S_free_sale_price})
+    ${物流费判断金额_预期}    evaluate    ${商品金额_预期}-${A_折扣金额}-${A_红包优惠金额}
+    Run Keyword If    ${物流费判断金额_预期}<18    Set Suite Variable    ${S_物流费}    ${1}
+    ...    ELSE    Set Suite Variable    ${S_物流费}    ${0}
+    ${订单金额_预期}    evaluate    ${商品金额_预期}+${S_物流费}
+    ${实付金额_预期}    evaluate    ${物流费判断金额_预期}+${S_物流费}
+    Set Suite Variable    ${S_订单金额_预期}    ${订单金额_预期}
+    Set Suite Variable    ${S_实付金额_预期}    ${实付金额_预期}
+    Set Suite Variable    ${S_商品金额_预期}    ${商品金额_预期}
+
+
+
+K_验证_下单后_订单表优惠金额验证
+    [Arguments]    ${A_折扣金额}=0    ${A_红包优惠金额}=0    ${A_VIP优惠金额}=0
+    ${dictionary}    sql_查询订单时间信息    ${S_order_id}
+    ${orderAmount}    get from dictionary    ${dictionary}    order_amount
+    ${realAmount}    get from dictionary    ${dictionary}    real_amount
+    ${goods_sale_amount}    get from dictionary    ${dictionary}    goods_sale_amount
+    ${goods_real_amount}    get from dictionary    ${dictionary}    goods_real_amount
+    ${vip_goods_discount}    get from dictionary    ${dictionary}    vip_goods_discount
+    ${material_discount}    get from dictionary    ${dictionary}    material_discount
+    ${promotion_discount}    get from dictionary    ${dictionary}    promotion_discount
+    Set Suite Variable    ${S_goods_sale_amount}    ${goods_sale_amount}
+    should be equal as numbers    ${S_订单金额_预期}    ${orderAmount}
+    should be equal as numbers    ${S_实付金额_预期}    ${realAmount}
+    should be equal as numbers    ${S_商品金额_预期}    ${goods_sale_amount}
+    # 2017-05-24 不再关注 goods_real_amount 的值 开发不再维护
+    # should be equal as numbers    ${S_商品售价_预期}    ${goods_real_amount}
+    should be equal as numbers    ${vip_goods_discount}    ${A_VIP优惠金额}
+    should be equal as numbers    ${material_discount}    ${A_红包优惠金额}
+    should be equal as numbers    ${promotion_discount}    ${A_折扣金额}
+
+K_验证_下单后_8dol_order金额验证
+    #便利店 促销工具
+    ${dictionary}    sql_查询订单时间信息    ${S_order_id}
+    ${orderAmount}    get from dictionary    ${dictionary}    order_amount
+    ${realAmount}    get from dictionary    ${dictionary}    real_amount
+    ${goods_sale_amount}    get from dictionary    ${dictionary}    goods_sale_amount
+    ${goods_real_amount}    get from dictionary    ${dictionary}    goods_real_amount
+    ${vip_goods_discount}    get from dictionary    ${dictionary}    vip_goods_discount
+    ${material_discount}    get from dictionary    ${dictionary}    material_discount
+    ${promotion_discount}    get from dictionary    ${dictionary}    promotion_discount
+    should be equal as numbers    ${orderAmount}    ${S_订单金额_预期}
+    should be equal as numbers    ${realAmount}    ${S_订单实付_预期}
+    should be equal as numbers    ${goods_sale_amount}    ${S_商品金额_预期}
+    # 2017-05-24 不再关注 goods_real_amount 的值 开发不再维护
+    # should be equal as numbers    ${S_商品售价_预期}    ${goods_real_amount}
+    should be equal as numbers    ${material_discount}    ${S_红包折扣_预期}
+    should be equal as numbers    ${promotion_discount}    ${S_活动折扣_预期}
+
+K_验证_订单活动关联信息
+    [Arguments]    ${A_type}
+    ${A_折扣金额}    Set Variable    ${S_折扣金额}
+    K_验证_订单活动关联信息_满赠    ${A_type}    ${A_折扣金额}
+
+K_验证_订单活动关联信息_满赠
+    #折扣金额为满赠商品的售价*数量
+    [Arguments]    ${A_type}    ${A_折扣金额}    ${A_t_promotion_id}=${S_t_promotion_id}
+    ${dictionary}    sql_查询订单活动关联信息    ${S_order_id}    ${A_t_promotion_id}
+    ${promotion_id}    get from dictionary    ${dictionary}    promotion_id
+    ${type}    get from dictionary    ${dictionary}    type
+    ${sum_price}    get from dictionary    ${dictionary}    sum_price
+    ${discount_price}    get from dictionary    ${dictionary}    discount_price
+    should be equal as numbers    ${promotion_id}    ${A_t_promotion_id}
+    should be equal as numbers    ${type}    ${A_type}
+    should be equal as numbers    ${sum_price}    ${S_goods_sale_amount}
+    should be equal as numbers    ${discount_price}    ${A_折扣金额}
+    should be equal as numbers    1    1
+
+K_验证_订单活动关联信息_促销工具
+    #折扣金额为满赠商品的售价*数量
+    [Arguments]    ${A_关联商品总金额}    ${A_优惠金额}    ${A_type}    ${A_t_promotion_id}
+    ${dictionary}    sql_查询订单活动关联信息    ${S_order_id}    ${A_t_promotion_id}
+    ${promotion_id}    get from dictionary    ${dictionary}    promotion_id
+    ${type}    get from dictionary    ${dictionary}    type
+    ${sum_price}    get from dictionary    ${dictionary}    sum_price
+    ${discount_price}    get from dictionary    ${dictionary}    discount_price
+    should be equal as numbers    ${promotion_id}    ${A_t_promotion_id}
+    should be equal as numbers    ${type}    ${A_type}
+    should be equal as numbers    ${sum_price}    ${A_关联商品总金额}
+    should be equal as numbers    ${discount_price}    ${A_优惠金额}
+
+
+K_验证_订单活动关联信息_仅满赠
+    #折扣金额为满赠商品的售价*数量
+    [Arguments]    ${A_满赠普通商品总金额}    ${A_满赠金额}    ${A_type}=9    ${A_t_promotion_id}=${S_t_promotion_id}
+    ${dictionary}    sql_查询订单活动关联信息    ${S_order_id}    ${A_t_promotion_id}
+    ${promotion_id}    get from dictionary    ${dictionary}    promotion_id
+    ${type}    get from dictionary    ${dictionary}    type
+    ${sum_price}    get from dictionary    ${dictionary}    sum_price
+    ${discount_price}    get from dictionary    ${dictionary}    discount_price
+    should be equal as numbers    ${promotion_id}    ${A_t_promotion_id}
+    should be equal as numbers    ${type}    ${A_type}
+    should be equal as numbers    ${sum_price}    ${A_满赠普通商品总金额}
+    should be equal as numbers    ${discount_price}    ${A_满赠金额}
+
+K_验证_订单活动关联信息_套餐
+    [Arguments]    ${A_套餐id}   ${A_套餐商品原价}    ${A_套餐商品优惠金额}    ${A_quantity}=1
+    ${dictionary}    sql_查询订单活动关联信息    ${S_order_id}    ${A_套餐id}
+    ${order_promotion_id}    get from dictionary    ${dictionary}    id
+    ${promotion_id}    get from dictionary    ${dictionary}    promotion_id
+    ${quantity}    get from dictionary    ${dictionary}    quantity
+    ${type}    get from dictionary    ${dictionary}    type
+    ${sum_price}    get from dictionary    ${dictionary}    sum_price
+    ${discount_price}    get from dictionary    ${dictionary}    discount_price
+    should be equal as numbers    ${quantity}    ${A_quantity}
+    should be equal as numbers    ${type}    140
+    should be equal as numbers    ${sum_price}    ${A_套餐商品原价}
+    should be equal as numbers    ${discount_price}    ${A_套餐商品优惠金额}
+    Set Suite Variable    ${S_order_promotion_id}    ${order_promotion_id}
+
+K_验证_订单活动关联信息_仅红包
+    #折扣金额为满赠商品的售价*数量
+    [Arguments]    ${A_sum_price}    ${A_折扣金额}    ${A_t_promotion_id}=${S_materialId}
+    ${dictionary}    sql_查询订单活动关联信息    ${S_order_id}    ${A_t_promotion_id}
+    ${promotion_id}    get from dictionary    ${dictionary}    promotion_id
+    ${type}    get from dictionary    ${dictionary}    type
+    ${sum_price}    get from dictionary    ${dictionary}    sum_price
+    ${discount_price}    get from dictionary    ${dictionary}    discount_price
+    ${promotion_type}    get from dictionary    ${dictionary}    promotion_type
+    should be equal as numbers    ${promotion_id}    ${A_t_promotion_id}
+    should be equal as numbers    ${type}    -1
+    should be equal as numbers    ${sum_price}    ${A_sum_price}
+    should be equal as numbers    ${discount_price}    ${A_折扣金额}
+    should be equal as numbers    ${promotion_type}    2
+
+K_验证_订单活动关联信息_红包
+    #折扣金额为满赠商品的售价*数量
+    [Arguments]    ${A_type}    ${A_折扣金额}    ${A_t_promotion_id}=${S_t_promotion_id}
+    ${dictionary}    sql_查询订单活动关联信息    ${S_order_id}    ${A_t_promotion_id}
+    ${promotion_id}    get from dictionary    ${dictionary}    promotion_id
+    ${type}    get from dictionary    ${dictionary}    type
+    ${sum_price}    get from dictionary    ${dictionary}    sum_price
+    ${discount_price}    get from dictionary    ${dictionary}    discount_price
+    ${promotion_type}    get from dictionary    ${dictionary}    promotion_type
+    should be equal as numbers    ${promotion_id}    ${A_t_promotion_id}
+    should be equal as numbers    ${type}    ${A_type}
+    should be equal as numbers    ${sum_price}    ${S_goods_sale_amount}
+    should be equal as numbers    ${discount_price}    ${A_折扣金额}
+    should be equal as numbers    ${promotion_type}    2
+
+K_验证_订单活动关联信息_运费券
+    [Arguments]    ${A_物流费}    ${A_user_material_id}    ${A_type}=-3
+    ${dictionary}    sql_查询订单活动关联信息    ${S_order_id}    ${A_user_material_id}
+    ${promotion_id}    get from dictionary    ${dictionary}    promotion_id
+    ${type}    get from dictionary    ${dictionary}    type
+    ${sum_price}    get from dictionary    ${dictionary}    sum_price
+    ${discount_price}    get from dictionary    ${dictionary}    discount_price
+    ${promotion_type}    get from dictionary    ${dictionary}    promotion_type
+    should be equal as numbers    ${promotion_id}    ${A_user_material_id}
+    should be equal as numbers    ${type}    ${A_type}
+    should be equal as numbers    ${sum_price}    ${A_物流费}
+    should be equal as numbers    ${discount_price}    ${A_物流费}
+    should be equal as numbers    ${promotion_type}    2
+
+K_验证_订单活动关联信息_爆款
+    #折扣金额为满赠商品的售价*数量
+    [Arguments]    ${A_type}    ${A_爆款商品原价}    ${A_t_promotion_id}=${S_t_promotion_id}
+    ${dictionary}    sql_查询订单活动关联信息    ${S_order_id}    ${A_t_promotion_id}
+    ${promotion_id}    get from dictionary    ${dictionary}    promotion_id
+    ${type}    get from dictionary    ${dictionary}    type
+    ${sum_price}    get from dictionary    ${dictionary}    sum_price
+    ${discount_price}    get from dictionary    ${dictionary}    discount_price
+    should be equal as numbers    ${promotion_id}    ${A_t_promotion_id}
+    should be equal as numbers    ${type}    ${A_type}
+    should be equal as numbers    ${sum_price}    ${A_爆款商品原价}
+    should be equal as numbers    ${discount_price}    ${S_折扣金额}
+    should be equal as numbers    1    1
+
+K_验证_订单商品活动关联信息
+    [Arguments]    ${A_material_id}    ${A_goodsNum}    ${A_goods_type}
+    ${goods_extend_id}    Set Variable    ${S_goods_extend_id}
+    ${A_sale_price}    Set Variable    ${S_sale_price}
+    ${A_折扣金额}    Set Variable    ${S_折扣金额}
+    K_验证_订单商品活动关联信息_赠品    ${goods_extend_id}    ${A_material_id}    ${A_goodsNum}    ${A_goods_type}    ${A_折扣金额}   ${A_sale_price}
+
+K_验证_订单商品活动关联信息_赠品
+    [Arguments]    ${A_goods_extend_id}    ${A_material_id}    ${A_goodsNum}    ${A_goods_type}    ${A_折扣金额}=${S_折扣金额}    ${A_sale_price}=${S_free_sale_price}
+    ${dictionary}    sql_查询订单商品活动关联信息    ${S_order_id}    ${A_goods_extend_id}    ${A_goods_type}
+    ${material_id}    get from dictionary    ${dictionary}    material_id
+    ${goods_price}    get from dictionary    ${dictionary}    goods_price
+    ${discount_price}    get from dictionary    ${dictionary}    discount_price
+    ${goods_nums}    get from dictionary    ${dictionary}    goods_nums
+    ${cost_price}    get from dictionary    ${dictionary}    cost_price
+    should be equal as numbers    ${material_id}    ${A_material_id}
+    should be equal as numbers    ${goods_price}    ${A_sale_price}
+    should be equal as numbers    ${goods_nums}    ${A_goodsNum}
+    # should be equal as numbers    ${discount_price}    ${A_折扣金额}
+    # should be equal as numbers    ${cost_price}
+    should be equal as numbers    1    1
+
+K_验证_订单商品活动关联信息_活动商品
+    [Arguments]    ${A_goods_extend_id}    ${A_goodsNum}   ${A_goods_type}    ${A_sale_price}    ${A_活动优惠金额}
+    ${dictionary}    sql_查询订单商品活动关联信息    ${S_order_id}    ${A_goods_extend_id}    ${A_goods_type}
+    ${material_id}    get from dictionary    ${dictionary}    material_id
+    ${goods_price}    get from dictionary    ${dictionary}    goods_price
+    ${discount_price}    get from dictionary    ${dictionary}    discount_price
+    ${goods_nums}    get from dictionary    ${dictionary}    goods_nums
+    ${cost_price}    get from dictionary    ${dictionary}    cost_price
+    should be equal as numbers    ${material_id}    0
+    should be equal as numbers    ${goods_price}    ${A_sale_price}
+    should be equal as numbers    ${goods_nums}    ${A_goodsNum}
+    should be equal as numbers    ${discount_price}    ${A_活动优惠金额}
+
+K_验证_订单商品活动关联信息_仅红包
+    [Arguments]    ${A_goods_extend_id}    ${A_goodsNum}   ${A_sale_price}
+    ${dictionary}    sql_查询订单商品活动关联信息    ${S_order_id}    ${A_goods_extend_id}    0
+    ${material_id}    get from dictionary    ${dictionary}    material_id
+    ${goods_price}    get from dictionary    ${dictionary}    goods_price
+    ${discount_price}    get from dictionary    ${dictionary}    discount_price
+    ${goods_nums}    get from dictionary    ${dictionary}    goods_nums
+    ${cost_price}    get from dictionary    ${dictionary}    cost_price
+    should be equal as numbers    ${material_id}    ${S_materialId}
+    should be equal as numbers    ${goods_price}    ${A_sale_price}
+    should be equal as numbers    ${goods_nums}    ${A_goodsNum}
+    should be equal as numbers    ${discount_price}    ${S_红包优惠金额}
+
+K_验证_订单商品活动关联信息_仅赠品
+    [Arguments]    ${A_goods_extend_id}    ${A_goodsNum}    ${A_满赠金额}=${S_free_sale_price}    ${A_sale_price}=${S_free_sale_price}
+    ${dictionary}    sql_查询订单商品活动关联信息    ${S_order_id}    ${A_goods_extend_id}    2
+    ${material_id}    get from dictionary    ${dictionary}    material_id
+    ${goods_price}    get from dictionary    ${dictionary}    goods_price
+    ${discount_price}    get from dictionary    ${dictionary}    discount_price
+    ${goods_nums}    get from dictionary    ${dictionary}    goods_nums
+    ${cost_price}    get from dictionary    ${dictionary}    cost_price
+    should be equal as numbers    ${material_id}    0
+    should be equal as numbers    ${goods_price}    ${A_sale_price}
+    should be equal as numbers    ${goods_nums}    ${A_goodsNum}
+    should be equal as numbers    ${discount_price}    ${A_满赠金额}
+
+K_验证_订单商品活动关联信息_套餐
+    [Arguments]    ${A_goods_extend_id}    ${A_goodsNum}    ${A_套餐单品优惠金额}    ${A_sale_price}
+    ${dictionary}    sql_查询订单商品活动关联信息    ${S_order_id}    ${A_goods_extend_id}    12
+    ${material_id}    get from dictionary    ${dictionary}    material_id
+    ${goods_price}    get from dictionary    ${dictionary}    goods_price
+    ${discount_price}    get from dictionary    ${dictionary}    discount_price
+    ${goods_nums}    get from dictionary    ${dictionary}    goods_nums
+    ${cost_price}    get from dictionary    ${dictionary}    cost_price
+    should be equal as numbers    ${material_id}    0
+    should be equal as numbers    ${goods_price}    ${A_sale_price}
+    should be equal as numbers    ${goods_nums}    ${A_goodsNum}
+    should be equal as numbers    ${discount_price}    ${A_套餐单品优惠金额}
+    # should be equal as numbers    ${cost_price}
+
+K_验证_订单商品活动关联信息_红包金额分摊
+    [Arguments]    ${A_goods_list}    ${A_material_id}    ${A_折扣金额}=${S_折扣金额}
+    ${dictionary}    sql_查询订单商品活动关联信息_红包    ${S_order_id}    ${A_goods_list}    ${A_material_id}
+    ${material_id}    get from dictionary    ${dictionary}    material_id
+    ${sumGoodsDiscount}    get from dictionary    ${dictionary}    sumGoodsDiscount
+    ${materialDiscount}    get from dictionary    ${dictionary}    materialDiscount
+    should be equal as numbers    ${material_id}    ${A_material_id}
+    should be equal as numbers    ${materialDiscount}    ${A_折扣金额}
+
+
+K_验证_订单详情_活动优惠
+    [Arguments]    ${A_折扣金额}=${S_折扣金额}
+    ${responsedata}    8dol订单_获取超市_根据ID获取订单详情    ${S_API基础信息}    ${S_order_id}    ${S_order_no}
+    ${data}    get from dictionary    ${responsedata}    data
+    ${info}    get from dictionary    ${data}    info
+    ${goodsTotalAmount}    get from dictionary    ${info}    goodsTotalAmount
+    ${goodsRealAmount}    get from dictionary    ${info}    goodsRealAmount
+    ${real_amount}    get from dictionary    ${info}    real_amount
+    ${promotionDiscount}    get from dictionary    ${info}    promotionDiscount
+    ${goodsTotalAmount}    evaluate    '${goodsTotalAmount}'.strip('￥')    #去掉字符串￥的操作
+    ${goodsRealAmount}    evaluate    '${goodsRealAmount}'.strip('￥')    #去掉字符串￥的操作
+    ${real_amount}    evaluate    '${real_amount}'.strip('￥')    #去掉字符串￥的操作
+    ${promotionDiscount}    evaluate    '${promotionDiscount}'.strip('￥')    #去掉字符串￥的操作
+    should be equal as numbers    ${goodsRealAmount}    ${S_商品金额_预期}    #页面上 用这个字段显示的总金额
+    # should be equal as numbers    ${goodsTotalAmount}    ${S_商品金额_预期}   #2017-05-24
+    should be equal as numbers    ${real_amount}    ${S_实付金额_预期}
+    should be equal as numbers    ${promotionDiscount}    ${A_折扣金额}
+
+
+K_验证成长值_完结之后_增加成长值
+    #201708   每笔订单完成即获得20成长值(订单金额大于20元，且货到付款、到店自提订单除外)
+    K_查询账户信息ByMobile_完结后
+    ${growth_value_完结后_预期}    evaluate    ${S_growth_value_下单前}+20
+    should be equal as numbers    ${S_growth_value_完结后}    ${growth_value_完结后_预期}
+
+K_验证成长值_完结之后_不增加成长值
+    #201708   每笔订单完成即获得20成长值(订单金额大于20元，且货到付款、到店自提订单除外)
+    K_查询账户信息ByMobile_完结后
+    should be equal as numbers    ${S_growth_value_完结后}    ${S_growth_value_下单前}
+

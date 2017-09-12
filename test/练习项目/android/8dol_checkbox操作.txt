@@ -1,0 +1,30 @@
+*** Settings ***
+Documentation     验证app的xpath定位
+Force Tags        lianxi    8dol
+Library           AppiumLibrary
+Library           TestLibrary
+Resource          ../../测试项目/资源_android/8dol/resource/8dol_首页.txt
+Resource          ../../测试项目/资源_android/8dol/resource/8dol_我的.txt
+Resource          ../../测试项目/资源_android/8dol/resource/8dol_我的_设置.txt
+
+*** Variables ***
+${REMOTE_URL}     http://localhost:4723/wd/hub
+${8dol_appPackage}    com.ndol.sale.starter
+${8zai_appPackage}    com.ndol.logistics.starter
+${cloud_appPackage}    com.ndol.b2b.cloud
+${ye8_appPackage}    com.ndol.b2b.starter
+${platformName}    Android
+${platformVersion}    4.4.4    #测试手机的Android版本
+#${deviceName}    482ede3a    #测试手机的设备名，CMD中使用 （ adb devices ）查看
+${deviceName}     1L521W018328    #红米2A手机，黑面板的！
+#${deviceName}    3dec908a    #小米手机，白面板的！
+
+*** Test Cases ***
+8dol_设置_一键快购_勾选余额支付
+    [Documentation]    练习勾选框的操作及勾选框当前状态；
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    appPackage=${8dol_appPackage}    appActivity=${8dol_appActivity_main_tab}
+    Click Element    id=${首页id}
+    Click Element    id=${我的id}
+    Click Element    id=${设置id}
+    Click Element    id=${一键快购设置id}
+    get elements    id=${一键快购设置_勾选余额支付id}    first_element_only=False

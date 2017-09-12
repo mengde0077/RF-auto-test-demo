@@ -1,0 +1,349 @@
+*** Settings ***
+Documentation     前置条件：
+...               1.记录 流程性的 关键字
+...               3.在直营校园店下单
+...
+
+Resource          ../../../资源_API/API资源.txt
+Resource          ../../../资源_公共/数据操作资源.txt
+Resource          ../../../资源_API/API常量.txt
+Resource          ../../../资源_公共/公共资源.txt
+Library           Collections
+
+*** Variables ***
+${S_deviceNo}    ${P_deviceNo}
+# ${S_goodsStr}
+# ${S_orgId}
+${S_comment}    stockChange
+# ${S_直仓直营测试办公区店长_基础信息}
+# ${S_直仓测试城市经理_基础信息}
+
+
+*** Keywords ***
+K_8dol用户登录_获取学校信息
+    K_普通用户登录
+    K_8dol选择学校_获取学校信息_byName
+
+K_白8下单_场景初始化_用户B2C登录
+    K_普通用户登录
+    K_8dol选择学校_获取学校信息_byName
+    K_获取当前日期当前时间
+    #8dol数据库中修改我的余额
+    ${accountId}    sql_查询用户账户信息ByMobile    ${S_8天用户名}
+    Set Suite Variable    ${S_accountId}    ${accountId[0][0]}
+    sql_修改用户余额为    1000    ${S_accountId}
+    K_初始化_查询超市商品信息_byNameAndOrgId
+    K_微仓调整单调整微仓库存
+    #确保有一个默认地址
+    K_默认地址_如果不存在_则创建
+
+K_白8下单_场景初始化_用户B2C登录并做8仔
+    ### 入参 ：${S_8天用户名}    ${S_8天用户登录密码}    ${S_学校名称}    ${S_goodsName}    ${S_店长用户名}    ${S_云店用户密码password}    ${S_测试城市经理userName}
+    K_白8下单_场景初始化_用户B2C登录
+    #店长作为8仔登录
+    ${dictionary}    8dol用户登录_ByLoginNameAndPassword    ${S_8天用户名}    ${S_8天用户登录密码}
+    ${8仔_API基础信息}    get from dictionary    ${dictionary}    API基础信息
+    ${user_id}    get from dictionary    ${dictionary}    user_id
+    Set Suite Variable    ${S_8仔_API基础信息}    ${8仔_API基础信息}
+    Set Suite Variable    ${S_wlyIds}    ${user_id}
+
+K_白8下单_场景初始化_用户_店长_店长B2C登录
+    K_白8下单_场景初始化_用户B2C登录
+    #店长作为8仔登录
+    ${dictionary}    8dol用户登录_ByLoginNameAndPassword    ${S_店长_mobile}    ${S_8天用户登录密码password}
+    ${8仔_API基础信息}    get from dictionary    ${dictionary}    API基础信息
+    Set Suite Variable    ${S_8仔_API基础信息}    ${8仔_API基础信息}
+    K_YD_店长用户登录
+
+
+
+K_白8下单_场景初始化_时间日期_学校_用户登录并做8仔_超市商品信息
+    K_获取当前日期当前时间
+    K_8dol选择学校_获取学校信息_byName
+    K_初始化_查询超市商品信息_byNameAndOrgId
+    K_普通用户登录并做8仔
+    K_默认地址_如果不存在_则创建
+
+K_白8下单_场景初始化_清redis_时间日期_学校_用户登录_超市商品信息
+    清除redis_db缓存    ${S_redis_host}
+    K_白8下单_场景初始化_时间日期_学校_用户登录并做8仔_超市商品信息
+
+K_白8下单_场景初始化_时间日期_学校_用户登录_超市商品信息_超级会员价
+    K_获取当前日期当前时间
+    K_8dol选择学校_获取学校信息_byName
+    K_初始化_查询超市商品信息_byNameAndOrgId
+    sql_修改超市商品超级会员价_byGoodsExtendId    ${S_goods_extend_id}
+    K_普通用户登录
+    K_8仔用户登录
+    K_YD_店长用户登录
+    K_默认地址_如果不存在_则创建
+
+K_白8下单_场景初始化_时间日期_学校_用户登录并做8仔_店长登录并排班
+    K_获取当前日期当前时间
+    K_获取起始时间和结束时间
+    K_8dol选择学校_获取学校信息_byName
+    K_普通用户登录并做8仔
+    #设置用户余额并查看是否设置正确
+    ${account_id}    sql_查询用户账户信息ByMobile    ${S_8天用户名}
+    Set Suite Variable    ${S_用户account_id}    ${account_id[0][0]}
+    sql_设置用户初始余额_工资_佣金    ${S_用户account_id}    ${S_下单前余额}
+    ${balance}    sql_查询用户账户余额信息ByAccountId    ${S_用户account_id}
+    should be equal as numbers    ${S_下单前余额}    ${balance[0][0]}
+    log    ${balance[0][0]}
+    K_默认地址_如果不存在_则创建
+    K_场景初始化_店长登录_进行物流员排班
+
+K_白8下单_初始化_设置多商品库存_返回S_goodsSalePriceList及S_goodsInfos
+    #云店app端查询所购商品信息
+    ${S_goodsExtendIdList}    sql_微仓多个商品查询_byName    ${S_org_id}    ${S_goodsNameList}
+    Set Suite Variable    ${S_goodsExtendIdList}
+    #查询微仓商品售价bygoodsExtendId
+    ${S_goodsSalePriceList}    查询微仓商品售价bygoodsExtendId    ${S_goodsExtendIdList}    ${S_org_id}
+    Set Suite Variable    ${S_goodsSalePriceList}
+    #设置所购商品库存并检查是否设置正确
+    设置并查看超市商品库存    ${S_商品微仓库存}    ${S_goodsExtendIdList}
+    #8dol获取用户所购商品信息
+    ${S_goodsInfos}    8dol_获取用户所购商品信息    ${S_goodsExtendIdList}    ${S_goodsNumbList}
+    Set Suite Variable    ${S_goodsInfos}
+
+K_场景初始化_店长登录_进行物流员排班
+    K_YD_店长用户登录
+    #yundian_获取物流员信息
+    ${wly_info}    YDapp_人事_物流员排班管理_获取物流员信息    ${S_YD_API基础信息}    ${S_wlyIds}
+    Set Suite Variable    ${S_wly_info}    ${wly_info}
+    #yundian_根据当前时间获取排班排次
+    ${S_schedule_info}    YDapp_根据当前时间获取排班班次_自动获取班次和时间    ${S_org_id}
+    Set Suite Variable    ${S_schedule_info}
+    #yundian_云店店长_添加排班
+    YDapp_人事_物流员排班管理_添加排班    ${S_YD_API基础信息}    ${S_wly_info}    ${S_schedule_info}
+
+K_获取当前日期当前时间
+    ${当天日期}    获取当前日期
+    Set Suite Variable    ${S_当天日期}    ${当天日期}
+    ${当前时间}    获取当前时间
+    Set Suite Variable    ${S_当前时间}    ${当前时间}
+
+K_获取起始时间和结束时间
+    ${startTime}    获取startTime
+    ${endTime}    获取endTime
+    Set Suite Variable    ${S_startTime}    ${startTime}
+    Set Suite Variable    ${S_endTime}    ${endTime}
+
+K_8dol选择学校_获取学校信息_byName
+    ${dictionary}    sql_查询云店学校信息_bySchoolName    ${S_学校名称}
+    ${area_id}    get from dictionary    ${dictionary}    area_id
+    ${org_id}    get from dictionary    ${dictionary}    org_id
+    ${admin_id}    get from dictionary    ${dictionary}    admin_id
+    Set Suite Variable    ${S_area_id}    ${area_id}
+    Set Suite Variable    ${S_org_id}    ${org_id}
+    Set Suite Variable    ${S_admin_id}    ${admin_id}
+
+K_初始化单商品_修改余额_修改商品库存_售价
+    ${dictionary}    sql_查询超市商品信息_byNameAndOrgId    ${S_goodsName}    ${S_org_id}
+    ${goods_id}    get from dictionary    ${dictionary}    goods_id
+    ${goods_extend_id}    get from dictionary    ${dictionary}    goods_extend_id
+    ${origin_goods_id}    get from dictionary    ${dictionary}    origin_goods_id
+    ${stock}    get from dictionary    ${dictionary}    stock
+    Set Suite Variable    ${S_goods_extend_id}    ${goods_extend_id}
+    Set Suite Variable    ${S_origin_goods_id}    ${origin_goods_id}
+    #8dol数据库中修改我的余额
+    sql_修改用户余额为ByMobile    1000    ${S_8天用户名}
+    #sql_修改超市商品salePrice为
+    sql_修改超市商品salePrice为    ${S_sale_price}    ${S_goods_extend_id}
+    #8dol数据库中修改超市商品库存
+    K_修改超市商品库存    ${S_goods_extend_id}    ${S_origin_goods_id}
+    Set Suite Variable    ${S_stock_下单前}    ${S_stock}
+
+K_普通用户登录
+    ${dictionary2}    8dol用户登录_ByLoginNameAndPassword    ${S_8天用户名}    ${S_8天用户登录密码}
+    ${API基础信息}    get from dictionary    ${dictionary2}    API基础信息_new
+    ${API基础信息_new}    get from dictionary    ${dictionary2}    API基础信息_new
+    ${API基础信息_wx}    get from dictionary    ${dictionary2}    API基础信息_wx
+    ${API基础信息_4}    get from dictionary    ${dictionary2}    API基础信息_4
+    ${user_id}    get from dictionary    ${dictionary2}    user_id
+    ${user_no}    get from dictionary    ${dictionary2}    user_no
+    Set Suite Variable    ${S_API基础信息}    ${API基础信息}
+    Set Suite Variable    ${S_API基础信息_new}    ${API基础信息_new}
+    Set Suite Variable    ${S_API基础信息_wx}    ${API基础信息_wx}
+    Set Suite Variable    ${S_API基础信息_4}    ${API基础信息_4}
+    Set Suite Variable    ${S_user_id}    ${user_id}
+    Set Suite Variable    ${S_user_no}    ${user_no}
+
+K_8仔用户登录
+    ${dictionary}    8dol用户登录_ByLoginNameAndPassword    ${S_8仔用户名}    ${S_8仔用户登录密码}
+    ${8仔_API基础信息}    get from dictionary    ${dictionary}    API基础信息_new
+    ${user_id}    get from dictionary    ${dictionary}    user_id
+    Set Suite Variable    ${S_8仔_API基础信息}    ${8仔_API基础信息}
+    Set Suite Variable    ${S_wlyIds}    ${user_id}
+
+K_普通用户登录并做8仔
+    ${dictionary}    8dol用户登录_ByLoginNameAndPassword    ${S_8天用户名}    ${S_8天用户登录密码}
+    ${API基础信息}    get from dictionary    ${dictionary}    API基础信息_new
+    ${user_id}    get from dictionary    ${dictionary}    user_id
+    Set Suite Variable    ${S_API基础信息}    ${API基础信息}
+    Set Suite Variable    ${S_8仔_API基础信息}    ${API基础信息}
+    Set Suite Variable    ${S_user_id}    ${user_id}
+    Set Suite Variable    ${S_wlyIds}    ${user_id}
+
+K_初始化_查询超市商品信息_byNameAndOrgId
+    ${dictionary1}    sql_查询超市商品信息_byNameAndOrgId   ${S_goodsName}    ${S_org_id}
+    ${goods_id}    get from dictionary    ${dictionary1}    goods_id
+    ${goods_extend_id}    get from dictionary    ${dictionary1}    goods_extend_id
+    ${origin_goods_id}    get from dictionary    ${dictionary1}    origin_goods_id
+    ${sale_price}    get from dictionary    ${dictionary1}    sale_price
+    ${member_price}    get from dictionary    ${dictionary1}    member_price
+    ${basic_goods_id}    get from dictionary    ${dictionary1}    basic_goods_id
+    ${category1}    get from dictionary    ${dictionary1}    category1
+    ${stock}    get from dictionary    ${dictionary1}    stock
+    Set Suite Variable    ${S_goods_extend_id}    ${goods_extend_id}
+    Set Suite Variable    ${S_goodsExtendId}    ${goods_extend_id}
+    Set Suite Variable    ${S_goodsInfors}    ${S_goodsExtendId}:${S_stock}
+    Set Suite Variable    ${S_goods_id}    ${goods_id}
+    Set Suite Variable    ${S_sale_price}    ${sale_price}
+    Set Suite Variable    ${S_member_price}    ${member_price}
+    #用于 购物车中的 goods_id
+    Set Suite Variable    ${S_origin_goods_id}    ${origin_goods_id}
+    Set Suite Variable    ${S_goodsInfos}    ${S_goods_extend_id}:${S_goodsNum}
+    Set Suite Variable    ${S_basic_goods_id}    ${basic_goods_id}
+    Set Suite Variable    ${S_category1}    ${category1}
+    Set Suite Variable    ${S_beforeStock}    ${stock}
+
+K_YD_店长用户登录
+    ${dictionary}    YD_用户登录    ${S_店长用户名}    ${S_云店用户密码password}
+    ${YD_API基础信息}    get from dictionary    ${dictionary}    YD_API基础信息
+    ${YD_API基础信息_noOrgId}    get from dictionary    ${dictionary}    YD_API基础信息_noOrgId
+    ${YD_API基础信息_offline}    get from dictionary    ${dictionary}    YD_API基础信息_offline
+    ${DZ_userId}    get from dictionary    ${dictionary}    userId
+    Set Suite Variable    ${S_YD_API基础信息}    ${YD_API基础信息}
+    Set Suite Variable    ${S_YD_API基础信息_noOrgId}    ${YD_API基础信息_noOrgId}
+    Set Suite Variable    ${S_YD_API基础信息_offline}    ${YD_API基础信息_offline}
+    Set Suite Variable    ${S_pickingMember}    ${DZ_userId}
+
+K_微仓调整单调整微仓库存
+    ${dictionary3}    YDPC_用户登录    ${S_店长用户名}    ${S_云店用户密码password}
+    ${API基础信息_店长}    get from dictionary    ${dictionary3}    YDPC_API基础信息
+    ${user_id_店长}    get from dictionary    ${dictionary3}    userId
+    Set Suite Variable    ${S_API基础信息_店长}    ${API基础信息_店长}
+    Set Suite Variable    ${S_user_id_店长}    ${user_id_店长}
+    ### 城市经理登录
+    ${dictionary4}    YDPC_用户登录    ${S_测试城市经理userName}    ${S_云店用户密码password}
+    ${API基础信息_城市经理}    get from dictionary    ${dictionary4}    YDPC_API基础信息
+    ${user_id_城市经理}    get from dictionary    ${dictionary4}    userId
+    Set Suite Variable    ${S_API基础信息_城市经理}    ${API基础信息_城市经理}
+    Set Suite Variable    ${S_user_id_城市经理}    ${user_id_城市经理}
+    ##### 微仓库存调整单，调整商品库存
+    微仓调整单调整微仓库存    ${S_deviceNo}    ${S_goodsInfors}    ${S_org_id}    ${S_comment}    ${S_API基础信息_店长}    ${S_API基础信息_城市经理}
+    ${dictionary5}    sql_查询超市商品信息_byNameAndOrgId   ${S_goodsName}    ${S_org_id}
+    ${stock}    get from dictionary    ${dictionary5}    stock
+    Set Suite Variable    ${S_afterStock}    ${stock}
+
+K_默认地址_如果不存在_则创建_new
+    #用于 3.0.1 之后的版本
+    #8dol我的_设置_一键快购_获取区域楼栋id
+    ${area_id}    8dol我的_收货地址_获取Zone二级地址    ${S_area_id}
+    Set Suite Variable    ${S_building}    ${area_id}
+    Set Suite Variable    ${S_building_area}    ${area_id}
+    ${line}    sql_查询是否存在默认地址_new    ${S_user_id}    ${S_area_id}
+    run Keyword if    ${line}==0      _流程_我的_收货地址_创建并设置为默认收货地址_new
+    run Keyword if    ${line}==0      _流程_我的_设置_获取收货地址id_new
+    run Keyword if    ${line}>=1    _流程_我的_设置_获取收货地址id_new
+
+_流程_我的_收货地址_创建并设置为默认收货地址_new
+    8dol我的_设置_收货地址_添加收货地址Zone    ${S_API基础信息}     ${S_area_id}     ${S_building}    ${S_8天用户名}
+
+_流程_我的_设置_获取收货地址id_new
+    ${address_id}    8dol我的_设置_获取收货地址Zone    ${S_API基础信息}    ${S_area_id}
+    Set Suite Variable    ${S_address_id}    ${address_id}
+
+K_默认地址_如果不存在_则创建
+    #用于 3.0.1 之前的版本  向后兼容
+    #8dol我的_设置_一键快购_获取区域楼栋id
+    @{area_list}    8dol我的_设置_一键快购_获取区域楼栋id    ${S_area_id}    ${S_area_name_区}    ${S_area_name_楼栋}
+    log    ${area_list}
+    Set Suite Variable    ${S_building_area}    ${area_list[1]}
+    Set Suite Variable    ${S_building}    ${area_list[2]}
+    ${line}    sql_查询是否存在默认地址    ${S_user_id}    ${S_area_id}
+    run Keyword if    ${line}==0      _流程_我的_收货地址_创建并设置为默认收货地址
+    run Keyword if    ${line}==0      _流程_我的_设置_获取收货地址id
+    run Keyword if    ${line}>=1    _流程_我的_设置_获取收货地址id
+
+
+_流程_我的_收货地址_创建并设置为默认收货地址
+    8dol我的_设置_收货地址_添加收货地址    ${S_API基础信息}     ${S_area_id}     ${S_building_area}     ${S_building}    ${S_8天用户名}
+
+_流程_我的_设置_获取收货地址id
+    ${line}    sql_查询是否办公区店    ${S_area_id}
+    run Keyword if    ${line}==0      _校园店_获取收货地址id
+    run Keyword if    ${line}==1    _办公区店_获取收货地址id
+
+_校园店_获取收货地址id
+    ${data}    8dol我的_设置_获取收货地址信息    ${S_API基础信息}    ${S_area_id}
+    ${data0}    Get From List    ${data}    0
+    log    ${data0}
+    ${address_id}    get from dictionary    ${data0}    id
+    ${building_area}    get from dictionary    ${data0}    area
+    ${building}    get from dictionary    ${data0}    building
+    Set Suite Variable    ${S_address_id}    ${address_id}
+    Set Suite Variable    ${S_building_area}    ${building_area}
+    Set Suite Variable    ${S_building}    ${building}
+
+_办公区店_获取收货地址id
+    #办公区店，按照区域获取地址 ，2017-1 新地址版本调整
+    ${data}    8dol我的_设置_获取收货地址信息    ${S_API基础信息}    ${S_building_area}
+    ${data0}    Get From List    ${data}    0
+    log    ${data0}
+    ${address_id}    get from dictionary    ${data0}    id
+    ${building_area}    get from dictionary    ${data0}    area
+    ${building}    get from dictionary    ${data0}    building
+    Set Suite Variable    ${S_address_id}    ${address_id}
+    Set Suite Variable    ${S_building_area}    ${building_area}
+    Set Suite Variable    ${S_building}    ${building}
+
+
+K_默认地址_如果不存在_则创建_带参数
+    #用于 3.0.1 之前的版本  向后兼容
+    #8dol我的_设置_一键快购_获取区域楼栋id
+    [Arguments]    ${area_id}    ${area_name_区}    ${area_name_楼栋}    ${user_id}    ${API基础信息}    ${8天用户名}
+    @{area_list}    8dol我的_设置_一键快购_获取区域楼栋id    ${area_id}    ${area_name_区}    ${area_name_楼栋}
+    log    ${area_list}
+    Set Suite Variable    ${S_building_area_带参数}    ${area_list[1]}
+    Set Suite Variable    ${S_building_带参数}    ${area_list[2]}
+    ${line}    sql_查询是否存在默认地址    ${user_id}    ${area_id}
+    run Keyword if    ${line}==0      _流程_我的_收货地址_创建并设置为默认收货地址_带参数    ${API基础信息}    ${area_id}    ${S_building_area_带参数}    ${S_building_带参数}    ${8天用户名}
+    run Keyword if    ${line}==0      _流程_我的_设置_获取收货地址id_带参数    ${area_id}    ${S_building_area_带参数}    ${API基础信息}
+    run Keyword if    ${line}>=1    _流程_我的_设置_获取收货地址id_带参数    ${area_id}    ${S_building_area_带参数}    ${API基础信息}
+
+_流程_我的_收货地址_创建并设置为默认收货地址_带参数
+    [Arguments]    ${API基础信息}    ${area_id}    ${building_area}    ${building}    ${8天用户名}
+    8dol我的_设置_收货地址_添加收货地址    ${API基础信息}     ${area_id}     ${building_area}     ${building}    ${8天用户名}
+
+_流程_我的_设置_获取收货地址id_带参数
+    [Arguments]    ${area_id}    ${building_area}    ${API基础信息}
+    ${line}    sql_查询是否办公区店    ${area_id}
+    run Keyword if    ${line}==0      _校园店_获取收货地址id_带参数    ${API基础信息}    ${area_id}
+    run Keyword if    ${line}==1    _办公区店_获取收货地址id_带参数    ${API基础信息}    ${building_area}
+
+_校园店_获取收货地址id_带参数
+    [Arguments]    ${API基础信息}    ${area_id}
+    ${data}    8dol我的_设置_获取收货地址信息    ${API基础信息}    ${area_id}
+    ${data0}    Get From List    ${data}    0
+    log    ${data0}
+    ${address_id}    get from dictionary    ${data0}    id
+    ${building_area}    get from dictionary    ${data0}    area
+    ${building}    get from dictionary    ${data0}    building
+    Set Suite Variable    ${S_address_id_带参数}    ${address_id}
+    Set Suite Variable    ${S_building_area_带参数}    ${building_area}
+    Set Suite Variable    ${S_building_带参数}    ${building}
+
+_办公区店_获取收货地址id_带参数
+    [Arguments]    ${API基础信息}    ${building_area}
+    #办公区店，按照区域获取地址 ，2017-1 新地址版本调整
+    ${data}    8dol我的_设置_获取收货地址信息    ${API基础信息}    ${building_area}
+    ${data0}    Get From List    ${data}    0
+    log    ${data0}
+    ${address_id}    get from dictionary    ${data0}    id
+    ${building_area}    get from dictionary    ${data0}    area
+    ${building}    get from dictionary    ${data0}    building
+    Set Suite Variable    ${S_address_id_带参数}    ${address_id}
+    Set Suite Variable    ${S_building_area_带参数}    ${building_area}
+    Set Suite Variable    ${S_building_带参数}    ${building}

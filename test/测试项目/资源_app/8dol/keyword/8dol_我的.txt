@@ -1,0 +1,153 @@
+*** Settings ***
+Documentation     项目关键字：
+...               \ \ \ \ 用于记录单个项目中的业务关键字，不涉及具体的资源；
+...               本业务关键字记录，8 天在线 B2C的Android版本的功能关键字；
+Library           AppiumLibrary
+Library           TestLibrary
+Resource          ../../公共关键字.txt
+Resource          ../../app_配置.txt
+Resource          ../resource/8dol_我的.txt
+Resource          ../resource/8dol_我的_设置.txt
+
+*** Variables ***
+
+*** Keywords ***
+获取类型关键字
+    comment    *******************************************************************************************************************
+    comment    该区域放    获取类型关键字
+    comment    需要返回值，或列表
+
+8dol_app_获取_我的昵称
+    [Documentation]    获取用户的昵称
+    ${locator}    获取_我的_昵称_locator
+    PK_等待_locator    ${locator}
+    ${value}    PK_获取文本_locator    ${locator}
+    [Return]    ${value}
+
+8dol_app_获取_我的余额
+    [Documentation]    获取用户的余额
+    ${locator}    获取_我的_余额_locator
+    PK_等待_locator    ${locator}
+    ${value}    PK_获取文本_locator    ${locator}
+    ${value}    Set Variable    ${value[1:]}   #将 ￥ 截取掉
+    [Return]    ${value}
+
+8dol_app_获取_我的佣金
+    [Documentation]    获取用户的佣金数量
+    ${locator}    获取_我的_佣金_locator
+    PK_等待_locator    ${locator}
+    ${value}    PK_获取文本_locator    ${locator}
+    ${value}    Set Variable    ${value[1:]}   #将 ￥ 截取掉
+    [Return]    ${value}
+
+8dol_app_获取_我的天金
+    [Documentation]    获取用户的天金数量
+    ${locator}    获取_我的_天金_locator
+    PK_等待_locator    ${locator}
+    ${value}    PK_获取文本_locator    ${locator}
+    [Return]    ${value}
+
+8dol_app_获取_我的校花
+    [Documentation]    获取用户的校花剩余额度
+    ${locator}    获取_我的_校花_locator
+    PK_等待_locator    ${locator}
+    ${value}    PK_获取文本_locator    ${locator}
+    ${value}    Set Variable    ${value[1:]}   #将 ￥ 截取掉
+    [Return]    ${value}
+
+# 操作类型关键字
+#     comment    *******************************************************************************************************************
+#     comment    该区域放    操作类型关键字
+#     comment    进行元素的对象的操作，点击、长按，拖拽、划屏等
+#     comment    进行换页操作，需要确认子页面的的资源是否加载
+
+8dol我的资料
+    [Documentation]    进入我的资料
+    我的资料
+    #PK_等待_id    ${首页}
+    #PK_8dol截屏    打开首页
+
+8dol我的消息中心
+    [Documentation]    进入我的消息中心
+    我的消息中心
+    #PK_等待_id    ${首页}
+    #PK_8dol截屏    打开首页
+
+8dol我的设置
+    [Documentation]    进入我的设置
+    我的设置
+    ${v}    PK_等待_id    ${一键快购设置id}
+    PK_8dol截屏    打开我的_设置
+    [Return]    ${v}
+
+8dol我的功能
+    [Arguments]    ${name}
+    [Documentation]    根据我的 "功能名称"，进入对应的功能页面，如：我要兼职，推荐有奖、我的推荐、我的Five 。。。
+    Click Element    name=${name}
+
+写入类型关键字
+    comment    *******************************************************************************************************************
+    comment    该区域放    写入类型关键字
+    comment    写入时，注意调整手机的输入法
+
+8dol_app_点击我的_余额
+    [Documentation]    点击我的余额，查看页面跳转是否正确
+    Run Keyword If    ${AP_app_type}==1    点击余额_and
+    ...    ELSE    点击余额_and
+
+8dol_app_点击我的_佣金
+    [Documentation]    点击我的佣金，查看页面跳转是否正确
+    Run Keyword If    ${AP_app_type}==1    点击佣金_and
+    ...    ELSE    点击佣金_and
+
+8dol_app_点击我的_天金
+    [Documentation]    点击我的天金，查看页面跳转是否正确
+    Run Keyword If    ${AP_app_type}==1    点击天金_and
+    ...    ELSE    点击天金_and
+
+8dol_app_点击我的_校花
+    [Documentation]    点击我的校花,查看页面跳转是否正确
+    Run Keyword If    ${AP_app_type}==1    点击校花_and
+    ...    ELSE    点击校花_and
+
+8dol_app_点击我的_消息
+    [Documentation]    点击我的消息,查看页面跳转是否正确
+    Run Keyword If    ${AP_app_type}==1    点击消息_and
+    ...    ELSE    点击消息_and
+
+8dol_app_点击我的_登录/注册
+    PK_等待并点击_name    登录/注册
+
+8dol_app_点击我的_立即登录
+    #V4.0.1 改为  立即登录
+    PK_等待并点击_name    立即登录
+
+8dol_app_点击我的_设置
+    PK_等待并点击_name    设置
+
+8dol_app_点击我的_夜8
+    PK_等待并点击_name    夜8
+
+8dol_app_点击我的_信用盒子
+    PK_等待并点击_name    信用盒子
+
+8dol_app_点击我的_赚钱
+    PK_等待并点击_name    赚钱
+
+8dol_app_点击我的_我要兼职
+    #V4.0.0 之后改名
+    PK_等待并点击_name    我要兼职
+
+8dol_app_点击我的_红包
+    PK_等待并点击_name    红包
+
+8dol_app_点击我的_粮包
+    PK_等待并点击_name    粮包
+
+8dol_app_点击我的_邀请好友
+    PK_等待并点击_name    邀请好友
+
+8dol_app_点击我的_收货地址
+    PK_等待并点击_name    收货地址
+
+

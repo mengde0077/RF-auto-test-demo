@@ -1,0 +1,14 @@
+crontab -e
+
+30 3 * * * rm -f /home/8dol/core/target/*
+30 3 * * * rm -f /home/8dol/core/core.log
+30 3 * * * rm -f /home/8dol/sale/target/*
+30 3 * * * rm -f /home/8dol/sale/sale.log
+30 3 * * * rm -f /home/8dol/pay/target/*
+30 3 * * * rm -f /home/8dol/pay/pay.log
+30 3 * * * rm -f /home/8dol/cs/target/*
+30 3 * * * rm -f /home/8dol/cs/cs.log
+30 3 * * * find /home/8dol/core/ -mtime +1 -name "core-1.16*" -exec rm -rf {} \;
+30 3 * * * find /home/8dol/sale/ -mtime +1 -name "sale-1.16*" -exec rm -rf {} \;
+30 3 * * * find /home/8dol/pay/ -mtime +1 -name "pay-1.16*" -exec rm -rf {} \;
+30 3 * * * find /home/8dol/cs/ -mtime +1 -name "cs-1.16*" -exec rm -rf {} \;

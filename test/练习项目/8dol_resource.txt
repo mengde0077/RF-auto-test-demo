@@ -1,0 +1,51 @@
+*** Settings ***
+Library           AppiumLibrary
+Library           DolLibrary
+
+*** Variables ***
+${8dol_app_path}    E:\\apk\\20151022\\    #测试包存放位置
+${8dol_appPackage}    com.ndol.sale.starter
+${8dol_appActivity_login}    .patch.ui.user.login.LoginActivity
+${8dol_appActivity_welcome}    .patch.ui.welcome.WelcomeActivity
+${8dol_appActivity_main}    .patch.ui.Main
+${8dol_appActivity_first}    .patch.ui.FirstActivity
+${8dol_image}     E:\\auto\\robot\\image\\8dol
+
+*** Keywords ***
+app install
+    [Arguments]    ${app_name}
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    app=${8dol_app_path}${app_name}    appPackage=${8dol_appPackage}
+    ...    appActivity=${8dol_appActivity_login}    unicodeKeyboard=True    resetKeyboard=True
+
+app open
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    appPackage=${8dol_appPackage}    appActivity=${8dol_appActivity_login}
+    Wait Until Keyword Succeeds    2min    5sec    Page Should Contain Element    id=com.ndol.sale.starter:id/edt_account
+
+user login
+    [Arguments]    ${contact_name}    ${contact_password}
+    Open Application    ${REMOTE_URL}    platformName=${platformName}    platformVersion=${platformVersion}    deviceName=${deviceName}    appPackage=${8dol_appPackage}    appActivity=${8dol_appActivity_login}
+    Wait Until Keyword Succeeds    2min    5sec    Page Should Contain Element    id=com.ndol.sale.starter:id/edt_account
+    Capture Page Screenshot    ${8dol_image}\\${date}\\8dol_login1.png
+    Input Text    id=com.ndol.sale.starter:id/edt_account    ${contact_name}
+    #Input PassWord    id=com.ndol.sale.starter:id/edt_password    ${contact_password}    #不能讲密码输入密码框
+    #Input Text    id=com.ndol.sale.starter:id/edt_password    ${contact_password}
+    Click Element    id=com.ndol.sale.starter:id/togbtn_show_pwd    #先点击一下显示明文密码，便于截图
+    Click Element    id=com.ndol.sale.starter:id/edt_password    #先点击一下密码框，改变光标位置
+    Input PassWord    id=com.ndol.sale.starter:id/edt_password    ${contact_password}
+    #Dol Pass Word
+    #Press Keycode    8
+    #Press Keycode    KEYCODE_2
+    Capture Page Screenshot    ${8dol_image}\\${date}\\8dol_login2.png
+    Click Element    id=com.ndol.sale.starter:id/btn_login
+    Capture Page Screenshot    ${8dol_image}\\${date}\\8dol_login3.png
+
+to_register
+    #快速注册
+    app open    #打开app到登录页面
+    Click Element    id=com.ndol.sale.starter:id/to_register_txt    #点击登录页面的快速注册
+    Capture Page Screenshot    ${8dol_image}\\${date}\\8dol_to_register1.png
+    Click Element    id=com.ndol.sale.starter:id/tv_register_agree    #点击查看 8天在线用户协议
+    Capture Page Screenshot    ${8dol_image}\\${date}\\8dol_to_register2.png
+
+CloseApp
+    Close Application

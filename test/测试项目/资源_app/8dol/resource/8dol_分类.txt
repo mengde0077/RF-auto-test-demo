@@ -1,0 +1,259 @@
+*** Settings ***
+Documentation     项目子资源：
+...               \ \ \ \ 用于记录单个项目中的单个activity的子资源，资源的内容随项目的升级而变化；
+...
+...               1.记录对应项目的，功能页面及功能页面包含的元素对象；
+...               2.记录项目中可复用的资源关键字；
+...
+...
+...               本资源记录，8 天在线 B2C的Android版本的资源；
+Library           AppiumLibrary
+Library           TestLibrary
+
+*** Variables ***
+${分类_搜索_提示_and}     //*[@resource-id="com.ndol.sale.starter:id/tv_title_freight_info"]
+${分类_搜索_搜索入口_and}     //*[@resource-id="com.ndol.sale.starter:id/btn_search"]
+${分类_搜索_扫码_and}     //*[@resource-id="com.ndol.sale.starter:id/btn_scan"]/android.widget.ImageView[1]
+
+${商品搜索页_搜索框_and}     //*[@resource-id="com.ndol.sale.starter:id/edit_search"]
+${商品搜索页_热门搜索区域_and}     //*[@resource-id="com.ndol.sale.starter:id/hot_tag"]
+${商品搜索页_最近搜索区域_and}     //*[@resource-id="com.ndol.sale.starter:id/history_tag"]
+${商品搜索页_搜索区域_子区块_and}     /android.widget.LinearLayout[1]
+${商品搜索页_信息_and}     //*[@resource-id="com.ndol.sale.starter:id/tv_tag_item_contain"]
+${商品搜索页_清空搜索历史_and}     //*[@resource-id="com.ndol.sale.starter:id/btn_delete"]
+
+${扫码页_返回_and}     //*[@resource-id="com.ndol.sale.starter:id/capture_back"]
+${扫码页_开关照明_and}     //*[@resource-id="com.ndol.sale.starter:id/capture_light"]
+${扫码页_浏览图片_and}     //*[@resource-id="com.ndol.sale.starter:id/capture_albums"]
+${扫码页_浏览图片_返回_and}     //*[@resource-id="com.ndol.sale.starter:id/toolbar"]/android.widget.ImageButton[1]
+
+${分类_活动_活动标题_and}     //*[@resource-id="com.ndol.sale.starter:id/promotion_title"]
+${分类_活动_活动数_and}     //*[@resource-id="com.ndol.sale.starter:id/promotion_notice_count"]
+
+${分类_商品展示type_and}     //*[@resource-id="com.ndol.sale.starter:id/iv_show_type"]
+
+${分类_商品列表框_and}     //*[@resource-id="com.ndol.sale.starter:id/crazy_mainLay"]
+${分类_商品信息框_and}     //*[@resource-id="com.ndol.sale.starter:id/buy_itme_mainLay"]
+${分类_商品信息框_父节点_and}     //android.widget.LinearLayout[@index="2"]
+${分类_商品图片_and}     //*[@resource-id="com.ndol.sale.starter:id/buyitem_goodsstock"]
+${分类_商品名称_and}     //*[@resource-id="com.ndol.sale.starter:id/projuctTitle"]
+${分类_商品价格_and}     //*[@resource-id="com.ndol.sale.starter:id/crazy_projuctPrice"]
+${分类_商品原价_and}     //*[@resource-id="com.ndol.sale.starter:id/crazy_projuctPriceFavourable"]
+${分类_商品销量_and}     //*[@resource-id="com.ndol.sale.starter:id/crazy_sales_tv"]
+${分类_商品_立即抢_and}     //*[@resource-id="com.ndol.sale.starter:id/normal_button"]
+${分类_商品_购物车_加_and}     //*[@resource-id="com.ndol.sale.starter:id/add"]
+${分类_商品_购物车_减_and}     //*[@resource-id="com.ndol.sale.starter:id/reduce"]
+${分类_商品_购物车_数量_and}     //*[@resource-id="com.ndol.sale.starter:id/num_text"]
+${分类_商品_活动图标_and}     //*[@resource-id="com.ndol.sale.starter:id/promotion_tag_img"]
+
+
+
+${分类_购物车按钮_and}     //*[@resource-id="com.ndol.sale.starter:id/fab"]
+${分类_购物车_数量_and}     //*[@resource-id="com.ndol.sale.starter:id/cart_badge"]
+
+
+
+*** Keywords ***
+获取_分类_搜索_提示_locator
+    [Documentation]       可以获取 搜索框中的 文字提示 ，也可以点击 进入商品搜索页
+    ${locator}    PK_获取相应平台的locator    xpath=${分类_搜索_提示_and}    xpath=${分类_搜索_提示_and}
+    [return]    ${locator}
+
+获取_分类_搜索_搜索入口_locator
+    [Documentation]       可以点击 进入商品搜索页
+    ${locator}    PK_获取相应平台的locator    xpath=${分类_搜索_搜索入口_and}    xpath=${分类_搜索_搜索入口_and}
+    [return]    ${locator}
+
+获取_分类_搜索_扫码_locator
+    [Documentation]       可以打开  商品扫码 页面
+    ${locator}    PK_获取相应平台的locator    xpath=${分类_搜索_扫码_and}    xpath=${分类_搜索_扫码_and}
+    [return]    ${locator}
+
+#      搜索子页  *****************************************************************************
+
+获取_商品搜索页_搜索框_locator
+    [Documentation]       可以打开  商品扫码 页面
+    ${locator}    PK_获取相应平台的locator    xpath=${商品搜索页_搜索框_and}    xpath=${商品搜索页_搜索框_and}
+    [return]    ${locator}
+
+_获取_商品搜索页_热门搜索_父节点
+    [Documentation]       一个热门搜索信息的 父节点
+    [Arguments]    ${index}=1
+    ${xpath}    Set Variable    ${商品搜索页_热门搜索区域_and}/android.widget.LinearLayout[${index}]
+    [return]    ${xpath}
+
+_获取_商品搜索页_历史搜索_父节点
+    [Documentation]       一个历史搜索信息的 父节点
+    [Arguments]    ${index}=1
+    ${xpath}    Set Variable    ${商品搜索页_最近搜索区域_and}/android.widget.LinearLayout[${index}]
+    [return]    ${xpath}
+
+获取_商品搜索页_热门搜索_信息_locator
+    [Documentation]       可以获取 所有的热门搜索 ，可点击进行搜索
+    [Arguments]    ${index}=1
+    ${xpath}    _获取_商品搜索页_热门搜索_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${商品搜索页_信息_and}    xpath=${xpath}${商品搜索页_信息_and}
+    [return]    ${locator}
+
+获取_商品搜索页_历史搜索_信息_locator
+    [Documentation]       可以获取 所有的历史搜索，可点击进行搜索
+    [Arguments]    ${index}=1
+    ${xpath}    _获取_商品搜索页_历史搜索_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${商品搜索页_信息_and}    xpath=${xpath}${商品搜索页_信息_and}
+    [return]    ${locator}
+
+获取_商品搜索页_热门搜索_信息_xpath
+    ${xpath}    PK_获取相应平台的locator    ${商品搜索页_热门搜索区域_and}${商品搜索页_信息_and}    ${商品搜索页_热门搜索区域_and}${商品搜索页_信息_and}
+    [return]    ${xpath}
+
+获取_商品搜索页_历史搜索_信息_xpath
+    ${xpath}    PK_获取相应平台的locator    ${商品搜索页_最近搜索区域_and}${商品搜索页_信息_and}    ${商品搜索页_最近搜索区域_and}${商品搜索页_信息_and}
+    [return]    ${xpath}
+
+获取_商品搜索页_清空历史搜索_locator
+    ${locator}    PK_获取相应平台的locator    ${商品搜索页_清空搜索历史_and}    ${商品搜索页_清空搜索历史_and}
+    [return]    ${locator}
+
+
+#      扫码子页  *****************************************************************************
+
+
+获取_扫码页_返回_locator
+    [Documentation]       返回
+    ${locator}    PK_获取相应平台的locator    xpath=${扫码页_返回_and}    xpath=${扫码页_返回_and}
+    [return]    ${locator}
+
+获取_扫码页_开关照明_locator
+    ${locator}    PK_获取相应平台的locator    xpath=${扫码页_开关照明_and}    xpath=${扫码页_开关照明_and}
+    [return]    ${locator}
+
+获取_扫码页_浏览图片_locator
+    ${locator}    PK_获取相应平台的locator    xpath=${扫码页_浏览图片_and}    xpath=${扫码页_浏览图片_and}
+    [return]    ${locator}
+
+获取_扫码页_浏览图片_返回_locator
+    [Documentation]       返回 扫码页
+    ${locator}    PK_获取相应平台的locator    xpath=${扫码页_浏览图片_返回_and}    xpath=${扫码页_浏览图片_返回_and}
+    [return]    ${locator}
+
+
+获取_分类_活动_活动标题_locator
+    [Documentation]       可以获取 当前展示 获得 标题 ，也可以点击 进入该 活动的商品聚合页
+    ${locator}    PK_获取相应平台的locator    xpath=${分类_活动_活动标题_and}    xpath=${分类_活动_活动标题_and}
+    [return]    ${locator}
+
+获取_分类_活动_活动数_locator
+    [Documentation]       可以获取 当前展示 活动的数量 ，也可以点击 展开该地址可用活动数量
+    ${locator}    PK_获取相应平台的locator    xpath=${分类_活动_活动数_and}    xpath=${分类_活动_活动数_and}
+    [return]    ${locator}
+
+获取_分类_商品展示type_locator
+    [Documentation]       点击 可以切换 商品 展示模式 网格模式切换到 列表模式
+    ${locator}    PK_获取相应平台的locator    xpath=${分类_商品展示type_and}    xpath=${分类_商品展示type_and}
+    [return]    ${locator}
+
+# _获取_分类_商品信息框_父节点
+#     [Documentation]       一个商品信息的 父节点
+#     [Arguments]    ${index}=0
+#     ${xpath}    Set Variable    //android.widget.LinearLayout[@index="${index}"]
+#     [return]    ${xpath}
+
+_获取_分类_商品信息框_父节点
+    [Documentation]       一个商品信息的 父节点
+    [Arguments]    ${index}=0
+    ${xpath}    Set Variable    //*[@resource-id="com.ndol.sale.starter:id/list"]/android.widget.RelativeLayout[${index}]
+    [return]    ${xpath}
+
+获取_分类_商品图片_locator
+    [Documentation]       可以点击查看大图
+    ${locator}    PK_获取相应平台的locator    xpath=${分类_商品图片_and}    xpath=${分类_商品图片_and}
+    [return]    ${locator}
+
+获取_分类_商品名称_locator
+    [Documentation]       可以获取 商品 名称
+    [Arguments]    ${index}=0
+    ${xpath}    _获取_分类_商品信息框_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${分类_商品名称_and}    xpath=${xpath}${分类_商品名称_and}
+    [return]    ${locator}
+
+获取_分类_商品名称_xpath
+    [Documentation]       可以获取 商品 名称
+    ${xpath}    PK_获取相应平台的locator    ${分类_商品名称_and}    ${分类_商品名称_and}
+    [return]    ${xpath}
+
+获取_分类_商品名称_不带父节点_locator
+    [Documentation]       可以获取 商品 名称
+    ${locator}    PK_获取相应平台的locator    xpath=${分类_商品名称_and}    xpath=${分类_商品名称_and}
+    [return]    ${locator}
+
+获取_分类_商品价格_locator
+    [Documentation]       可以获取 商品的 销售价格
+    [Arguments]    ${index}=0
+    ${xpath}    _获取_分类_商品信息框_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${分类_商品价格_and}    xpath=${xpath}${分类_商品价格_and}
+    [return]    ${locator}
+
+获取_分类_商品原价_locator
+    [Documentation]       可以获取 商品的 销售 原价
+    [Arguments]    ${index}=0
+    ${xpath}    _获取_分类_商品信息框_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${分类_商品原价_and}    xpath=${xpath}${分类_商品原价_and}
+    [return]    ${locator}
+
+获取_分类_商品销量_locator
+    [Documentation]       可以获取 商品的 销量
+    [Arguments]    ${index}=0
+    ${xpath}    _获取_分类_商品信息框_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${分类_商品销量_and}    xpath=${xpath}${分类_商品销量_and}
+    [return]    ${locator}
+
+获取_分类_商品_立即抢_locator
+    [Documentation]       折扣专区 的 立即抢  按钮
+    [Arguments]    ${index}=0
+    ${xpath}    _获取_分类_商品信息框_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${分类_商品_立即抢_and}    xpath=${xpath}${分类_商品_立即抢_and}
+    [return]    ${locator}
+
+获取_分类_商品_购物车_加_locator
+    [Documentation]       将商品添加入购物车 ，增加购物车中该商品的数量
+    [Arguments]    ${index}=0
+    ${xpath}    _获取_分类_商品信息框_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${分类_商品_购物车_加_and}    xpath=${xpath}${分类_商品_购物车_加_and}
+    [return]    ${locator}
+
+获取_商品_购物车_加_locator
+    [Documentation]       将商品添加入购物车 ，增加购物车中该商品的数量
+    ${locator}    PK_获取相应平台的locator    xpath=${分类_商品_购物车_加_and}    xpath=${分类_商品_购物车_加_and}
+    [return]    ${locator}
+
+获取_分类_商品_购物车_减_locator
+    [Documentation]       减少  购物车中 该商品的数量
+    [Arguments]    ${index}=0
+    ${xpath}    _获取_分类_商品信息框_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${分类_商品_购物车_减_and}    xpath=${xpath}${分类_商品_购物车_减_and}
+    [return]    ${locator}
+
+获取_分类_商品_购物车_数量_locator
+    [Documentation]       获取 该商品 已加入购物的 数量
+    [Arguments]    ${index}=0
+    ${xpath}    _获取_分类_商品信息框_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${分类_商品_购物车_数量_and}    xpath=${xpath}${分类_商品_购物车_数量_and}
+    [return]    ${locator}
+
+获取_分类_商品_活动图标_locator
+    [Documentation]       参加获取的商品  会有该图标
+    [Arguments]    ${index}=0
+    ${xpath}    _获取_分类_商品信息框_父节点    ${index}
+    ${locator}    PK_获取相应平台的locator    xpath=${xpath}${分类_商品_活动图标_and}    xpath=${xpath}${分类_商品_活动图标_and}
+    [return]    ${locator}
+
+获取_分类_购物车按钮_locator
+    [Documentation]       进入购物车
+    ${locator}    PK_获取相应平台的locator    xpath=${分类_购物车按钮_and}    xpath=${分类_购物车按钮_and}
+    [return]    ${locator}
+
+获取_分类_购物车_数量_locator
+    [Documentation]       获取购物车中 有效商品的 数量 （不包含 下架的 无库存的）
+    ${locator}    PK_获取相应平台的locator    xpath=${分类_购物车_数量_and}    xpath=${分类_购物车_数量_and}
+    [return]    ${locator}
+

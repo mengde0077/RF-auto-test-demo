@@ -1,0 +1,53 @@
+*** Settings ***
+Library           DatabaseLibrary
+Library           Collections
+
+*** Variables ***
+#${db}            database='saledb', user='root', password='8dolpress', host='192.168.100.14', port=3306
+${db}             database='coredb', user='root', password='8dolpress', host='192.168.100.14', port=3306
+#${db}            database='accountv6', user='root', password='8dolpress', host='192.168.100.14', port=3306
+
+*** Keywords ***
+连接数据库
+    Connect To Database Using Custom Params    pymysql    ${db}
+
+关闭数据库连接
+    Disconnect From Database
+
+执行语句
+    [Arguments]    ${sql}
+    [Documentation]    执行一个没有返回值的新增、更新、删除类语句
+    Execute Sql String    ${sql}
+
+执行查询语句
+    [Arguments]    ${sql}
+    [Documentation]    查询返回的结果是一个元组或者是一个元祖列表
+    Connect To Database Using Custom Params    pymysql    ${db}
+    ${result}    Query    ${sql}
+    Disconnect From Database
+    [Return]    ${result}
+
+执行查询语句返回字典
+    [Arguments]    ${sql}
+    [Documentation]    查询返回的结果是一个元组或者是一个元祖列表
+    Connect To Database Using Custom Params    pymysql    ${db}
+    ${result}    Query    ${sql}
+    Disconnect From Database
+    [Return]    ${result}
+
+执行sql语句
+    [Arguments]    ${sql}
+    [Documentation]    执行一个没有返回值的新增、更新、删除类语句
+    Connect To Database Using Custom Params    pymysql    ${db}
+    Execute Sql String    ${sql}
+    Disconnect From Database
+
+_转换data成字典
+    [Arguments]    ${keys}    ${data}
+    ${dictionary}    create dictionary    key    v
+    ${listlen}    evaluate    len(${keys})
+    : FOR    ${i}    IN RANGE    ${listlen}
+    \    set to dictionary    ${dictionary}    @{keys}[${i}]    ${data[0][${i}]}
+    [Return]    ${dictionary}
+
+

@@ -1,0 +1,202 @@
+*** Settings ***
+Documentation     公共资源：
+...               1.用于组织和管理，公共的资源；
+...               2.资源适用所有的项目，不随项目的变更而变更；
+...               edol-all 中搜索  “B2C 系统全部 redis key 清单”   RedisKey.java
+...               搜索     @Cacheable   可以找到所有的缓存key
+Library           TestLibrary
+
+*** Variables ***
+${REMOTE_URL}     http://localhost:4723/wd/hub
+#清除缓存的黑名单
+${S_cache_list}    ['Core_Cache_ruleCache','Core_Cache_allPromotionWholesaleApportionment','Core_Cache_rulePromotion','CMB:RETURN:CASH:QUALIFICATIONS:USER','Core_Cache_redPacketRuleCache']
+*** Keywords ***
+
+# /*------------------------------ 用户登录、注册相关 key start ------------------------------*/
+KEY_PIC_CODE_4_REGIST_STR
+    #  * 用户使用手机号注册时，为其生成的图片验证码，有效期 5 分钟，格式：pic_code_4_regist.mobile
+    [Arguments]    ${mobile}
+    ${key}    Set Variable    pic_code_4_regist.${mobile}
+    [return]    ${key}
+
+KEY_REGIST_USING_PIC_CODE
+    # * 标识当前注册流程需不需要验证 pic code，过期时间 5 分钟
+    [Arguments]    ${mobile}
+    ${key}    Set Variable    regist_using_pic_code.${mobile}
+    [return]    ${key}
+
+    /**
+     * 登录账号错误次数，String 类型
+     */
+KEY_LOGIN_ERROR_TIMES_STR
+    # * 登录账号错误次数，String 类型
+    [Arguments]    ${mobile}
+    ${key}    Set Variable    login_error_times_str.${mobile}
+    [return]    ${key}
+
+#/*------------------------------ 用户登录、注册相关 key stop  ------------------------------*/
+
+
+
+#/*------------------------------ WeChat 账号相关 key start ------------------------------*/
+
+KEY_WE_CHAT_BIND_RECORD
+     # * WeChat 账号关联 flag，格式：we_chat_bind_record.we_chat_uid。<br>
+     # * 存在记录的 we_chat_uid 即表明已做过关联，value 值为8天账号 UID，有效期1年
+    [Arguments]    ${we_chat_uid}
+    ${key}    Set Variable    we_chat_bind_record.${we_chat_uid}
+    [return]    ${key}
+
+#/*------------------------------ WeChat 账号相关 key stop  ------------------------------*/
+
+
+
+#/*------------------------------ 用户“红包”相关 key start ------------------------------*/
+
+KEY_SMASH_ME_USER_HASH_TODAY
+     # * 今天执行过“砸我吧”的用户 set，格式：smash_me_today_hash.yyyyMMdd，field 为 user_id，value 为今日“砸我”次数
+    [Arguments]    ${yyyyMMdd}
+    ${key}    Set Variable    smash_me_today_hash.${yyyyMMdd}
+    [return]    ${key}
+
+红包规则缓存key
+    #存放用户的图标信息， zset
+    ${key}    Set Variable    redPacketRuleCache~keys
+    [return]    ${key}
+
+
+#/*------------------------------ 用户“砸我吧”相关 key stop  ------------------------------*/
+
+
+#/*------------------------------ 订单相关 key start ------------------------------*/
+
+KEY_RECHARGE_LOG_NO
+    # * 取消订单、记录余额流水时生成的记录编号
+    [Arguments]    ${no}
+    ${key}    Set Variable    recharge_log_no.${no}
+    [return]    ${key}
+
+KEY_LAST_AUTO_CANCELED_ORDER_TIME
+    # * 自动取消订单任务中，上次取消到的时间点(下次任务接着这个 time-point 继续)，String 类型
+    [Arguments]    ${time_str}
+    ${key}    Set Variable    last_auto_canceled_order_time_str.${time_str}
+    [return]    ${key}
+
+#     /*------------------------------ 用户登录时token校验 ------------------------------*/
+
+C_LOGIN_UID_CHECK
+    #list key   用户登录的token 列表
+    [Arguments]    ${user_id}    ${tokenType}
+    ${key}    Set Variable    C_UID_:${tokenType}:${user_id}
+    [return]    ${key}
+
+# C_LOGIN_UID_CHECK_TEMP = "T_UID_%s:%s";
+
+
+#    /*------------------------------ 用户修改昵称次数校验(一天只能修改一次) ------------------------------*/
+NICKNAME_MODIFY_COUNT_CHECK
+    [Arguments]    ${user_id}
+    ${key}    Set Variable    user:${user_id}_modify
+    [return]    ${key}
+
+用户信息缓存key
+    [Arguments]    ${user_id}
+    ${key}    Set Variable    UserDiscoveryInfo_ById_${user_id}
+    [return]    ${key}
+
+全部用户信息缓存key
+    ${key}    Set Variable    UserDiscoveryInfoCache~keys
+    [return]    ${key}
+#     /*------------------------------ 用户图标 ------------------------------*/
+
+UserIconListCache
+    #存放某个用户的图标， string
+    [Arguments]    ${user_id}
+    ${key}    Set Variable    UserIconList_ById_${user_id}
+    [return]    ${key}
+
+用户图标信息缓存key
+    #存放所有用户的图标信息， zset
+    ${key}    Set Variable    UserIconListCache~keys
+    [return]    ${key}
+
+商品信息缓存key
+    ${key}    Set Variable    goodsCacheByOriginGoodsId~keys
+    [return]    ${key}
+
+图形验证码缓存key
+    #H5 cookie 中的 OFCaptchaControl
+    [Arguments]    ${OFCaptchaControl}
+    ${key}    Set Variable    G_CODE_${OFCaptchaControl}
+    [return]    ${key}
+
+秒杀黑名单key
+    #存放秒杀黑名单
+    [Arguments]    ${user_id}
+    ${key}    Set Variable    SECOND_SKILL_BLACK_USER_LIST_${user_id}
+    [return]    ${key}
+
+秒杀库存key
+    #存放秒杀库存
+    [Arguments]    ${promotion_id}
+    ${key}    Set Variable    SECOND_KILL_PROMOTION_GOODS_STOCK_SPECIAL_${promotion_id}
+    [return]    ${key}
+
+商品库存key
+    #存放商品库存
+    #如： GoodsCacheByOriginGoodsDetailId_55532_364
+    [Arguments]    ${origin_goods_id}    ${orgId}
+    ${key}    Set Variable    GoodsCacheByOriginGoodsDetailId_${origin_goods_id}_${orgId}
+    [return]    ${key}
+
+可用红包弹框弹出次数key
+    #首页  可用红包 弹框提醒  2017-07-20 每天只提醒一次
+    [Arguments]    ${data}
+    ${key}    Set Variable    index_tips_${data}
+    [return]    ${key}
+
+
+用户登录获取成长值计数key
+    # 用户登录 每天第一次登录 可以获取2成长值  20170821
+    #白银及以上会员每日第一次登录App即发放2成长值，此项每月至多获得20成长值
+    # key   mrgv_20170821
+    [Arguments]    ${data}
+    ${key}    Set Variable    mrgv_${data}
+    [return]    ${key}
+
+会员红包领取记录key
+    # 会员红包 领取记录
+    # 同一个规则的 红包 ，每个会员只可以领取一次
+    # key   rgi_user_10536_10777_16563
+    [Arguments]    ${ruleId}    ${groupId}    ${itemId}
+    ${key}    Set Variable    rgi_user_${ruleId}_${groupId}_${itemId}
+    [return]    ${key}
+
+商品分享券领取记录key
+    # rkpp_26608_18700000333
+    [Arguments]    ${shareId_商品抵用券分享}    ${mobile}
+    ${key}    Set Variable    rkpp_${shareId_商品抵用券分享}_${mobile}
+    [return]    ${key}
+
+P_删除所有商品分享券领取_redis记录
+    # rkpp_26608_18700000333
+    删除redis_db的一个类型的KEY     rkpp_*    ${S_redis_host}
+
+P_删除所有分享券下单使用_redis记录
+    删除redis_db的KEY    SingleShareCouponAccountRiskAccount    ${S_redis_host}
+    删除redis_db的一个类型的KEY     *_SingleShareCouponAccountRiskAccount    ${S_redis_host}
+    删除redis_db的一个类型的KEY     SingleShareCouponAccountRiskPre*    ${S_redis_host}
+    删除redis_db的一个类型的KEY     SSCL_*    ${S_redis_host}
+
+
+P_删除摸我8红包领取_redis记录
+    # rkpp_26608_18700000333
+    删除redis_db的一个类型的KEY     Rule_*    ${S_redis_host}
+
+
+P_删除口令红包领取_redis记录
+    # rkpp_26608_18700000333
+    删除redis_db的一个类型的KEY     RULE_COUPON_*    ${S_redis_host}
+
+
+

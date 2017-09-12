@@ -1,0 +1,76 @@
+*** Settings ***
+Library           AppiumLibrary
+Library           JMeterLib
+Resource          resource/8dol_resource.txt
+Resource          resource.txt
+
+*** Test Cases ***
+8dol_install
+    [Documentation]    安装 8天在线B2C
+    8dol install    b2c_v2.1.2_2015-10-20_ndol.apk
+    CloseApp    #每个完整的用例，都需要closeApp
+
+8dol登录测试
+    [Documentation]    登录8天在线B2C
+    [Tags]    8dol
+    [Template]
+    [Timeout]
+    8dol打开app登录    15195995661    8dol918
+    #8dol打开app登录带截图    15195995661    8dol918
+    #Page Should Contain Text    Appium User
+    Click Element    id=com.ndol.sale.starter:id/iv_home_image    #点击首页
+    Click Element    id=com.ndol.sale.starter:id/title    # 点击进入 超市
+    #CloseApp
+    #[Teardown]    CloseApp    # 用例结束时，执行关闭App操作
+
+8dol选择学校
+    [Documentation]    登录8天在线B2C，选择学校
+    [Tags]    8dol
+    8dol选择学校    南京    河海大学
+    [Teardown]    60
+
+8dol_to_register
+    #快速注册，功能验证
+    8dol open    #打开app到登录页面
+    Click Element    id=com.ndol.sale.starter:id/to_register_txt    #点击登录页面的快速注册
+    Capture Page Screenshot    ${8dol_image}\\${date}\\8dol_to_register1.png
+    Click Element    id=com.ndol.sale.starter:id/tv_register_agree    #点击查看 8天在线用户协议
+    Capture Page Screenshot    ${8dol_image}\\${date}\\8dol_to_register2.png
+    CloseApp
+
+8zai_login
+    [Documentation]    登录8天在线B2C
+    [Tags]    demo
+    8zai login    15195892855    628260
+    #Page Should Contain Text    Appium User
+    Sleep    10
+    CloseApp
+
+ye8_login
+    [Documentation]    登录8天在线B2C
+    [Tags]    demo
+    ye8直接登录
+    #ye8登录    bianj    123456
+    #Page Should Contain Text    Appium User
+    ye8进入个人中心
+    ye8进入个人中心-我的小店
+    Sleep    10
+    CloseApp
+
+8dol_一键快购
+    8dol进入首页
+    8dol主页功能    超市
+    8dol超市购买    休闲零食
+    8dol添加商品
+    #8dol添加商品    480    200
+    #8dol添加商品    480    390
+    ${jine}    8dol超市_购物金额
+    log    ${jine}
+    8dol一键快购
+
+8dol_充值
+    8dol主页功能    充值
+
+微信商城
+    打开浏览器
+    打开URL

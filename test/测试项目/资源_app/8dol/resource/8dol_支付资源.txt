@@ -1,0 +1,11 @@
+*** Variables ***
+${支付失败}           支付失败    # name
+${页面返回按钮ID}       com.ndol.sale.starter:id/iv_left    # ID
+${充值_50元按钮}       50元    # name
+${充值_100元按钮}      100元    # name
+${充值_150元按钮}      150元    # name
+${充值_输入金额输入框}     com.ndol.sale.starter:id/edtv_recharge_amount    # id
+${充值_微信支付方式}      微信    # name
+${充值_支付宝支付方式}     支付宝    # name
+${充值_我要充值按钮ID}    com.ndol.sale.starter:id/btn_recharge    # id
+${支付成功id}         com.ndol.sale.starter:id/er_pay_state

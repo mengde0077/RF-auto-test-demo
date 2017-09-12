@@ -1,0 +1,59 @@
+*** Settings ***
+Resource          ../resource/8dol_支付资源.txt
+Library           AppiumLibrary
+Library           TestLibrary
+
+*** Keywords ***
+8dol支付宝支付的我要充值页面
+    [Documentation]    登录成功之后，点击我的页面，点击余额，点击去充值，支付宝支付50元，点击我要充值按钮
+    ${余额}    Get Element Attribute    id=${余额数目ID}    name
+    log    ${余额}
+    Click Element    id=${余额TabID}
+    PK_等待_id    ${去充值ID}
+    Click Element    id=${去充值ID}
+    PK_等待_name    ${支付宝支付方式}
+    Input Text    id=${输入金额输入框}    1
+    Go Back
+    Click Element    name=${支付宝支付方式}
+    Click Element    id=${我要充值按钮ID}
+    [Return]    ${余额}
+
+8dol支付宝充值失败，查看余额
+    [Documentation]    我要充值页面，选择支付宝之后，点击返回，使之支付失败
+    Wait Until Keyword Succeeds    15sec    1sec    Page Should Not Contain Element    id=${我要充值按钮ID}
+    Back Key
+    PK_等待_name    ${支付失败}
+    Click Element    id=${页面返回按钮ID}
+    PK_等待_id    ${我的余额页面余额数值id}
+    ${余额充值失败后}    Get Element Attribute    id=${我的余额页面余额数值id}    name
+    [Return]    ${余额充值失败后}
+
+8dol支付宝支付成功，查看余额
+    ${test}    Get Element Attribute    name=余额充值    name
+    log    ${test}
+
+8dol微信支付的我要充值页面
+    [Documentation]    登录成功之后，点击我的页面，点击余额，点击去充值，微信支付50元，点击我要充值按钮
+    ${余额}    Get Element Attribute    id=${余额数目ID}    name
+    log    ${余额}
+    Click Element    id=${余额TabID}
+    PK_等待_id    ${去充值ID}
+    Click Element    id=${去充值ID}
+    PK_等待_name    ${微信支付方式}
+    Input Text    id=${输入金额输入框}    1
+    Go Back
+    Click Element    name=${微信支付方式}
+    Click Element    id=${我要充值按钮ID}
+    [Return]    ${余额}
+
+8dol微信充值失败，查看余额
+    [Documentation]    我要充值页面，选择微信之后，点击返回，使之支付失败
+    Wait Until Keyword Succeeds    20sec    1sec    Page Should Not Contain Element    id=${我要充值按钮ID}
+    Back Key
+    页面操作之前等待加载Name    ${支付失败}
+    Click Element    id=${页面返回按钮ID}
+    PK_等待_id    ${我的余额页面余额数值id}
+    ${余额充值失败后}    Get Element Attribute    id=${我的余额页面余额数值id}    name
+    [Return]    ${余额充值失败后}
+
+4200031

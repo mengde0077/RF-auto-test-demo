@@ -1,0 +1,37 @@
+*** Settings ***
+Library           AppiumLibrary
+
+*** Keywords ***
+打开app
+    [Documentation]    打开一个app
+    Open Application    http://localhost:4723/wd/hub    alias=Myapp1    platformName=IOS    platformVersion=9.2.1
+
+关闭app
+    Close All Applications
+
+截屏
+    ${date}    Get Str Date    #获取当前的日期作为子目录字符串
+    ${time}    Get Str Time    #获取当前的时间作名字补充字符串
+    ${path}    Set Variable    /Users/cjl/Documents/lianxi/${date}${time}.png
+    Capture Page Screenshot    ${path}
+
+进入客服页面
+    Click Button    kefu homePageNew
+
+进入天金页面
+    Click Button    天金
+
+进入充值页面
+    Click Button    充值
+
+进入赚钱页面
+    Click A Point    x=81    y=524
+
+进入发现页面
+    Click A Point    x=145    y=524
+
+进入订单页面
+    Click A Point    x=209    y=524
+
+进入我的页面
+    Click A Point    x=273    y=524

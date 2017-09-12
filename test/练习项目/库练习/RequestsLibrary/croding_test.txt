@@ -1,0 +1,29 @@
+*** Settings ***
+Documentation     接口关键字资源：
+...
+...
+...
+Library           TestLibrary
+Library           RequestsLibrary
+Library           Collections
+Library           String
+Library           XML
+
+*** Variables ***
+${URL}    http://www.baidu.com
+
+*** Test Cases ***
+case1
+    [Documentation]    使用json解析的方式
+    create session    api    ${URL}
+    ${addr}    get request    api    /
+    should be equal as strings    ${addr.status_code}    200
+    log    ${addr.monkey_patch.content}
+    log    ${addr.content}
+    log    ${addr.encoding}
+    log    ${addr.apparent_encoding}
+    log    ${addr.content.decode('${addr.encoding}').encode('utf-8')}
+    log    ${addr.content.decode('${addr.apparent_encoding}').encode('utf-8')}
+    ${data}    parse xml    ${addr.content.decode('${addr.apparent_encoding}').encode('utf-8')}
+    ${data}    parse xml    ${addr.content}
+    log    ${data}

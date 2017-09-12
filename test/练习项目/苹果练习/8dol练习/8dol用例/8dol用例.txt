@@ -1,0 +1,149 @@
+*** Settings ***
+Resource          ../8dol关键字/8dol关键字.txt
+Library           AppiumLibrary
+Library           TestLibrary
+Library           Collections
+
+*** Test Cases ***
+省钱_登录验证
+    打开app并登录
+
+省钱_页面首页检查
+    [Documentation]    前置条件，未登录
+    打开app
+    进入客服截图返回
+    进入天金截图返回
+    进入充值截图返回
+    点击摸我8
+    进入赚钱截图返回
+    进入发现截图返回
+    进入订单截图返回
+    进入我的截图返回
+
+test
+    Open Application    http://localhost:4723/wd/hub    alias=Myapp1    platformName=IOS    platformVersion=9.2.1
+    Click Button    天金
+    ${date}    Get Str Date    #获取当前的日期作为子目录字符串
+    ${time}    Get Str Time    #获取当前的时间作名字补充字符串
+    ${path}    Set Variable    /Users/cjl/Documents/lianxi/${date}${time}.png
+    Capture Page Screenshot    ${path}
+    Page Should Contain Element    name=天金商城
+    Click Button    arrowBack
+
+test2
+    打开app
+    #Button    xpath=//UIAApplication[1]/UIAWindow[1]/UIAScrollView[1]/UIAButton[5]
+    Click Element    xpath=//UIAApplication[1]/UIAWindow[1]/UIAScrollView[1]/UIAButton[5]
+    ${休闲零食}    Get Element location    name=休闲零食
+    ${y}    Get From Dictionary    ${休闲零食}    y
+    ${x}    Get From Dictionary    ${休闲零食}    x
+    Click A Point    x=${x}    y=${y}
+    ${a}    Get Element Location    name=卤豆干香辣味24g
+    ${y1}    Get From Dictionary    ${a}    y
+    ${x1}    Get From Dictionary    ${a}    x
+    ${y2}    Evaluate    int(int(${y1})+58)
+    ${x2}    Evaluate    int(int(${x1})+210)
+    Click A Point    x=${x2}    y=${y2}
+    ${b}    Get Element Location    name=卫龙大辣条128g
+    ${y3}    Get From Dictionary    ${b}    y
+    ${x3}    Get From Dictionary    ${b}    x
+    ${y4}    Evaluate    int(int(${y3})+58)
+    ${x4}    Evaluate    int(int(${x3})+210)
+    Click A Point    x=${x4}    y=${y4}
+    Click Element    xpath=//UIAApplication[1]/UIAWindow[1]/UIAButton[4]
+    Page Should Contain Element    name=提交订单
+    Click Element    xpath=//UIAApplication[1]/UIAWindow[1]/UIAButton[1]
+    #Page Should Contain Element    name=提交订单
+
+省钱_超市下单
+    打开app
+    Click Element    xpath=//UIAApplication[1]/UIAWindow[1]/UIAScrollView[1]/UIAButton[7]
+    进入指定商品分类    休闲零食
+    添加一个指定商品    洽洽香瓜子110g
+    添加一个指定商品    卫龙大辣条128g
+    点击去结算
+    Wait Until Page Contains Element    name=提交订单    4
+    点击提交订单
+
+省钱_天金兑换红包
+    打开app
+    进入天金页面
+    Click Element    xpath=//UIAApplication[1]/UIAWindow[1]/UIAScrollView[1]/UIAScrollView[2]/UIAButton[1]
+    Page Should Contain Element    name=300
+    Click Button    兑换
+    Page Should Contain Element    name=小8提示
+    Click Element    xpath=//UIAApplication[1]/UIAWindow[1]/UIAButton[3]
+
+省钱_我要充值固定金额
+    打开app
+    进入充值页面
+    Page Should Contain Element    name=我要充值
+    Click Button    50元
+    Click Button    我要充值
+
+省钱_我要充值输入指定金额
+    打开app
+    进入充值页面
+    Page Should Contain Element    name=我要充值
+    Click A Point    x=30    y=161
+    Input Text    xpath=//UIAApplication[1]/UIAWindow[1]/UIAScrollView[1]/UIATextField[1]    10
+    Hide Keyboard
+    Click Button    我要充值
+
+test3
+    打开app
+    Click Element    xpath=//UIAApplication[1]/UIAWindow[1]/UIAScrollView[1]/UIAButton[6]
+    ${休闲零食}    Get Element location    name=休闲零食
+    ${y}    Get From Dictionary    ${休闲零食}    y
+    ${x}    Get From Dictionary    ${休闲零食}    x
+    Click A Point    x=${x}    y=${y}
+    Swipe    120    580    120    380    duration=1000
+
+省钱_搜索商品下单
+    打开app
+    Click Element    xpath=//UIAApplication[1]/UIAWindow[1]/UIAScrollView[1]/UIAButton[7]
+    搜索指定商品    盼盼麦香鸡味块105g
+    Page Should Contain Element    name=盼盼麦香鸡味块105g
+    Click Button    去结算
+    Page Should Contain Element    name=提交订单
+    Click Element    xpath=//UIAApplication[1]/UIAWindow[1]/UIAButton[1]
+
+省钱_搜索商品一键快购
+    打开app
+    Click Element    xpath=//UIAApplication[1]/UIAWindow[1]/UIAScrollView[1]/UIAButton[7]
+    搜索指定商品    盼盼麦香鸡味块105g
+    Page Should Contain Element    name=盼盼麦香鸡味块105g
+    Click Button    一键快购
+    Page Should Contain Element    name=订单支付成功
+
+省钱_app夜8下单
+    打开app
+    Click Element    xpath=//UIAApplication[1]/UIAWindow[1]/UIAScrollView[1]/UIAButton[7]
+    #Page Should Contain Element    name=测试商品2
+    ${a}    Get Element location    name=测试商品2
+    ${y1}    Get From Dictionary    ${a}    y
+    ${x1}    Get From Dictionary    ${a}    x
+    ${y2}    Evaluate    int(int(${y1})+70)
+    ${x2}    Evaluate    int(int(${x1})+300)
+    Click A Point    x=${x2}    y=${y2}
+    Click Button    去结算
+    Click Button    提交订单
+    Page Should Contain Element    name=我的账单
+
+赚钱_账单
+    打开app
+    进入赚钱页面
+    Click Button    账单
+    Page Should Contain Element    name=我的账单
+    #Click Button    进账
+    #Click Button    出账
+    #Click Button    全部
+    #Click Button    工资
+    #Click Button    佣金
+    Click Button    筛选
+    Click Element    name=2016-05-10
+    Click A Point    x=220    y=440    #当前日期前两天
+    Click Button    确定
+    Click Button    确认
+
+赚钱_代客充值

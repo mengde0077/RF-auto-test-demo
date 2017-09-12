@@ -1,0 +1,98 @@
+*** Settings ***
+Documentation     场景：
+Library           Selenium2Library
+Library           Collections
+Library           TestLibrary
+
+*** Variables ***
+
+*** Test Cases ***
+test
+    log    ${/}
+
+test1
+    log    ${:}
+
+test2
+    log    ${\\n}
+
+test3
+    log    ${CURDIR}
+
+test4
+    log    ${DEBUG_FILE}
+
+test5
+    log    ${EMPTY}
+
+test6
+    log    @{EMPTY}
+
+test7
+    log    &{EMPTY}
+
+test8
+    log    ${EXECDIR}
+
+test9
+    log    ${False}
+
+test10
+    log    ${LOG_FILE}
+
+test11
+    log    ${LOG_LEVEL}
+
+test12
+    log    ${None}
+
+test13
+    log    ${null}
+
+test14
+    log    ${OUTPUT_DIR}
+
+test15
+    log    ${OUTPUT_FILE}
+
+test16
+    log    ${PREV_TEST_MESSAGE}
+
+test17
+    log    ${PREV_TEST_NAME}
+
+test18
+    log    ${PREV_TEST_STATUS}
+
+test19
+    log    ${REPORT_FILE}
+
+test20
+    log    ${SPACE}
+
+test21
+    log    ${SUITE_DOCUMENTATION}
+
+test22
+    log    ${SUITE_NAME}
+
+test23
+    log    ${SUITE_SOURCE}
+
+test24
+    log    ${TEMPDIR}
+
+test25
+    log    ${TEST_DOCUMENTATION}
+
+test26
+    log    ${TEST_NAME}
+
+test27
+    log    ${True}
+
+test28
+    log    &{SUITE_METADATA}
+
+test29
+    log    @{TEST_TAGS}

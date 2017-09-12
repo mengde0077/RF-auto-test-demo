@@ -1,0 +1,96 @@
+*** Settings ***
+Documentation     项目子资源：
+...               \ \ \ \ 用于记录单个项目中的单个activity的子资源，资源的内容随项目的升级而变化；
+...
+...               1.记录对应项目的，功能页面及功能页面包含的元素对象；
+...               2.记录项目中可复用的资源关键字；
+...
+...
+...               本资源记录，8 天在线 B2C的Android版本的资源；
+
+Library           AppiumLibrary
+Resource          ../../公共关键字.txt
+Resource          ../../app_配置.txt
+
+*** Variables ***
+${R_FirstActivity}    .patch.ui.FirstActivity
+# ${R_androidProcess}    com.tencent.mm:appbrand0
+${R_androidProcess}    com.ndol.sale.starter
+# ${R_androidProcess}    WEBVIEW_com.ndol.sale.starter      #这个不是进程名，切换到 vebview 时找不到进程
+
+${获取红包弹窗_关闭_and}    //*[@resource-id="com.ndol.sale.starter:id/mHome_5_3_cancel"]
+${获取红包弹窗_关闭_ios}    //*[@name="dismissCoupon"]
+
+${首页广告弹窗_关闭_and}    //*[@resource-id="com.ndol.sale.starter:id/iv_cancle_show"]
+${首页广告弹窗_关闭_ios}    //*[@resource-id="com.ndol.sale.starter:id/iv_cancle_show"]
+
+${首页_地址入口_and}    //*[@resource-id="com.ndol.sale.starter:id/location_title"]
+${首页_商品搜索入口_and}    //*[@resource-id="com.ndol.sale.starter:id/search_tip"]
+
+${首页_ad广告位_and}    //*[@resource-id="com.ndol.sale.starter:id/home_ad_iv"]
+${首页_摸我吧功能位_and}    //*[@resource-id="com.ndol.sale.starter:id/action_name"]
+${首页_摸我吧功能位_ios}    //*[@resource-id="com.ndol.sale.starter:id/action_name"]
+
+${首页_红包按钮_and}    //*[@resource-id="com.ndol.sale.starter:id/iv_title_redbag"]
+
+${首页_购物车图标_and}    //*[@resource-id="com.ndol.sale.starter:id/fab_cart"]
+${首页_购物车_数量_and}    //*[@resource-id="com.ndol.sale.starter:id/cart_badge"]
+
+${首页_商品大图_加入购物车_and}    //*[@resource-id="com.ndol.sale.starter:id/normal_button"]
+
+*** Keywords ***
+安装打开主页_and
+    8dol_install    ${R_FirstActivity}
+
+启动8dolApp_and
+    8dol_open    ${R_FirstActivity}
+
+启动8dolApp_H5_and
+    Open MobileFx Android App_H5    ${R_FirstActivity}    ${R_androidProcess}
+
+
+重启8dolApp_and
+    #保留缓存
+    ${output}    RestartApp    ${R_FirstActivity}
+    [return]    ${output}
+
+获取_首页_地址入口_locator
+    # 包括 摸我吧 红包。口令红包弹窗
+    ${locator}    PK_获取相应平台的locator    xpath=${首页_地址入口_and}    xpath=${首页_地址入口_and}
+    [return]    ${locator}
+
+获取_首页_商品搜索入口_locator
+    # 包括 摸我吧 红包。口令红包弹窗
+    ${locator}    PK_获取相应平台的locator    xpath=${首页_商品搜索入口_and}    xpath=${首页_商品搜索入口_and}
+    [return]    ${locator}
+
+获取_广告弹窗_关闭_locator
+    # 包括 摸我吧 红包。口令红包弹窗
+    ${locator}    PK_获取相应平台的locator    xpath=${首页广告弹窗_关闭_and}    xpath=${首页广告弹窗_关闭_ios}
+    [return]    ${locator}
+
+获取_红包弹窗_关闭_locator
+    ${locator}    PK_获取相应平台的locator    xpath=${获取红包弹窗_关闭_and}    xpath=${获取红包弹窗_关闭_ios}
+    [return]    ${locator}
+
+获取_首页_ad广告位_locator
+    # 包括 苏宁直供  邀请好友 等
+    ${locator}    PK_获取相应平台的locator    xpath=${首页_ad广告位_and}    xpath=${首页_ad广告位_and}
+    [return]    ${locator}
+
+获取_摸我吧栏功能_locator
+    # 包括 摸我吧 苏宁易购  心愿单 等
+    ${locator}    PK_获取相应平台的locator    xpath=${首页_摸我吧功能位_and}    xpath=${首页_摸我吧功能位_ios}
+    [return]    ${locator}
+
+获取_红包按钮_locator
+    # v4.0.0之后 首页改版 ，首页只保留一个红包按钮
+    ${locator}    PK_获取相应平台的locator    xpath=${首页_红包按钮_and}    xpath=${首页_红包按钮_and}
+    [return]    ${locator}
+
+
+获取_首页_商品大图_加入购物车_locator
+    # 包括 苏宁直供  邀请好友 等
+    ${locator}    PK_获取相应平台的locator    xpath=${首页_商品大图_加入购物车_and}    xpath=${首页_商品大图_加入购物车_and}
+    [return]    ${locator}
+
