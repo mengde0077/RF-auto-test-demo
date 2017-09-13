@@ -1,6 +1,0 @@
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-   <soapenv:Body>
-      <businessCallResponse><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
-<SvcInfo><Header><System><COMMUNICATE value="02" index="0" /><TRANSFER value="01" index="0" /><ORGCHANNELID value="A002" index="0" /><HOMECHANNELID /><CONTACTID value="003200903120000" index="0" /></System><Inparam><CHANNEL_TRADE_ID value="E00320090401165020000000000000" index="0" /></Inparam><Outparam><RESULT_CODE value="0" /><RESULT_INFO value="OK!" /></Outparam><TESTFLAG value="0" index="0" /><ACTIONCODE value="1" index="0" /></Header><Body><SVC_CONTENT>{ACTUAL_VALUE=["0"], SUM_DISCNT_VALUE=["0"], EXTRA_VALUE=["0"], CYCLE_STARTDATE_SUM=["20150701"], ALL_FEE=["0"], ASSIA_SHARE_VALUE=["0"], DISCNT_NUMBER=["0"], FEE3=["0"], X_RECORDNUM=["1"], FEE5=["0"], FEE6=["0"], X_RESULTCODE=["0"], X_RESULTINFO=["OK!"], IF_MAIN_CARD=["false"], MAIN_CARD=[""], CYCLE_COUNT=["1"], CYCLE_ENDDATE_SUM=["20150731"], IF_SHARE_RELATION=["false"]}</SVC_CONTENT></Body></SvcInfo>]]></businessCallResponse>
-   </soapenv:Body>
-</soapenv:Envelope>

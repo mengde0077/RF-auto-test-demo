@@ -1,6 +1,0 @@
-
-<13-03-08,17:28:52-079, tId=2560>	INFO    - "D:\HQ Info\CEEON\Tools\MMS_Rcv_Send\httpserver_MultiRsp\pHttpServer_MultiRsp.exe" 
-<13-03-08,17:28:52-219, tId=2560>	INFO    - Sharing**Co ==> DllMain(HWUC). ul_reason_for_call = 1
-<13-03-08,17:28:52-219, tId=2560>	INFO    - Sharing**Co <== DllMain. 
-<13-03-08,17:29:35-141, tId=2560>	INFO    - Sharing**Co ==> DllMain(HWUC). ul_reason_for_call = 0
-<13-03-08,17:29:35-141, tId=2560>	INFO    - Sharing**Co <== DllMain. 
