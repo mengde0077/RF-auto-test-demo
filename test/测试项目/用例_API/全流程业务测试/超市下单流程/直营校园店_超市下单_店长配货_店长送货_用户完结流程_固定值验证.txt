@@ -1,0 +1,211 @@
+*** Settings ***
+Documentation     前置条件：
+...               1.用户已登录；
+...               3.用户已选择学校，并且已经设置默认送货地址；
+...               4.余额中还有购物金额；
+...
+...               用例：
+...               1.超市下单标准流程 ,在其他流程有改流程的扩展，所以进行下线，但不删除
+...
+...               功能检查点：
+...               1.用户 白8 超市下单
+...               1.店长配货
+...               1.物流员 送货
+...               1.验证 用户 完结 完结时间是当前时间 --- 2016-05-20 曹林明
+...               2016-05-24 补充 销量和库存验证 --曹林明
+...               验证了 慢就赔 字段
+
+Suite Setup       8dol和YD连接接口服务
+Suite Teardown    8dol和YD关闭接口服务连接
+Force Tags        APIYW1     APIZYYW1    API3LZY
+Test Timeout      30 seconds
+Resource          ../../../资源_API/API资源.txt
+Resource          ../../../资源_公共/数据操作资源.txt
+Resource          ../../../资源_API/API常量.txt
+Resource          ../../../资源_公共/公共资源.txt
+Resource          ../Keyword/Keyword.txt
+Library           Collections
+Library           DateTime
+
+*** Variables ***
+${S_parentCityName}     ${P_cityName_直仓_城市}
+${S_cityName}     ${P_cityName_直仓}
+${S_学校名称}    ${P_schoolName_直仓直营_学校}
+${S_8天用户名}    ${P_B2C直营APIZYYW用户名}
+${S_8天用户登录密码}     ${P_password}
+${S_8天用户余额支付密码}    ${P_password_yue}
+${S_goodsName}    ${P_goodsName1}
+${S_goodsNum}     1
+${S_area_name_区}    ${P_area_name_区}
+${S_area_name_楼栋}    ${P_area_name_楼栋}
+${S_支付方式}         ${P_CS_余额+支付宝支付}
+${S_店长用户名}    ${P_直仓直营校园店长userName}
+${S_云店用户密码password}    ${P_直仓直营校园店password}
+${S_直仓直营校园mobile}    ${P_直仓直营校园mobile}
+${S_超市下单扣库存}    ${P_reasonType_MICRO_WH_PURCHASE_DAY_ORDER}
+@{S_recordList}    610    M2017011909103300032    561898    2    None    2017-1-19 17:10:33    None
+...               1    5    2017-1-19 17:10:33    None    2017-1-19 17:10:31    2017-1-19 17:10:30
+...               2017-1-19 17:10:30    2017-1-19 17:10:37    None    None    ceshiren    None
+...               None    363    364    672806    674810    741276    ceshi    14705562473
+...               11.00    11.00    11.00    1.000    1    ''    None    0    0
+...               \xe6\xb5\x8b\xe8\xaf\x95\xe7\x89\xa9\xe6\xb5\x81\xe5\x91\x98    561898
+...               5.0    test    None    None    0    None    None    0    None    1    0
+...               0.00    0.00    23413    8dol    0    37    0    0    None    None    0
+...               None    0.00    11.00    0    None    0    0    0    10.00    10.00
+...               0.00    0.00    0.00    0.000    192.168.40.181    None    None    None
+${i_list}         [2, 3, 4, 6, 7, 8, 10, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 28, 29, 30, 31, 33, 34, 35, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71]
+@{S_recordList1}    1915314    'P2016122311112600074'    6075122    'M2016122311112600073'    0    551664    0    None    '11.000'    2016-12-23 19:11:26    2016-12-23 19:11:26    None    2016-12-23 19:11:26    1    2    None    2    21    None    '5bbf6388-61bf-3a21-9c9e-6e670b26bf61'    '192.168.40.81'    None
+${i_list1}         [4, 5, 6, 7, 11, 13, 14, 15, 16, 17]
+
+*** Test Cases ***
+获取当前日期
+    ${当天日期}    获取当前日期
+    Set Suite Variable    ${S_当天日期}    ${当天日期}
+
+获取当前时间
+    ${当前时间}    获取当前时间
+    Set Suite Variable    ${S_当前时间}    ${当前时间}
+
+8dol数据库中修改超市商品库存
+    sql_修改超市商品库存为    10
+
+8dol数据库中修改我的余额
+    sql_修改用户余额为ByMobile    1000    ${S_8天用户名}
+
+
+8dol选择学校_获取学校信息_byName
+    ${dictionary}    8dol选择学校_获取学校信息_byName    ${S_parentCityName}    ${S_cityName}    ${S_学校名称}
+    ${area_id}    get from dictionary    ${dictionary}    area_id
+    ${org_id}    get from dictionary    ${dictionary}    org_id
+    Set Suite Variable    ${S_area_id}    ${area_id}
+    Set Suite Variable    ${S_org_id}    ${org_id}
+
+用户登录
+    ${dictionary}    8dol用户登录_ByLoginNameAndPassword    ${S_8天用户名}    ${S_8天用户登录密码}
+    ${API基础信息}    get from dictionary    ${dictionary}    API基础信息_new
+    ${user_id}    get from dictionary    ${dictionary}    user_id
+    Set Suite Variable    ${S_API基础信息}    ${API基础信息}
+    #Set Suite Variable    ${S_wlyIds}    ${user_id}
+    Set Suite Variable    ${S_user_id}    ${user_id}
+
+店长做物流员登录
+    ${dictionary}    8dol用户登录_ByLoginNameAndPassword    ${S_直仓直营校园mobile}    ${S_8天用户登录密码}
+    ${API基础信息}    get from dictionary    ${dictionary}    API基础信息
+    ${user_id}    get from dictionary    ${dictionary}    user_id
+    Set Suite Variable    ${S_8仔_API基础信息}    ${API基础信息}
+    Set Suite Variable    ${S_wlyIds}    ${user_id}
+    #Set Suite Variable    ${S_user_id}    ${user_id}
+
+店长云店登录
+    ${dictionary}    YD_用户登录    ${S_店长用户名}    ${S_云店用户密码password}
+    ${YD_API基础信息}    get from dictionary    ${dictionary}    YD_API基础信息
+    ${DZ_userId}    get from dictionary    ${dictionary}    userId
+    Set Suite Variable    ${S_YD_API基础信息}    ${YD_API基础信息}
+    Set Suite Variable    ${S_pickingMember}    ${DZ_userId}
+
+查询超市商品信息_byNameAndOrgId_下单前
+    K_下单前_获取_超市商品id_库存_销量
+
+
+确保有一个正确的收货地址
+    K_默认地址_如果不存在_则创建
+
+8dol我的_余额_下单前
+    ${responsedata}    8dol我的_获取基本信息    ${S_API基础信息}    ${S_org_id}
+    ${data}    get from dictionary    ${responsedata}    data
+    ${balance}    get from dictionary    ${data}    balance
+    ${天金}    get from dictionary    ${data}    point
+    ${天天花}    get from dictionary    ${data}    loan_balance
+    Set Suite Variable    ${S_balance1}    ${balance}
+
+超市下单_校验订单金额流程
+    comment    去结算
+    ${responsedata}    8dol超市_去结算    ${S_API基础信息}    ${S_org_id}    ${S_goodsInfos}    ${S_areaId}
+    ${data}    get from dictionary    ${responsedata}    data
+    ${物流信息}    get from dictionary    ${data}    deliveryInfo
+    ${用户收货地址信息}    get from dictionary    ${data}    userAddressList
+    ${红包列表}    get from dictionary    ${data}    materialsList
+    ${商品信息}    get from dictionary    ${data}    goodsList
+    ${支付类型信息}    get from dictionary    ${data}    paymentList
+    comment    提交订单
+    ${responsedata}    8dol超市_提交订单    ${S_API基础信息}    ${S_org_id}    ${S_goodsInfos}    ${S_area_id}    ${S_address_id}
+    ...    ${S_8天用户余额支付密码}    ${S_支付方式}
+    ${result}    get from dictionary    ${responsedata}    result
+    ${data}    get from dictionary    ${responsedata}    data
+    ${S_order_no}    get from dictionary    ${data}    order_no
+    ${S_order_id}    get from dictionary    ${data}    id
+    Set Suite Variable    ${S_order_no}    ${S_order_no}
+    Set Suite Variable    ${S_order_id}    ${S_order_id}
+
+sql_查询超市商品信息_byNameAndOrgId_下单后
+    K_下单后_获取_超市商品id_库存_销量
+
+
+验证下单后商品数据_库存和销量更新正确
+    ${预期的库存_下单后}    evaluate    float(${S_stock_下单前})-float(${S_goodsNum})
+    ${预期的销量_下单后}    evaluate    float(${S_sale_下单前})+float(${S_goodsNum})
+    should be equal as numbers    ${预期的库存_下单后}    ${S_stock_下单后}
+    should be equal as numbers    ${预期的销量_下单后}    ${S_sale_下单后}
+
+验证下单后微仓商品库存库存变动流水正确
+    ${data}    sql_查询库存变动流水记录    ${S_org_id}    ${S_goods_extend_id}    ${S_超市下单扣库存}    ${S_order_id}
+    should be equal as numbers    ${data}    ${S_stock_下单后}
+
+yundian_获取物流员信息
+    ${wly_info}    YDapp_人事_物流员排班管理_获取物流员信息    ${S_YD_API基础信息}    ${S_wlyIds}
+    Set Suite Variable    ${S_wly_info}    ${wly_info}
+
+yundian_根据当前时间获取排班排次
+    ${S_schedule_info}    YDapp_根据当前时间获取排班班次_自动获取班次和时间    ${S_org_id}
+    Set Suite Variable    ${S_schedule_info}
+
+# yundian_云店店长_添加排班
+#     YDapp_人事_物流员排班管理_添加排班    ${S_YD_API基础信息}    ${S_wly_info}    ${S_schedule_info}
+
+YDapp_订单_新订单_店长订单确认
+    YDapp_订单_新订单_店长订单确认    ${S_YD_API基础信息}    ${S_order_id}    ${S_当前时间}
+
+YDapp_订单_普通订单店长配货
+    YDapp_订单_普通订单配货    ${S_YD_API基础信息}    ${S_order_id}    ${S_pickingMember}
+
+8dol物流员扫码发货
+    ${S_random_Num}    Get Substring    ${S_order_no}    -5
+    8dol兼职8仔_物流员扫码发货    ${S_API基础信息}    ${S_order_id}    ${S_random_Num}
+
+8dol用户确认收货
+    ${responsedata}    8dol订单_超市_用户确认收货    ${S_API基础信息}    ${S_order_id}    ${S_order_no}
+    log    ${responsedata}
+    #sql_获取8dol_order字段byOrderId
+    #验证_查询下单后固定参数值正确
+    #${data1}    sql_查询下单后订单表固定参数值    ${S_order_id}
+    #log    ${data1}
+    #should be equal as strings    ${data1}    ((${S_user_id}, 2, '1', '5', 363, ${S_微仓_orgId}, ${S_area_id}, 0, None, 0, None, 0, 0, 2),)
+    #${data2}    sql_查询下单后订单商品表固定参数值    ${S_order_id}
+    #log    ${data2}
+    #should be equal as strings    ${data2}    ((${S_goodsExtendsIdList[0]}, ${S_goodsNumList[0]}),)
+    #sql_录制表的所有字段值
+    # ${list}    sql_录制表字段获取列表值    8dol_order    id=${S_order_id}
+    # log    ${list}
+    #sql_录制获取表相等字段的位标
+    ${list0}    sql_录制表字段获取列表值    8dol_order    id=${S_order_id}
+    log    ${list0}
+    ${tableLen}    sql_获取表的字段个数    8dol_order
+    ${listi}    录制获取表相等字段的位标    ${list0}    ${tableLen}    ${S_recordList}
+    log    ${listi}
+
+sql_验证订单表字段
+    ${tableName}    sql_获取表的字段名    8dol_order
+    ${data}    sql_获取表字段元组值    8dol_order    id=${S_order_id}
+    根据位标验证相应的值    ${data}    ${S_recordList}    ${i_list}    ${tableName}
+
+sql_验证支付订单表字段
+    # comment    sql_录制获取表相等字段的位标
+    # ${list0}    sql_录制表字段获取列表值    t_pay_order    business_no='${S_order_no}'
+    # log    ${list0}
+    # ${tableLen}    sql_获取表的字段个数    t_pay_order
+    # ${listi}    录制获取表相等字段的位标    ${list0}    ${tableLen}    ${S_recordList}
+    # log    ${listi}
+    comment    sql_验证订单表字段
+    ${tableName}    sql_获取表的字段名    t_pay_order
+    ${data}    sql_获取表字段元组值    t_pay_order    business_no='${S_order_no}'
+    根据位标验证相应的值    ${data}    ${S_recordList1}    ${i_list1}    ${tableName}
